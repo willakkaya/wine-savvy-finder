@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React from "react";
 import Home from "./pages/Home";
 import ScanPage from "./pages/ScanPage";
+import WineDetailsPage from "./pages/WineDetailsPage";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/scan" element={<ScanPage />} />
+            <Route path="/wine/:id" element={<WineDetailsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

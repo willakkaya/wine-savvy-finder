@@ -5,8 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CameraCapture from '@/components/camera/CameraCapture';
-import WineCard, { WineInfo } from '@/components/wine/WineCard';
+import WineCardLink from '@/components/wine/WineCardLink';
+import { WineInfo } from '@/components/wine/WineCard';
 import { processWineListImage } from '@/utils/ocrUtils';
+import { storeWineResults } from '@/utils/wineUtils';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
 import { Progress } from "@/components/ui/progress";
@@ -44,6 +46,9 @@ const ScanPage: React.FC = () => {
       
       // Take top results (or all if less than 5)
       const topResults = wineResults.slice(0, Math.min(wineResults.length, 5));
+      
+      // Store results for retrieval in details page
+      storeWineResults(topResults);
       
       setResults(topResults);
       
@@ -128,7 +133,7 @@ const ScanPage: React.FC = () => {
               <div className="w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   {results.map((wine, index) => (
-                    <WineCard 
+                    <WineCardLink 
                       key={wine.id} 
                       wine={wine} 
                       rank={index + 1} 
