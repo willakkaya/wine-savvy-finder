@@ -1,76 +1,65 @@
 
 import React, { useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
+import { Loader2, AlertCircle } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CameraCapture from '@/components/camera/CameraCapture';
 import WineCard, { WineInfo } from '@/components/wine/WineCard';
-
-// Mock data for demonstration
-const MOCK_WINES: WineInfo[] = [
-  {
-    id: '1',
-    name: 'Château Margaux',
-    winery: 'Château Margaux',
-    year: 2015,
-    region: 'Bordeaux',
-    country: 'France',
-    price: 120,
-    marketPrice: 220,
-    rating: 95,
-    valueScore: 85,
-  },
-  {
-    id: '2',
-    name: 'Pinot Noir Reserve',
-    winery: 'Belle Glos',
-    year: 2018,
-    region: 'Sonoma Coast',
-    country: 'USA',
-    price: 65,
-    marketPrice: 90,
-    rating: 92,
-    valueScore: 72,
-  },
-  {
-    id: '3',
-    name: 'Barolo Classico',
-    winery: 'Conterno',
-    year: 2016,
-    region: 'Piedmont',
-    country: 'Italy',
-    price: 85,
-    marketPrice: 110,
-    rating: 89,
-    valueScore: 68,
-  }
-];
+import { processWineListImage } from '@/utils/ocrUtils';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from '@/components/ui/button';
 
 const ScanPage: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<WineInfo[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleImageCapture = (capturedImage: string) => {
+  const handleImageCapture = async (capturedImage: string) => {
     setImage(capturedImage);
     setIsAnalyzing(true);
+    setError(null);
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setResults(MOCK_WINES);
-      setIsAnalyzing(false);
+    try {
+      // Process the image using OCR and wine data extraction
+      const wineResults = await processWineListImage(capturedImage);
+      
+      // Take top results (or all if less than 3)
+      const topResults = wineResults.slice(0, Math.min(wineResults.length, 3));
+      
+      setResults(topResults);
+      
+      if (topResults.length > 0) {
+        toast({
+          title: "Analysis Complete",
+          description: `We've found ${topResults.length} wine values on this list!`,
+        });
+      } else {
+        toast({
+          title: "No Wines Found",
+          description: "We couldn't identify any wines on this list. Try with a clearer image.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error analyzing wine list:", error);
+      setError(error instanceof Error ? error.message : "Failed to analyze wine list");
       toast({
-        title: "Analysis Complete",
-        description: "We've found the best value wines on this list!",
+        title: "Analysis Failed",
+        description: "We encountered an error while analyzing the wine list.",
+        variant: "destructive",
       });
-    }, 3000);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const resetScan = () => {
     setImage(null);
     setResults(null);
+    setError(null);
   };
 
   return (
@@ -94,13 +83,21 @@ const ScanPage: React.FC = () => {
                 <div className="flex flex-col items-center gap-4">
                   <Loader2 size={40} className="animate-spin text-wine" />
                   <p className="text-muted-foreground text-center">
-                    Analyzing wine list and comparing with market prices...
+                    Scanning wine list, extracting prices, and finding the best values...
                   </p>
                 </div>
               </div>
             )}
             
-            {results && (
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            {results && results.length > 0 && (
               <div className="w-full">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   {results.map((wine, index) => (
@@ -115,13 +112,29 @@ const ScanPage: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-center">
-                  <button 
+                  <Button 
                     onClick={resetScan}
-                    className="text-wine hover:text-wine-dark underline"
+                    variant="outline"
+                    className="text-wine border-wine hover:bg-wine/10 hover:text-wine-dark"
                   >
                     Scan another wine list
-                  </button>
+                  </Button>
                 </div>
+              </div>
+            )}
+            
+            {results && results.length === 0 && !isAnalyzing && (
+              <div className="text-center p-8">
+                <p className="text-lg text-muted-foreground mb-4">
+                  We couldn't identify any wines on this list.
+                </p>
+                <Button 
+                  onClick={resetScan}
+                  variant="outline"
+                  className="text-wine border-wine hover:bg-wine/10 hover:text-wine-dark"
+                >
+                  Try again with a clearer image
+                </Button>
               </div>
             )}
           </div>
