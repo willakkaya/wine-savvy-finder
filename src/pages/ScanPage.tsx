@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Wine } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -9,10 +9,12 @@ import WineCard, { WineInfo } from '@/components/wine/WineCard';
 import { processWineListImage } from '@/utils/ocrUtils';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
+import { Progress } from "@/components/ui/progress";
 
 const ScanPage: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
   const [results, setResults] = useState<WineInfo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -21,13 +23,27 @@ const ScanPage: React.FC = () => {
     setImage(capturedImage);
     setIsAnalyzing(true);
     setError(null);
+    setAnalysisProgress(0);
     
     try {
+      // Start progress animation
+      const progressInterval = setInterval(() => {
+        setAnalysisProgress(prev => {
+          const increment = Math.random() * 10;
+          const newProgress = Math.min(prev + increment, 95); // Cap at 95% until complete
+          return newProgress;
+        });
+      }, 500);
+      
       // Process the image using OCR and wine data extraction
       const wineResults = await processWineListImage(capturedImage);
       
-      // Take top results (or all if less than 3)
-      const topResults = wineResults.slice(0, Math.min(wineResults.length, 3));
+      // Process complete - set to 100%
+      clearInterval(progressInterval);
+      setAnalysisProgress(100);
+      
+      // Take top results (or all if less than 5)
+      const topResults = wineResults.slice(0, Math.min(wineResults.length, 5));
       
       setResults(topResults);
       
@@ -52,7 +68,9 @@ const ScanPage: React.FC = () => {
         variant: "destructive",
       });
     } finally {
-      setIsAnalyzing(false);
+      setTimeout(() => {
+        setIsAnalyzing(false);
+      }, 500); // Small delay to ensure progress animation completes
     }
   };
 
@@ -60,6 +78,7 @@ const ScanPage: React.FC = () => {
     setImage(null);
     setResults(null);
     setError(null);
+    setAnalysisProgress(0);
   };
 
   return (
@@ -80,11 +99,19 @@ const ScanPage: React.FC = () => {
             {image && isAnalyzing && (
               <div className="w-full flex flex-col items-center gap-8 p-8">
                 <img src={image} alt="Captured wine list" className="w-full max-w-md rounded-lg border border-wine" />
-                <div className="flex flex-col items-center gap-4">
-                  <Loader2 size={40} className="animate-spin text-wine" />
-                  <p className="text-muted-foreground text-center">
-                    Scanning wine list, extracting prices, and finding the best values...
-                  </p>
+                <div className="w-full max-w-md flex flex-col items-center gap-4">
+                  <div className="w-full">
+                    <Progress value={analysisProgress} className="h-2 w-full bg-gray-100" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Loader2 size={20} className="animate-spin text-wine" />
+                    <p className="text-sm text-muted-foreground">
+                      {analysisProgress < 30 ? 'Scanning text...' : 
+                       analysisProgress < 60 ? 'Identifying wines...' : 
+                       analysisProgress < 90 ? 'Checking market prices...' : 
+                       'Calculating best values...'}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -99,7 +126,7 @@ const ScanPage: React.FC = () => {
             
             {results && results.length > 0 && (
               <div className="w-full">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   {results.map((wine, index) => (
                     <WineCard 
                       key={wine.id} 
@@ -124,17 +151,25 @@ const ScanPage: React.FC = () => {
             )}
             
             {results && results.length === 0 && !isAnalyzing && (
-              <div className="text-center p-8">
-                <p className="text-lg text-muted-foreground mb-4">
-                  We couldn't identify any wines on this list.
-                </p>
-                <Button 
-                  onClick={resetScan}
-                  variant="outline"
-                  className="text-wine border-wine hover:bg-wine/10 hover:text-wine-dark"
-                >
-                  Try again with a clearer image
-                </Button>
+              <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
+                <div className="flex flex-col items-center gap-4">
+                  <Wine size={48} className="text-wine opacity-30" />
+                  <div>
+                    <p className="text-lg font-medium text-wine-dark mb-2">
+                      No wines identified
+                    </p>
+                    <p className="text-muted-foreground mb-4">
+                      We couldn't identify any wines on this list. Try with a clearer image or different angle.
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={resetScan}
+                    variant="outline"
+                    className="text-wine border-wine hover:bg-wine/10 hover:text-wine-dark"
+                  >
+                    Try again
+                  </Button>
+                </div>
               </div>
             )}
           </div>
