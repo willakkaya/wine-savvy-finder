@@ -23,9 +23,10 @@ interface WineCardProps {
   wine: WineInfo;
   rank: number;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const WineCard: React.FC<WineCardProps> = ({ wine, rank, className }) => {
+const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => {
   const savings = ((wine.marketPrice - wine.price) / wine.marketPrice * 100).toFixed(0);
   const valueLabel = 
     wine.valueScore > 80 ? 'Exceptional Value' :
@@ -34,7 +35,7 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className }) => {
 
   return (
     <Card className={cn("overflow-hidden transition-all duration-300 hover:shadow-lg", 
-      rank === 1 ? "border-gold" : "", className)}>
+      rank === 1 ? "border-gold" : "", className)} style={style}>
       <div className="relative">
         {rank === 1 && (
           <div className="absolute top-0 right-0 bg-gold text-white px-3 py-1 rounded-bl-md font-semibold text-sm z-10">
