@@ -1,69 +1,30 @@
-# Welcome to your Lovable project
 
-## Project info
+# Wine Whisperer
 
-**URL**: https://lovable.dev/projects/0c2ede10-9223-4273-abfc-3f8e5843a9ae
+## About the App
+Wine Whisperer helps you find the best value wines on restaurant wine lists. Simply take a photo of a restaurant wine list, and Wine Whisperer will analyze it to identify which wines offer the best value based on market prices.
 
-## How can I edit this code?
+## How It Works
+1. **Scan a Wine List**: Use your phone camera to take a clear photo of any restaurant wine list
+2. **Instant Analysis**: The app scans the list and compares the prices with market values
+3. **Discover Value**: See which wines offer the best value on the list
+4. **Share Findings**: Share your wine finds with friends and family
 
-There are several ways of editing your application.
+## Getting Started
+Visit [Wine Whisperer](https://lovable.dev/projects/0c2ede10-9223-4273-abfc-3f8e5843a9ae) to start using the app on your mobile device.
 
-**Use Lovable**
+## Technologies Used
+- React with TypeScript
+- Tailwind CSS for styling
+- Camera integration for scanning wine lists
+- Wine database integration (simulated for demo)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0c2ede10-9223-4273-abfc-3f8e5843a9ae) and start prompting.
+## Deployment
+This project is deployed using Lovable's publishing feature. To deploy your own version:
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Open the [Lovable Project](https://lovable.dev/projects/0c2ede10-9223-4273-abfc-3f8e5843a9ae)
+2. Click on Share -> Publish
+3. Follow the prompts to deploy
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0c2ede10-9223-4273-abfc-3f8e5843a9ae) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Custom Domain (Optional)
+For deploying with a custom domain, we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)

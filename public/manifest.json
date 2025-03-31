@@ -1,0 +1,17 @@
+
+{
+  "name": "Wine Whisperer",
+  "short_name": "Wine Whisperer",
+  "description": "Find the best value wines on restaurant wine lists",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#722F37",
+  "theme_color": "#722F37",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
