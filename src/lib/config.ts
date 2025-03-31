@@ -15,6 +15,7 @@ export const config = {
   features: {
     enableSharing: true,
     enableDebugMode: !isProd,
+    enableRealWineApi: false, // Set to true when using a real API key
   },
   
   // Performance settings
