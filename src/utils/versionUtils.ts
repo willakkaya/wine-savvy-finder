@@ -17,12 +17,15 @@ export interface UserAgentInfo {
   buildTime: string;
   platform: string;
   isMobile: boolean;
+  isIOS: boolean;
+  isAndroid: boolean;
   userAgent: string;
   screenSize: string;
 }
 
 export const getUserAgentInfo = (): UserAgentInfo => {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const isAndroid = /Android/.test(navigator.userAgent);
   const isMobile = isIOS || isAndroid || window.innerWidth < 768;
   
@@ -31,6 +34,8 @@ export const getUserAgentInfo = (): UserAgentInfo => {
     buildTime: BUILD_TIMESTAMP,
     platform: isIOS ? 'iOS' : isAndroid ? 'Android' : 'Web',
     isMobile,
+    isIOS,
+    isAndroid,
     userAgent: navigator.userAgent,
     screenSize: `${window.innerWidth}x${window.innerHeight}`,
   };
