@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Loader2, AlertCircle, Wine } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Loader2, AlertCircle, Wine, Camera, FileQuestion } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -20,6 +20,28 @@ const ScanPage: React.FC = () => {
   const [results, setResults] = useState<WineInfo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Check for previously analyzed wines in URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasResults = urlParams.get('hasResults');
+    
+    if (hasResults === 'true') {
+      const savedResults = localStorage.getItem('wineResults');
+      if (savedResults) {
+        try {
+          const parsedResults = JSON.parse(savedResults);
+          if (Array.isArray(parsedResults) && parsedResults.length > 0) {
+            setResults(parsedResults);
+            // Clear the URL parameter without reloading
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } catch (err) {
+          console.error('Error parsing saved results:', err);
+        }
+      }
+    }
+  }, []);
 
   const handleImageCapture = async (capturedImage: string) => {
     setImage(capturedImage);
@@ -49,6 +71,9 @@ const ScanPage: React.FC = () => {
       
       // Store results for retrieval in details page
       storeWineResults(topResults);
+      
+      // Also save to localStorage for sharing/persistence
+      localStorage.setItem('wineResults', JSON.stringify(topResults));
       
       setResults(topResults);
       
@@ -86,6 +111,36 @@ const ScanPage: React.FC = () => {
     setAnalysisProgress(0);
   };
 
+  const shareResults = async () => {
+    if (!results || results.length === 0) return;
+    
+    try {
+      // Create a shareable URL with a query parameter
+      const shareUrl = `${window.location.origin}/scan?hasResults=true`;
+      
+      // Build share text
+      const shareText = `Check out these ${results.length} great wine values I found with Wine Whisperer!`;
+      
+      // Use Web Share API if available
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Wine Values Found',
+          text: shareText,
+          url: shareUrl
+        });
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(`${shareText}\n\n${shareUrl}`);
+        toast({
+          title: "Link copied",
+          description: "Share link copied to clipboard",
+        });
+      }
+    } catch (err) {
+      console.error('Error sharing results:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -97,7 +152,7 @@ const ScanPage: React.FC = () => {
           </h1>
           
           <div className="w-full mb-8">
-            {!image && (
+            {!image && !results && (
               <CameraCapture onImageCapture={handleImageCapture} />
             )}
             
@@ -143,7 +198,13 @@ const ScanPage: React.FC = () => {
                   ))}
                 </div>
                 
-                <div className="flex justify-center">
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Button 
+                    onClick={shareResults}
+                    className="bg-wine text-white hover:bg-wine-dark"
+                  >
+                    Share These Finds
+                  </Button>
                   <Button 
                     onClick={resetScan}
                     variant="outline"
@@ -155,7 +216,7 @@ const ScanPage: React.FC = () => {
               </div>
             )}
             
-            {results && results.length === 0 && !isAnalyzing && (
+            {(results === null || results.length === 0) && !isAnalyzing && image && (
               <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
                 <div className="flex flex-col items-center gap-4">
                   <Wine size={48} className="text-wine opacity-30" />
@@ -174,6 +235,31 @@ const ScanPage: React.FC = () => {
                   >
                     Try again
                   </Button>
+                </div>
+              </div>
+            )}
+            
+            {results && results.length === 0 && !isAnalyzing && !image && (
+              <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
+                <div className="flex flex-col items-center gap-4">
+                  <FileQuestion size={48} className="text-wine opacity-30" />
+                  <div>
+                    <p className="text-lg font-medium text-wine-dark mb-2">
+                      Ready to scan a wine list?
+                    </p>
+                    <p className="text-muted-foreground mb-4">
+                      Take a clear photo of a restaurant wine list to find the best values.
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={() => setImage(null)}
+                      className="bg-wine text-white hover:bg-wine-dark gap-2"
+                    >
+                      <Camera size={16} />
+                      Scan Wine List
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

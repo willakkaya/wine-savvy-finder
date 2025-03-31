@@ -4,6 +4,7 @@ import { Wine, Star, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import ShareButton from './ShareButton';
 
 export interface WineInfo {
   id: string;
@@ -58,6 +59,7 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-serif">{wine.name}</CardTitle>
+          <ShareButton wine={wine} className="mt-[-8px] mr-[-8px]" />
         </div>
         <CardDescription>
           {wine.winery} • {wine.year}
