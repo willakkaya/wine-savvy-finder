@@ -16,6 +16,7 @@ export const config = {
     enableSharing: true,
     enableDebugMode: !isProd,
     enableRealWineApi: false, // Set to true when using a real API key
+    useCellarTrackerApi: false, // Set to true when using CellarTracker API
   },
   
   // Performance settings

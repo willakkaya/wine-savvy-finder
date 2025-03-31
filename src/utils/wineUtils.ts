@@ -1,6 +1,7 @@
 
 import { WineInfo } from '@/components/wine/WineCard';
 import { getWineById, searchWines } from './wineApi';
+import { config } from '@/lib/config';
 
 // In-memory cache for wines
 const wineCache: Record<string, WineInfo> = {};
@@ -10,7 +11,7 @@ const wineCache: Record<string, WineInfo> = {};
  */
 export const getWineDetails = async (id: string): Promise<WineInfo> => {
   // Check if wine exists in cache
-  if (wineCache[id]) {
+  if (wineCache[id] && config.performance.cacheResults) {
     return wineCache[id];
   }
   
@@ -20,7 +21,9 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
     
     if (wineData) {
       // Cache the result
-      wineCache[id] = wineData;
+      if (config.performance.cacheResults) {
+        wineCache[id] = wineData;
+      }
       return wineData;
     }
     
@@ -45,7 +48,9 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
     };
     
     // Cache the result
-    wineCache[id] = genericWine;
+    if (config.performance.cacheResults) {
+      wineCache[id] = genericWine;
+    }
     
     return genericWine;
   } catch (error) {
@@ -58,6 +63,8 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
  * Store wine results in memory for retrieval
  */
 export const storeWineResults = (wines: WineInfo[]): void => {
+  if (!config.performance.cacheResults) return;
+  
   wines.forEach(wine => {
     wineCache[wine.id] = wine;
   });
@@ -85,4 +92,13 @@ export const searchWinesByQuery = async (query: string): Promise<WineInfo[]> => 
     console.error('Error searching wines:', error);
     return [];
   }
+};
+
+/**
+ * Clear the wine cache
+ */
+export const clearWineCache = (): void => {
+  Object.keys(wineCache).forEach(key => {
+    delete wineCache[key];
+  });
 };

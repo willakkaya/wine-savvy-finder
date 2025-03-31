@@ -7,17 +7,29 @@ import { WineInfo } from '@/components/wine/WineCard';
  * In a production app, API keys would be stored in environment variables or Supabase secrets
  */
 const API_CONFIG = {
-  baseUrl: 'https://api.globalwinescore.com/globalwinescores/latest/',
-  // This is a sample API key - in production, use a real API key
-  apiKey: 'DEMO_API_KEY', 
-  headers: {
-    'Accept': 'application/json',
-    'Authorization': 'Token DEMO_API_KEY'
+  // Global Wine Score API
+  globalWineScore: {
+    baseUrl: 'https://api.globalwinescore.com/globalwinescores/latest/',
+    // This is a sample API key - in production, use a real API key
+    apiKey: 'DEMO_API_KEY', 
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Token DEMO_API_KEY'
+    }
+  },
+  // CellarTracker API
+  cellarTracker: {
+    baseUrl: 'https://api.cellartracker.com/api/wines',
+    apiKey: 'DEMO_CELLARTRACKER_KEY', // Replace with your actual API key
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
   }
 };
 
 /**
- * Interface for the wine data returned from the API
+ * Interface for the wine data returned from Global Wine Score API
  */
 export interface WineApiResponse {
   wine: string;
@@ -40,6 +52,25 @@ export interface WineApiResponse {
 }
 
 /**
+ * Interface for CellarTracker API response
+ */
+export interface CellarTrackerWine {
+  id: number;
+  name: string;
+  producer: string;
+  vintage: number;
+  region: string;
+  country: string;
+  type: string;
+  varietal: string;
+  price?: number;
+  marketPrice?: number;
+  communityRating?: number;
+  professionalRating?: number;
+  imageUrl?: string;
+}
+
+/**
  * Search for wines in the external API
  */
 export const searchWines = async (query: string): Promise<WineInfo[]> => {
@@ -50,23 +81,69 @@ export const searchWines = async (query: string): Promise<WineInfo[]> => {
   }
 
   try {
-    const url = new URL(`${API_CONFIG.baseUrl}?wine=${encodeURIComponent(query)}`);
+    if (config.features.useCellarTrackerApi) {
+      return searchCellarTracker(query);
+    } else {
+      return searchGlobalWineScore(query);
+    }
+  } catch (error) {
+    console.error('Error fetching wine data:', error);
+    // Fallback to mock data on error
+    return getMockWineData(query);
+  }
+};
+
+/**
+ * Search wines using the CellarTracker API
+ */
+const searchCellarTracker = async (query: string): Promise<WineInfo[]> => {
+  try {
+    // Build the query parameters
+    const params = new URLSearchParams({
+      search: query,
+      apikey: API_CONFIG.cellarTracker.apiKey
+    });
     
-    const response = await fetch(url.toString(), {
+    const url = `${API_CONFIG.cellarTracker.baseUrl}?${params.toString()}`;
+    
+    const response = await fetch(url, {
       method: 'GET',
-      headers: API_CONFIG.headers,
+      headers: API_CONFIG.cellarTracker.headers,
     });
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      throw new Error(`CellarTracker API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return convertCellarTrackerToWineInfo(data.wines || []);
+  } catch (error) {
+    console.error('Error searching CellarTracker:', error);
+    throw error;
+  }
+};
+
+/**
+ * Search wines using the Global Wine Score API
+ */
+const searchGlobalWineScore = async (query: string): Promise<WineInfo[]> => {
+  try {
+    const url = new URL(`${API_CONFIG.globalWineScore.baseUrl}?wine=${encodeURIComponent(query)}`);
+    
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: API_CONFIG.globalWineScore.headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Global Wine Score API error: ${response.status}`);
     }
 
     const data = await response.json();
     return convertApiResponseToWineInfo(data.results || []);
   } catch (error) {
-    console.error('Error fetching wine data:', error);
-    // Fallback to mock data on error
-    return getMockWineData(query);
+    console.error('Error searching Global Wine Score:', error);
+    throw error;
   }
 };
 
@@ -83,23 +160,11 @@ export const getWineById = async (id: string): Promise<WineInfo | null> => {
   }
 
   try {
-    // Extract numeric ID if using our internal format (wine-12345)
-    const numericId = id.startsWith('wine-') ? id.replace('wine-', '') : id;
-    
-    const url = new URL(`${API_CONFIG.baseUrl}${numericId}/`);
-    
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: API_CONFIG.headers,
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    if (config.features.useCellarTrackerApi) {
+      return getWineFromCellarTracker(id);
+    } else {
+      return getWineFromGlobalWineScore(id);
     }
-
-    const data = await response.json();
-    const wines = convertApiResponseToWineInfo([data]);
-    return wines.length > 0 ? wines[0] : null;
   } catch (error) {
     console.error('Error fetching wine details:', error);
     // Fallback to mock data on error
@@ -109,7 +174,120 @@ export const getWineById = async (id: string): Promise<WineInfo | null> => {
 };
 
 /**
- * Convert API response to our WineInfo format
+ * Get wine details from CellarTracker API
+ */
+const getWineFromCellarTracker = async (id: string): Promise<WineInfo | null> => {
+  try {
+    // Extract numeric ID if using our internal format (wine-12345)
+    const numericId = id.startsWith('wine-') ? id.replace('wine-', '') : id;
+    
+    const url = `${API_CONFIG.cellarTracker.baseUrl}/${numericId}?apikey=${API_CONFIG.cellarTracker.apiKey}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: API_CONFIG.cellarTracker.headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`CellarTracker API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data.wine) {
+      return null;
+    }
+    
+    const wineList = convertCellarTrackerToWineInfo([data.wine]);
+    return wineList.length > 0 ? wineList[0] : null;
+  } catch (error) {
+    console.error('Error fetching wine from CellarTracker:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get wine details from Global Wine Score API
+ */
+const getWineFromGlobalWineScore = async (id: string): Promise<WineInfo | null> => {
+  try {
+    // Extract numeric ID if using our internal format (wine-12345)
+    const numericId = id.startsWith('wine-') ? id.replace('wine-', '') : id;
+    
+    const url = new URL(`${API_CONFIG.globalWineScore.baseUrl}${numericId}/`);
+    
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: API_CONFIG.globalWineScore.headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Global Wine Score API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const wines = convertApiResponseToWineInfo([data]);
+    return wines.length > 0 ? wines[0] : null;
+  } catch (error) {
+    console.error('Error fetching wine from Global Wine Score:', error);
+    throw error;
+  }
+};
+
+/**
+ * Convert CellarTracker API response to our WineInfo format
+ */
+const convertCellarTrackerToWineInfo = (ctWines: CellarTrackerWine[]): WineInfo[] => {
+  return ctWines.map((ctWine, index) => {
+    // Use provided market price or generate one based on the community rating
+    const price = ctWine.price || Math.round(20 + (ctWine.communityRating || 85) * 0.8);
+    const marketPrice = ctWine.marketPrice || Math.round(price * (1.2 + Math.random() * 0.3));
+    
+    // Calculate value score
+    const priceDifferencePercent = (marketPrice - price) / marketPrice;
+    const communityRating = ctWine.communityRating || 85;
+    const valueScore = Math.round(
+      (priceDifferencePercent * 50) + 
+      ((communityRating - 80) / 20 * 50)
+    );
+    
+    return {
+      id: `wine-${ctWine.id || Date.now() + index}`,
+      name: ctWine.name,
+      winery: ctWine.producer,
+      year: ctWine.vintage,
+      region: ctWine.region,
+      country: ctWine.country,
+      price: price,
+      marketPrice: marketPrice,
+      rating: ctWine.professionalRating || ctWine.communityRating || 87,
+      valueScore: valueScore,
+      imageUrl: ctWine.imageUrl || getWineImageByType(ctWine.type),
+    };
+  });
+};
+
+/**
+ * Get image URL based on wine type for CellarTracker wines
+ */
+const getWineImageByType = (type: string): string => {
+  const typeNormalized = (type || '').toLowerCase();
+  
+  if (typeNormalized.includes('red')) {
+    return 'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png';
+  } else if (typeNormalized.includes('white')) {
+    return 'https://images.vivino.com/thumbs/IEmxs47ITIaHXPJkvE9j7Q_pb_600x600.png';
+  } else if (typeNormalized.includes('rose') || typeNormalized.includes('rosé')) {
+    return 'https://images.vivino.com/thumbs/ElcyI1YpRSes_LvNodMeSQ_pb_600x600.png';
+  } else if (typeNormalized.includes('sparkl') || typeNormalized.includes('champagne')) {
+    return 'https://images.vivino.com/thumbs/O-f9VelHQTiR-KJVYIXJcw_pb_600x600.png';
+  }
+  
+  // Default wine image
+  return 'https://images.vivino.com/thumbs/FGfB1q0wSs-ySFhMN5uE1Q_pb_600x600.png';
+};
+
+/**
+ * Convert Global Wine Score API response to our WineInfo format
  */
 const convertApiResponseToWineInfo = (apiWines: WineApiResponse[]): WineInfo[] => {
   return apiWines.map((apiWine, index) => {
