@@ -12,7 +12,16 @@ export const BUILD_TIMESTAMP = new Date().toISOString();
 /**
  * Get user agent info for support and debugging
  */
-export const getUserAgentInfo = (): string => {
+export interface UserAgentInfo {
+  version: string;
+  buildTime: string;
+  platform: string;
+  isMobile: boolean;
+  userAgent: string;
+  screenSize: string;
+}
+
+export const getUserAgentInfo = (): UserAgentInfo => {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isAndroid = /Android/.test(navigator.userAgent);
   const isMobile = isIOS || isAndroid || window.innerWidth < 768;
