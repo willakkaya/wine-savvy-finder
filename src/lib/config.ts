@@ -10,6 +10,13 @@ const isProd = import.meta.env.PROD;
 export const config = {
   // App metadata
   appName: 'Wine Whisperer',
+  company: {
+    name: 'Wine Whisperer Inc.',
+    foundedYear: 2023,
+    address: '123 Vineyard Lane, San Francisco, CA 94105',
+    email: 'hello@winewhisperer.com',
+    phone: '+1 (415) 555-5555',
+  },
   
   // Feature flags
   features: {
@@ -17,6 +24,8 @@ export const config = {
     enableDebugMode: !isProd,
     enableRealWineApi: true, // Set to true to use the real API
     useCellarTrackerApi: true, // Set to true to use CellarTracker API
+    enablePremiumFeatures: false, // Unlock premium features with subscription
+    enableOfflineMode: true, // Enable offline caching and functionality
   },
   
   // Performance settings
@@ -25,6 +34,7 @@ export const config = {
     cacheResults: true,
     preloadImages: true, // Apple-like optimization
     useTouchEvents: true, // Better touch handling
+    prefetchWineData: true, // Prefetch related wine data when viewing details
   },
   
   // Analytics (would connect to real analytics in production)
@@ -32,6 +42,23 @@ export const config = {
     enabled: isProd,
     trackPageViews: isProd,
     trackEvents: isProd,
+    trackConversions: isProd,
+    anonymizeIp: true,
+    consentRequired: true, // GDPR compliance
+    providers: {
+      googleAnalytics: {
+        enabled: isProd,
+        measurementId: 'G-XXXXXXXXXX', // Replace with real ID in production
+      },
+      mixpanel: {
+        enabled: isProd,
+        projectToken: 'XXXXXXXXXXXXXXXXXXXXXXXX', // Replace with real token in production
+      },
+      segment: {
+        enabled: isProd,
+        writeKey: 'XXXXXXXXXXXXXXXXXXXXXXXX', // Replace with real key in production
+      }
+    }
   },
   
   // UI/UX settings
@@ -43,5 +70,34 @@ export const config = {
     useSmoothScrolling: true, // Apple-like smooth scroll
     reducedMotion: false, // Respect user preferences
     useHighContrastMode: false, // Accessibility setting
+    fontScaling: 1.0, // Default font scaling
+  },
+  
+  // Social media and sharing
+  social: {
+    twitter: 'https://twitter.com/winewhisperer',
+    facebook: 'https://facebook.com/winewhisperer',
+    instagram: 'https://instagram.com/winewhisperer',
+    pinterest: 'https://pinterest.com/winewhisperer',
+  },
+  
+  // Legal and compliance
+  legal: {
+    privacyPolicyUrl: '/privacy',
+    termsOfServiceUrl: '/terms',
+    cookiePolicyUrl: '/cookie-policy',
+    gdprCompliant: true,
+    ccpaCompliant: true,
+    minimumAge: 21, // Legal drinking age in US
+  },
+  
+  // Customer support
+  support: {
+    email: 'support@winewhisperer.com',
+    phone: '+1 (415) 555-5555',
+    hours: 'Monday-Friday, 9am-6pm PST',
+    liveChatEnabled: isProd,
+    faqUrl: '/faq',
+    contactUrl: '/contact',
   }
 };

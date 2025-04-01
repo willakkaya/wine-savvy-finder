@@ -10,6 +10,9 @@ import Home from "./pages/Home";
 import ScanPage from "./pages/ScanPage";
 import WineDetailsPage from "./pages/WineDetailsPage";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
 
 const App = () => {
   // Initialize QueryClient inside the component
@@ -34,6 +37,9 @@ const App = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/scan" element={<ScanPage />} />
                 <Route path="/wine/:id" element={<WineDetailsPage />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/contact" element={<Contact />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
