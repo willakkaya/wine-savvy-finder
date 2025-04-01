@@ -21,7 +21,7 @@ export const config = {
   
   // Performance settings
   performance: {
-    imageQuality: isProd ? 0.8 : 0.9, // Higher quality even in prod for Apple-like experience
+    imageQuality: isProd ? 0.9 : 0.9, // Higher quality even in prod for Apple-like experience
     cacheResults: true,
     preloadImages: true, // Apple-like optimization
     useTouchEvents: true, // Better touch handling
@@ -37,7 +37,7 @@ export const config = {
   // UI/UX settings
   ui: {
     animationsEnabled: true,
-    glassmorphismEnabled: true,
+    glassmorphismEnabled: true, 
     useRichTransitions: true,
     useHighQualityRendering: true, // Apple-like premium rendering
     useSmoothScrolling: true, // Apple-like smooth scroll
