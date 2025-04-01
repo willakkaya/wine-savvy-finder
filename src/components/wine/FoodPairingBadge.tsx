@@ -22,7 +22,7 @@ const FoodPairingBadge: React.FC<FoodPairingBadgeProps> = ({ pairing, className 
       case 'fair':
         return 'bg-amber-50/80 text-amber-800 hover:bg-amber-100/90 border-amber-100/50 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/30';
       default:
-        return 'bg-gray-50/80 text-gray-800 hover:bg-gray-100/90 border-gray-100/50 dark:bg-gray-800/40 dark:text-gray-300 dark:hover:bg-gray-800/60';
+        return 'bg-stone-50/80 text-stone-800 hover:bg-stone-100/90 border-stone-100/50 dark:bg-stone-800/40 dark:text-stone-300 dark:hover:bg-stone-800/60';
     }
   };
 

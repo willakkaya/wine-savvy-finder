@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -76,7 +77,33 @@ export default {
 				},
 				cream: '#F9F6F0', // Warmer cream
 				gold: '#B8860B', // More subdued gold
-				graphite: '#7D7D7D' // Apple graphite
+				graphite: '#3D3D3D', // Darker, richer graphite
+				slate: {
+					50: '#F8FAFC',
+					100: '#F1F5F9',
+					200: '#E2E8F0',
+					300: '#CBD5E1',
+					400: '#94A3B8',
+					500: '#64748B',
+					600: '#475569',
+					700: '#334155',
+					800: '#1E293B',
+					900: '#0F172A',
+					950: '#020617'
+				},
+				stone: {
+					50: '#FAFAF9',
+					100: '#F5F5F4',
+					200: '#E7E5E4',
+					300: '#D6D3D1',
+					400: '#A8A29E',
+					500: '#78716C',
+					600: '#57534E',
+					700: '#44403C',
+					800: '#292524',
+					900: '#1C1917',
+					950: '#0C0A09'
+				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
