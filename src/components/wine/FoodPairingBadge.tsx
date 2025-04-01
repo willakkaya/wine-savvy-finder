@@ -29,7 +29,7 @@ const FoodPairingBadge: React.FC<FoodPairingBadgeProps> = ({ pairing, className 
     <Badge 
       variant="outline" 
       className={cn(
-        'flex items-center gap-1 py-1 px-2 border', 
+        'flex items-center gap-1 py-1 px-2 border touch-manipulation', 
         getBadgeStyles(),
         className
       )}

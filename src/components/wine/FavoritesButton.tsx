@@ -37,7 +37,7 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) =>
       variant="ghost"
       size="icon"
       className={cn(
-        "rounded-full hover:bg-background/80 transition-colors",
+        "rounded-full hover:bg-background/80 transition-colors touch-manipulation min-w-10 min-h-10",
         isFavorited ? "text-rose-500" : "text-muted-foreground",
         className
       )}
