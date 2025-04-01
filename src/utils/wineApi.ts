@@ -20,7 +20,7 @@ const API_CONFIG = {
   // CellarTracker API
   cellarTracker: {
     baseUrl: 'https://api.cellartracker.com/api/wines',
-    apiKey: 'DEMO_CELLARTRACKER_KEY', // Replace with your actual API key
+    apiKey: 'YOUR_CELLARTRACKER_API_KEY', // Replace with your actual CellarTracker API key
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
