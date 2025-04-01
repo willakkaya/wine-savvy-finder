@@ -18,19 +18,31 @@ const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, styl
     navigate(`/wine/${wine.id}`);
   };
   
-  // Animation variants for subtle hover and tap effects
+  // Enhanced animation variants for a more premium, fluid experience
   const variants = {
-    initial: { scale: 1, y: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 4px 20px rgba(0,0,0,0.06)' },
+    initial: { 
+      scale: 1, 
+      y: 0, 
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04)' 
+    },
     hover: { 
       scale: 1.02, 
-      y: -4,
-      boxShadow: '0 4px 12px rgba(0,0,0,0.08), 0 20px 40px rgba(0,0,0,0.12)',
-      transition: { duration: 0.3, ease: 'easeOut' }
+      y: -6,
+      boxShadow: '0 6px 16px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.04)',
+      transition: { 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 20 
+      }
     },
     tap: { 
       scale: 0.98,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06)',
-      transition: { duration: 0.2, ease: 'easeOut' }
+      boxShadow: '0 1px 2px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)',
+      transition: { 
+        type: "spring", 
+        stiffness: 500, 
+        damping: 30 
+      }
     }
   };
   
