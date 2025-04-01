@@ -9,10 +9,13 @@ import React from "react";
 import Home from "./pages/Home";
 import ScanPage from "./pages/ScanPage";
 import WineDetailsPage from "./pages/WineDetailsPage";
+import FavoritesPage from "./pages/FavoritesPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Contact from "./pages/Contact";
+import { AppSettingsProvider } from "./hooks/useAppSettings";
 
 const App = () => {
   // Initialize QueryClient inside the component
@@ -28,24 +31,28 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="wine-whisperer-theme">
-        <TooltipProvider>
-          <div className="min-h-screen flex flex-col bg-background text-foreground">
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/scan" element={<ScanPage />} />
-                <Route path="/wine/:id" element={<WineDetailsPage />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/contact" element={<Contact />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </div>
-        </TooltipProvider>
+        <AppSettingsProvider>
+          <TooltipProvider>
+            <div className="min-h-screen flex flex-col bg-background text-foreground">
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/scan" element={<ScanPage />} />
+                  <Route path="/wine/:id" element={<WineDetailsPage />} />
+                  <Route path="/favorites" element={<FavoritesPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/contact" element={<Contact />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </div>
+          </TooltipProvider>
+        </AppSettingsProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

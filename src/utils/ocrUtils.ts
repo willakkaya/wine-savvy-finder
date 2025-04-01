@@ -1,4 +1,3 @@
-
 import { WineInfo } from '@/components/wine/WineCard';
 import { searchWinesByQuery } from './wineUtils';
 
@@ -57,6 +56,11 @@ export const processWineListImage = async (imageData: string): Promise<WineInfo[
  */
 export const performOCR = async (imageData: string): Promise<OCRResult[]> => {
   console.log('Performing OCR on image...');
+  
+  // In a real implementation, we would:
+  // 1. Send the image to an OCR service API
+  // 2. Process the results
+  // 3. Return structured text data
   
   // Simulate processing time for the OCR service
   await new Promise(resolve => setTimeout(resolve, 1500));
@@ -136,7 +140,6 @@ export const performOCR = async (imageData: string): Promise<OCRResult[]> => {
 
 /**
  * Parse wine information from OCR text blocks
- * In a production app, this would use NLP and pattern matching
  */
 export const parseWineInformation = (ocrResults: OCRResult[]): ExtractedWineData[] => {
   console.log('Parsing wine information from OCR results...');
@@ -200,7 +203,6 @@ export const parseWineInformation = (ocrResults: OCRResult[]): ExtractedWineData
 
 /**
  * Enhance extracted wine data with additional information
- * This now uses the wine API to get real data when possible
  */
 export const enhanceWineData = async (extractedWines: ExtractedWineData[]): Promise<WineInfo[]> => {
   console.log('Enhancing wine data with market prices and ratings...');
@@ -271,7 +273,6 @@ export const enhanceWineData = async (extractedWines: ExtractedWineData[]): Prom
 
 /**
  * Generate a wine entry from extracted OCR data
- * Used as a fallback when API search returns no results
  */
 const generateWineFromExtractedData = (wine: ExtractedWineData): WineInfo => {
   // Generate a random ID

@@ -1,10 +1,14 @@
 
 import React from 'react';
-import { Wine, Star, DollarSign, Award } from 'lucide-react';
+import { Wine, Star, DollarSign, Award, Utensils } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ShareButton from './ShareButton';
+import FavoritesButton from './FavoritesButton';
+import FoodPairingBadge from './FoodPairingBadge';
+import { getTopFoodPairings } from '@/utils/foodPairingUtils';
+import { useAppSettings } from '@/hooks/useAppSettings';
 
 export interface WineInfo {
   id: string;
@@ -29,6 +33,8 @@ interface WineCardProps {
 }
 
 const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => {
+  const { settings } = useAppSettings();
+  
   const savings = ((wine.marketPrice - wine.price) / wine.marketPrice * 100).toFixed(0);
   const valueLabel = 
     wine.valueScore > 80 ? 'Exceptional Value' :
@@ -52,6 +58,9 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
         return 'from-wine/5 to-wine/10';
     }
   };
+  
+  // Get food pairings if wine type is available
+  const foodPairings = wine.wineType ? getTopFoodPairings(wine.wineType) : [];
 
   return (
     <Card className={cn(
@@ -85,7 +94,10 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-serif line-clamp-2">{wine.name}</CardTitle>
-          <ShareButton wine={wine} className="mt-[-8px] mr-[-8px]" />
+          <div className="flex gap-1">
+            <FavoritesButton wine={wine} className="mt-[-8px]" />
+            <ShareButton wine={wine} className="mt-[-8px] mr-[-8px]" />
+          </div>
         </div>
         <CardDescription className="line-clamp-1">
           {wine.winery} • {wine.year}
@@ -94,38 +106,62 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
       
       <CardContent className="pb-3">
         <div className="flex flex-col gap-3">
-          <div className="flex gap-1 items-center">
+          <div className="flex flex-wrap gap-1 items-center">
             <Badge className="bg-wine text-white hover:bg-wine-dark">
               {valueLabel}
             </Badge>
-            <span className="text-sm text-wine-dark font-medium">Save {savings}%</span>
+            {settings.showSavings && !settings.discreetMode && (
+              <span className="text-sm text-wine-dark font-medium">Save {savings}%</span>
+            )}
           </div>
           
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex items-center gap-1 bg-secondary/50 p-2 rounded-md dark:bg-secondary">
-              <DollarSign size={14} className="text-wine" />
-              <span className="font-medium">${wine.price}</span>
-              <span className="text-xs text-muted-foreground ml-1">menu</span>
-            </div>
-            <div className="flex items-center gap-1 bg-secondary/50 p-2 rounded-md dark:bg-secondary">
-              <DollarSign size={14} className="text-wine" />
-              <span className="font-medium">${wine.marketPrice}</span>
-              <span className="text-xs text-muted-foreground ml-1">retail</span>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 bg-card p-2 rounded-md border border-border">
-            <span className="text-sm font-medium">{wine.rating}/100</span>
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={14}
-                  className={i < Math.round(wine.rating / 20) ? "text-gold fill-gold" : "text-muted-foreground"}
-                />
+          {/* Food Pairings */}
+          {foodPairings.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-1">
+              {foodPairings.map((pairing, index) => (
+                <FoodPairingBadge key={index} pairing={pairing} />
               ))}
             </div>
-          </div>
+          )}
+          
+          {/* Price Information (conditional on settings) */}
+          {(!settings.discreetMode && settings.showPrices) && (
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex items-center gap-1 bg-secondary/50 p-2 rounded-md dark:bg-secondary">
+                <DollarSign size={14} className="text-wine" />
+                <span className="font-medium">${wine.price}</span>
+                <span className="text-xs text-muted-foreground ml-1">menu</span>
+              </div>
+              <div className="flex items-center gap-1 bg-secondary/50 p-2 rounded-md dark:bg-secondary">
+                <DollarSign size={14} className="text-wine" />
+                <span className="font-medium">${wine.marketPrice}</span>
+                <span className="text-xs text-muted-foreground ml-1">retail</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Discreet Mode Alternative */}
+          {settings.discreetMode && (
+            <div className="bg-secondary/50 p-2 rounded-md dark:bg-secondary text-center">
+              <span className="text-sm font-medium">Price information hidden</span>
+            </div>
+          )}
+          
+          {/* Rating (conditional on settings) */}
+          {(!settings.discreetMode && settings.showRatings) && (
+            <div className="flex items-center gap-2 bg-card p-2 rounded-md border border-border">
+              <span className="text-sm font-medium">{wine.rating}/100</span>
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={14}
+                    className={i < Math.round(wine.rating / 20) ? "text-gold fill-gold" : "text-muted-foreground"}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
       

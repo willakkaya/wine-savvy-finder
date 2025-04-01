@@ -1,57 +1,145 @@
 
-import React, { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
-import { Wine, Search } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { Wine, Menu, X, Heart, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface HeaderProps {
-  className?: string;
-}
-
-const Header: React.FC<HeaderProps> = ({ className }) => {
+const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const [scrolled, setScrolled] = useState(false);
   
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrolled]);
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+  
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   
   return (
-    <header className={cn(
-      "sticky top-0 z-50 w-full py-4 px-6 flex items-center justify-between",
-      "transition-all duration-300 ease-in-out",
-      scrolled 
-        ? "apple-glass shadow-sm backdrop-blur-xl" 
-        : "bg-transparent",
-      className
-    )}>
-      <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
-        <Wine size={28} className="text-wine animate-float" />
-        <h1 className="text-xl font-serif font-semibold text-foreground">WineCheck</h1>
-      </Link>
-      
-      <div className="flex items-center gap-3">
-        {location.pathname !== '/scan' && (
-          <Button asChild variant="ghost" className="text-foreground hover:bg-muted/80 rounded-full px-5">
-            <Link to="/scan" className="flex items-center gap-2">
-              <Search size={18} />
-              <span className="hidden sm:inline">Scan Wine List</span>
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <Link to="/" className="flex-shrink-0 flex items-center">
+              <Wine className="h-8 w-8 text-wine" />
+              <span className="ml-2 text-xl font-serif text-wine-dark">WineCheck</span>
             </Link>
-          </Button>
-        )}
-        
-        <ThemeToggle />
+            
+            {/* Desktop navigation */}
+            <nav className="hidden sm:ml-6 sm:flex sm:space-x-4 items-center">
+              <Link
+                to="/"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive('/') 
+                    ? 'text-wine bg-wine/5' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Home
+              </Link>
+              <Link
+                to="/scan"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive('/scan') 
+                    ? 'text-wine bg-wine/5' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Scan
+              </Link>
+              <Link
+                to="/favorites"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive('/favorites') 
+                    ? 'text-wine bg-wine/5' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Favorites
+              </Link>
+              <Link
+                to="/settings"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive('/settings') 
+                    ? 'text-wine bg-wine/5' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Settings
+              </Link>
+            </nav>
+          </div>
+          
+          {/* Mobile menu button */}
+          <div className="flex items-center sm:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMenu}
+              aria-expanded={isMenuOpen}
+              className="text-gray-500"
+            >
+              <span className="sr-only">Open main menu</span>
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
+        </div>
       </div>
+      
+      {/* Mobile menu, show/hide based on menu state */}
+      {isMenuOpen && (
+        <div className="sm:hidden">
+          <div className="pt-2 pb-3 space-y-1">
+            <Link
+              to="/"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${
+                isActive('/') 
+                  ? 'text-wine bg-wine/5' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              to="/scan"
+              className={`block px-3 py-2 rounded-md text-base font-medium ${
+                isActive('/scan') 
+                  ? 'text-wine bg-wine/5' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Scan
+            </Link>
+            <Link
+              to="/favorites"
+              className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+                isActive('/favorites') 
+                  ? 'text-wine bg-wine/5' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <Heart className="mr-2 h-4 w-4" />
+              Favorites
+            </Link>
+            <Link
+              to="/settings"
+              className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+                isActive('/settings') 
+                  ? 'text-wine bg-wine/5' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
