@@ -30,5 +30,12 @@ export const config = {
     enabled: isProd,
     trackPageViews: isProd,
     trackEvents: isProd,
+  },
+  
+  // UI/UX settings
+  ui: {
+    animationsEnabled: true,
+    glassmorphismEnabled: true,
+    useRichTransitions: true,
   }
 };
