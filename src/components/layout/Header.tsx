@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { GlassWater, Search } from 'lucide-react';
+import { Wine, Search } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
       className
     )}>
       <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
-        <GlassWater size={28} className="text-wine animate-float" />
+        <Wine size={28} className="text-wine animate-float" />
         <h1 className="text-xl font-serif font-semibold text-foreground">Wine Whisperer</h1>
       </Link>
       
