@@ -17,7 +17,7 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-cream border-b border-wine/10 sticky top-0 z-50 shadow-sm backdrop-blur-lg bg-cream/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -33,7 +33,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
                 }`}
               >
                 Home
@@ -43,7 +43,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/scan') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
                 }`}
               >
                 Scan
@@ -53,7 +53,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/favorites') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
                 }`}
               >
                 Favorites
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/settings') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
                 }`}
               >
                 Settings
@@ -78,7 +78,7 @@ const Header: React.FC = () => {
               size="icon"
               onClick={toggleMenu}
               aria-expanded={isMenuOpen}
-              className="text-gray-500"
+              className="text-wine"
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -89,14 +89,14 @@ const Header: React.FC = () => {
       
       {/* Mobile menu, show/hide based on menu state */}
       {isMenuOpen && (
-        <div className="sm:hidden">
+        <div className="sm:hidden bg-cream/95 backdrop-blur-sm">
           <div className="pt-2 pb-3 space-y-1">
             <Link
               to="/"
               className={`block px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -107,7 +107,7 @@ const Header: React.FC = () => {
               className={`block px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/scan') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -118,7 +118,7 @@ const Header: React.FC = () => {
               className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/favorites') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -130,7 +130,7 @@ const Header: React.FC = () => {
               className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/settings') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-gray-700 hover:bg-gray-100'
+                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
