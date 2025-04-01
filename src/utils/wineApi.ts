@@ -1,73 +1,123 @@
 import { WineInfo } from '@/components/wine/WineCard';
 import { config } from '@/lib/config';
 
-// Wine image URLs by type
+// More realistic wine image URLs by type
 const wineImagesByType = {
   red: [
-    "https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png",
-    "https://images.vivino.com/thumbs/0667TG7tRnCvIrGLX2_8Jg_pb_600x600.png",
-    "https://images.vivino.com/thumbs/uXOXvx3LSHSEDtyKULBF6Q_pb_600x600.png"
+    "https://images.vivino.com/thumbs/uXOXvx3LSHSEDtyKULBF6Q_pb_600x600.png", // Cabernet Sauvignon
+    "https://images.vivino.com/thumbs/0667TG7tRnCvIrGLX2_8Jg_pb_600x600.png", // Merlot
+    "https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png", // Pinot Noir
+    "https://images.vivino.com/thumbs/DtTrvFLfSdWIridBSpzQWQ_pb_600x600.png", // Syrah/Shiraz
+    "https://images.vivino.com/thumbs/g0LwjU5ySGCVGCcnLJkCqQ_pb_600x600.png"  // Malbec
   ],
   white: [
-    "https://images.vivino.com/thumbs/HvTvhmaGQ5-gIrKcbgQHsQ_pb_600x600.png",
-    "https://images.vivino.com/thumbs/4vr20EL8TSCN_CGz72Znow_pb_600x600.png",
-    "https://images.vivino.com/thumbs/SL38tG4lQoCELG-4DzTy0w_pb_600x600.png"
+    "https://images.vivino.com/thumbs/SL38tG4lQoCELG-4DzTy0w_pb_600x600.png", // Chardonnay
+    "https://images.vivino.com/thumbs/HvTvhmaGQ5-gIrKcbgQHsQ_pb_600x600.png", // Sauvignon Blanc
+    "https://images.vivino.com/thumbs/4vr20EL8TSCN_CGz72Znow_pb_600x600.png", // Pinot Grigio
+    "https://images.vivino.com/thumbs/t_VW4taPR3SSe88diodvZA_pb_600x600.png", // Riesling
+    "https://images.vivino.com/thumbs/5-vYq96hQH-AycVLO0ry1Q_pb_600x600.png"  // Viognier
   ],
   sparkling: [
-    "https://images.vivino.com/thumbs/pEVCVwqLQmOcUugEjfYqYg_pb_600x600.png",
-    "https://images.vivino.com/thumbs/U19RXtSdRFKvQjS9LiQrzA_pb_600x600.png",
-    "https://images.vivino.com/thumbs/T7M9fksIQNqsIADkiJ1K2g_pb_600x600.png"
+    "https://images.vivino.com/thumbs/pEVCVwqLQmOcUugEjfYqYg_pb_600x600.png", // Champagne
+    "https://images.vivino.com/thumbs/U19RXtSdRFKvQjS9LiQrzA_pb_600x600.png", // Prosecco
+    "https://images.vivino.com/thumbs/T7M9fksIQNqsIADkiJ1K2g_pb_600x600.png", // Cava
+    "https://images.vivino.com/thumbs/XCnf7AjZQeqb2uch9Qzt_Q_pb_600x600.png", // Sparkling Rosé
+    "https://images.vivino.com/thumbs/cMWINRTXSPKK465-0SzwJA_pb_600x600.png"  // Crémant
   ],
   rose: [
-    "https://images.vivino.com/thumbs/eEsJ2PN8R5KOFywDS5-aOQ_pb_600x600.png",
-    "https://images.vivino.com/thumbs/1XYwrRMVSmSe6pQOA9CM3g_pb_600x600.png",
-    "https://images.vivino.com/thumbs/XErqVQ0wSEmZc8QbMMzNpA_pb_600x600.png"
+    "https://images.vivino.com/thumbs/eEsJ2PN8R5KOFywDS5-aOQ_pb_600x600.png", // Provence Rosé
+    "https://images.vivino.com/thumbs/1XYwrRMVSmSe6pQOA9CM3g_pb_600x600.png", // Grenache Rosé
+    "https://images.vivino.com/thumbs/XErqVQ0wSEmZc8QbMMzNpA_pb_600x600.png", // Pinot Noir Rosé
+    "https://images.vivino.com/thumbs/TUvBu2q0SL-jELnpuAJD4g_pb_600x600.png", // Syrah Rosé
+    "https://images.vivino.com/thumbs/UgPvYVA0T5yTwYw7QLGkCg_pb_600x600.png"  // Rosé Blend
   ],
   dessert: [
-    "https://images.vivino.com/thumbs/k6nJZXUcRfS1PGe-ZbqS8Q_pb_600x600.png",
-    "https://images.vivino.com/thumbs/rKRnfpEMS-OkP6vwx-q3DQ_pb_600x600.png",
-    "https://images.vivino.com/thumbs/kHEEgniCSBu3OVrOpiK0WA_pb_600x600.png"
+    "https://images.vivino.com/thumbs/k6nJZXUcRfS1PGe-ZbqS8Q_pb_600x600.png", // Sauternes
+    "https://images.vivino.com/thumbs/rKRnfpEMS-OkP6vwx-q3DQ_pb_600x600.png", // Port
+    "https://images.vivino.com/thumbs/kHEEgniCSBu3OVrOpiK0WA_pb_600x600.png", // Ice Wine
+    "https://images.vivino.com/thumbs/J7xCoXriSAmNQCwgpFtQKg_pb_600x600.png", // Sherry
+    "https://images.vivino.com/thumbs/eS-xMHAeQ-m2JPXkq98_Ew_pb_600x600.png"  // Madeira
   ]
 };
 
-// Helper function to get a random image for a wine based on its name/characteristics
-const getWineImage = (wine: WineInfo): string => {
+// Helper function to categorize wine and get appropriate image
+const categorizeWine = (wine: WineInfo): { wineType: 'red' | 'white' | 'sparkling' | 'rose' | 'dessert', imageUrl: string } => {
   const wineName = wine.name.toLowerCase();
   const winery = wine.winery.toLowerCase();
   
-  // Attempt to determine wine type from name
-  if (wineName.includes('red') || wineName.includes('cabernet') || wineName.includes('merlot') || 
-      wineName.includes('pinot noir') || wineName.includes('syrah') || wineName.includes('zinfandel') ||
-      wineName.includes('malbec') || wineName.includes('sangiovese')) {
-    return wineImagesByType.red[Math.floor(Math.random() * wineImagesByType.red.length)];
+  // Determine wine type from name
+  let wineType: 'red' | 'white' | 'sparkling' | 'rose' | 'dessert' = 'red'; // Default
+  
+  // Check for red wines
+  if (wineName.includes('red') || 
+      wineName.includes('cabernet') || 
+      wineName.includes('merlot') || 
+      wineName.includes('pinot noir') || 
+      wineName.includes('syrah') || 
+      wineName.includes('shiraz') ||
+      wineName.includes('zinfandel') ||
+      wineName.includes('malbec') || 
+      wineName.includes('sangiovese') ||
+      wineName.includes('bordeaux') ||
+      wineName.includes('chianti') ||
+      wineName.includes('rioja') ||
+      wineName.includes('barolo') ||
+      wineName.includes('tempranillo')) {
+    wineType = 'red';
+  }
+  // Check for white wines
+  else if (wineName.includes('white') || 
+      wineName.includes('chardonnay') || 
+      wineName.includes('sauvignon blanc') || 
+      wineName.includes('pinot grigio') || 
+      wineName.includes('pinot gris') ||
+      wineName.includes('riesling') || 
+      wineName.includes('moscato') ||
+      wineName.includes('gewürztraminer') ||
+      wineName.includes('viognier') ||
+      wineName.includes('albariño') ||
+      wineName.includes('semillon')) {
+    wineType = 'white';
+  }
+  // Check for sparkling wines
+  else if (wineName.includes('champagne') || 
+      wineName.includes('sparkling') || 
+      wineName.includes('prosecco') ||
+      wineName.includes('cava') || 
+      wineName.includes('brut') ||
+      wineName.includes('spumante') ||
+      wineName.includes('crémant') ||
+      wineName.includes('asti') ||
+      winery.includes('veuve') ||
+      winery.includes('moët') ||
+      winery.includes('dom pérignon')) {
+    wineType = 'sparkling';
+  }
+  // Check for rosé wines
+  else if (wineName.includes('rosé') || 
+      wineName.includes('rose') || 
+      wineName.includes('blush') ||
+      wineName.includes('pink')) {
+    wineType = 'rose';
+  }
+  // Check for dessert wines
+  else if (wineName.includes('port') || 
+      wineName.includes('dessert') || 
+      wineName.includes('sweet') || 
+      wineName.includes('fortified') || 
+      wineName.includes('sauternes') ||
+      wineName.includes('ice wine') ||
+      wineName.includes('sherry') ||
+      wineName.includes('madeira') ||
+      wineName.includes('moscatel') ||
+      wineName.includes('tokaji')) {
+    wineType = 'dessert';
   }
   
-  if (wineName.includes('white') || wineName.includes('chardonnay') || wineName.includes('sauvignon blanc') || 
-      wineName.includes('pinot grigio') || wineName.includes('riesling') || wineName.includes('moscato')) {
-    return wineImagesByType.white[Math.floor(Math.random() * wineImagesByType.white.length)];
-  }
+  // Select appropriate image from the category
+  const imageUrl = wineImagesByType[wineType][Math.floor(Math.random() * wineImagesByType[wineType].length)];
   
-  if (wineName.includes('champagne') || wineName.includes('sparkling') || wineName.includes('prosecco') ||
-      wineName.includes('cava') || wineName.includes('brut')) {
-    return wineImagesByType.sparkling[Math.floor(Math.random() * wineImagesByType.sparkling.length)];
-  }
-  
-  if (wineName.includes('rosé') || wineName.includes('rose') || wineName.includes('blush')) {
-    return wineImagesByType.rose[Math.floor(Math.random() * wineImagesByType.rose.length)];
-  }
-  
-  if (wineName.includes('port') || wineName.includes('dessert') || wineName.includes('sweet') || 
-      wineName.includes('fortified') || wineName.includes('sauternes')) {
-    return wineImagesByType.dessert[Math.floor(Math.random() * wineImagesByType.dessert.length)];
-  }
-  
-  // If we couldn't detect from the name, try winery or default to red
-  if (winery.includes('champagne')) {
-    return wineImagesByType.sparkling[Math.floor(Math.random() * wineImagesByType.sparkling.length)];
-  }
-  
-  // Default to red if we can't determine
-  return wineImagesByType.red[Math.floor(Math.random() * wineImagesByType.red.length)];
+  return { wineType, imageUrl };
 };
 
 // Mock database of wines for development
@@ -228,21 +278,29 @@ export const searchWines = async (query?: string): Promise<WineInfo[]> => {
         })
       : mockWines;
     
-    // Assign appropriate wine images based on name
-    return wines.map(wine => ({
-      ...wine,
-      imageUrl: wine.imageUrl || getWineImage(wine)
-    }));
+    // Assign appropriate wine images and types based on name
+    return wines.map(wine => {
+      const { wineType, imageUrl } = categorizeWine(wine);
+      return {
+        ...wine,
+        wineType,
+        imageUrl: wine.imageUrl || imageUrl
+      };
+    });
   }
   
   // In a real implementation, this would call an actual API
   try {
     // Here we'd make a fetch call to a real wine API
     // For demo purposes, we'll just return the mock data
-    return mockWines.map(wine => ({
-      ...wine,
-      imageUrl: wine.imageUrl || getWineImage(wine)
-    }));
+    return mockWines.map(wine => {
+      const { wineType, imageUrl } = categorizeWine(wine);
+      return {
+        ...wine,
+        wineType,
+        imageUrl: wine.imageUrl || imageUrl
+      };
+    });
   } catch (error) {
     console.error('Error fetching wines:', error);
     return [];
@@ -260,9 +318,11 @@ export const getWineById = async (id: string): Promise<WineInfo | null> => {
     const wine = mockWines.find(w => w.id === id) || null;
     
     if (wine) {
+      const { wineType, imageUrl } = categorizeWine(wine);
       return {
         ...wine,
-        imageUrl: wine.imageUrl || getWineImage(wine)
+        wineType,
+        imageUrl: wine.imageUrl || imageUrl
       };
     }
     
@@ -276,9 +336,11 @@ export const getWineById = async (id: string): Promise<WineInfo | null> => {
     const wine = mockWines.find(w => w.id === id) || null;
     
     if (wine) {
+      const { wineType, imageUrl } = categorizeWine(wine);
       return {
         ...wine,
-        imageUrl: wine.imageUrl || getWineImage(wine)
+        wineType,
+        imageUrl: wine.imageUrl || imageUrl
       };
     }
     

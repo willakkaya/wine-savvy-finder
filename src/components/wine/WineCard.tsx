@@ -18,6 +18,7 @@ export interface WineInfo {
   rating: number;
   valueScore: number;
   imageUrl?: string;
+  wineType?: 'red' | 'white' | 'sparkling' | 'rose' | 'dessert';
 }
 
 interface WineCardProps {
@@ -34,6 +35,24 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
     wine.valueScore > 60 ? 'Great Value' :
     wine.valueScore > 40 ? 'Good Value' : 'Fair Value';
 
+  // Get appropriate wine type based background gradient
+  const getWineTypeGradient = () => {
+    switch(wine.wineType) {
+      case 'red':
+        return 'from-red-700/5 to-red-900/10';
+      case 'white':
+        return 'from-amber-50/5 to-amber-100/10';
+      case 'sparkling':
+        return 'from-yellow-50/5 to-yellow-100/10';
+      case 'rose':
+        return 'from-pink-200/5 to-pink-300/10';
+      case 'dessert':
+        return 'from-amber-300/5 to-amber-400/10';
+      default:
+        return 'from-wine/5 to-wine/10';
+    }
+  };
+
   return (
     <Card className={cn(
       "overflow-hidden transition-all duration-300 hover:shadow-lg relative wine-card", 
@@ -47,7 +66,7 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
             <span>Top Value</span>
           </div>
         )}
-        <div className="h-44 bg-gradient-to-b from-wine/5 to-wine/10 flex items-center justify-center overflow-hidden">
+        <div className={`h-44 bg-gradient-to-b ${getWineTypeGradient()} flex items-center justify-center overflow-hidden`}>
           {wine.imageUrl ? (
             <div className="relative w-full h-full flex items-center justify-center">
               <div className="absolute inset-0 backdrop-blur-[1px] bg-black/5"></div>

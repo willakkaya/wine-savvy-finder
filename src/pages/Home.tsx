@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Wine, ArrowRight, Camera, Award, Banknote, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -92,7 +93,7 @@ const Home: React.FC = () => {
                   valueScore: 92,
                   price: 120,
                   marketPrice: 160,
-                  image: "https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                  image: "https://images.vivino.com/thumbs/uXOXvx3LSHSEDtyKULBF6Q_pb_600x600.png" // Cabernet image
                 },
                 {
                   name: "Antinori Tignanello",
@@ -101,7 +102,7 @@ const Home: React.FC = () => {
                   valueScore: 89,
                   price: 175,
                   marketPrice: 210,
-                  image: "https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                  image: "https://images.vivino.com/thumbs/DtTrvFLfSdWIridBSpzQWQ_pb_600x600.png" // Super Tuscan image
                 },
                 {
                   name: "Veuve Clicquot Brut",
@@ -110,7 +111,7 @@ const Home: React.FC = () => {
                   valueScore: 86,
                   price: 85,
                   marketPrice: 110,
-                  image: "https://images.unsplash.com/photo-1605518216938-7c31b7b14ad0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                  image: "https://images.vivino.com/thumbs/pEVCVwqLQmOcUugEjfYqYg_pb_600x600.png" // Champagne image
                 }
               ].map((wine, index) => (
                 <Card key={wine.name} className="overflow-hidden shadow-apple-md transition-all duration-300 hover:shadow-apple-lg hover:translate-y-[-2px] animate-fadeIn" style={{ animationDelay: `${index * 0.15}s` }}>
