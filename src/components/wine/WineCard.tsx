@@ -47,13 +47,16 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
             <span>Top Value</span>
           </div>
         )}
-        <div className="h-40 bg-gradient-to-b from-wine/5 to-wine/10 flex items-center justify-center overflow-hidden">
+        <div className="h-44 bg-gradient-to-b from-wine/5 to-wine/10 flex items-center justify-center overflow-hidden">
           {wine.imageUrl ? (
-            <img 
-              src={wine.imageUrl} 
-              alt={wine.name} 
-              className="h-full w-auto object-contain transition-transform hover:scale-105" 
-            />
+            <div className="relative w-full h-full flex items-center justify-center">
+              <div className="absolute inset-0 backdrop-blur-[1px] bg-black/5"></div>
+              <img 
+                src={wine.imageUrl} 
+                alt={wine.name} 
+                className="h-auto max-h-full w-auto max-w-[70%] object-contain z-10 transition-transform hover:scale-105 drop-shadow-sm" 
+              />
+            </div>
           ) : (
             <Wine size={60} className="text-wine opacity-30" />
           )}

@@ -272,18 +272,56 @@ const convertCellarTrackerToWineInfo = (ctWines: CellarTrackerWine[]): WineInfo[
 const getWineImageByType = (type: string): string => {
   const typeNormalized = (type || '').toLowerCase();
   
+  // Enhanced image mapping for more accurate wine type representations
   if (typeNormalized.includes('red')) {
-    return 'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png';
+    // Collection of premium red wine images
+    const redWineImages = [
+      'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png', // Cabernet Sauvignon
+      'https://images.vivino.com/thumbs/sGVnwkq3Rtp-CDAfnaCy-A_pb_600x600.png', // Pinot Noir
+      'https://images.vivino.com/thumbs/Yt464jw0QS-ugF7ESTq7Gw_pb_600x600.png', // Merlot
+      'https://images.vivino.com/thumbs/q89m2UolSguQHcd9LJ3g-A_pb_600x600.png', // Syrah
+      'https://images.vivino.com/thumbs/01jld6h7RiOvy1YEGkRfKw_pb_600x600.png'  // Malbec
+    ];
+    return redWineImages[Math.floor(Math.random() * redWineImages.length)];
   } else if (typeNormalized.includes('white')) {
-    return 'https://images.vivino.com/thumbs/IEmxs47ITIaHXPJkvE9j7Q_pb_600x600.png';
+    // Collection of premium white wine images
+    const whiteWineImages = [
+      'https://images.vivino.com/thumbs/IEmxs47ITIaHXPJkvE9j7Q_pb_600x600.png', // Chardonnay
+      'https://images.vivino.com/thumbs/FLzK3orlRdWEXTbz7i7Evg_pb_600x600.png', // Sauvignon Blanc
+      'https://images.vivino.com/thumbs/4W-gxbDdRQaG4fOQdEHB2w_pb_600x600.png', // Riesling
+      'https://images.vivino.com/thumbs/nC9V6L2mQQSq0s-wZLcaxw_pb_600x600.png', // Pinot Grigio
+      'https://images.vivino.com/thumbs/yXfvK8XKRE2B3vHJGJ8q3A_pb_600x600.png'  // Viognier
+    ];
+    return whiteWineImages[Math.floor(Math.random() * whiteWineImages.length)];
   } else if (typeNormalized.includes('rose') || typeNormalized.includes('rosé')) {
-    return 'https://images.vivino.com/thumbs/ElcyI1YpRSes_LvNodMeSQ_pb_600x600.png';
+    // Collection of premium rosé wine images
+    const roseWineImages = [
+      'https://images.vivino.com/thumbs/ElcyI1YpRSes_LvNodMeSQ_pb_600x600.png', // Provence Rosé
+      'https://images.vivino.com/thumbs/5VTsFuC8SQ6aZ5guFcPzxw_pb_600x600.png', // Rosé blend
+      'https://images.vivino.com/thumbs/vPJ9rHzsTJGcm5NrKZqKSw_pb_600x600.png'  // Premium Rosé
+    ];
+    return roseWineImages[Math.floor(Math.random() * roseWineImages.length)];
   } else if (typeNormalized.includes('sparkl') || typeNormalized.includes('champagne')) {
-    return 'https://images.vivino.com/thumbs/O-f9VelHQTiR-KJVYIXJcw_pb_600x600.png';
+    // Collection of premium sparkling wine/champagne images
+    const sparklingWineImages = [
+      'https://images.vivino.com/thumbs/O-f9VelHQTiR-KJVYIXJcw_pb_600x600.png', // Champagne
+      'https://images.vivino.com/thumbs/3V5BZ71jQUC2X3_gwqGOBQ_pb_600x600.png', // Prosecco
+      'https://images.vivino.com/thumbs/AJK9MS_PSXKbtn-jSJWb3g_pb_600x600.png', // Sparkling
+      'https://images.vivino.com/thumbs/GpcSXs2EQnKX2RnBzMtDVw_pb_600x600.png'  // Premium Champagne
+    ];
+    return sparklingWineImages[Math.floor(Math.random() * sparklingWineImages.length)];
+  } else if (typeNormalized.includes('dessert') || typeNormalized.includes('port') || typeNormalized.includes('sweet')) {
+    // Collection of premium dessert wine images
+    const dessertWineImages = [
+      'https://images.vivino.com/thumbs/FGfB1q0wSs-ySFhMN5uE1Q_pb_600x600.png', // Port
+      'https://images.vivino.com/thumbs/1XYwrqzfSQqxvZnXxnGQSg_pb_600x600.png', // Sauternes
+      'https://images.vivino.com/thumbs/DHWQz_QoSvCLdJzp7DepkA_pb_600x600.png'  // Ice Wine
+    ];
+    return dessertWineImages[Math.floor(Math.random() * dessertWineImages.length)];
   }
   
-  // Default wine image
-  return 'https://images.vivino.com/thumbs/FGfB1q0wSs-ySFhMN5uE1Q_pb_600x600.png';
+  // Default wine image - use a premium red wine as default
+  return 'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png';
 };
 
 /**
@@ -339,22 +377,59 @@ const convertApiResponseToWineInfo = (apiWines: WineApiResponse[]): WineInfo[] =
  * Get image URL for a wine
  */
 const getWineImageUrl = (wine: WineApiResponse): string => {
-  // In a real app, you would use a wine image database or an image API
-  // For now, use sample images based on wine color/type
+  // Enhanced image selection based on wine color/type for Global Wine Score API
   const colorLower = (wine.color || '').toLowerCase();
+  const typeLower = (wine.wine_type || '').toLowerCase();
   
   if (colorLower.includes('red')) {
-    return 'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png';
+    // Collection of premium red wine images
+    const redWineImages = [
+      'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png', // Cabernet Sauvignon
+      'https://images.vivino.com/thumbs/sGVnwkq3Rtp-CDAfnaCy-A_pb_600x600.png', // Pinot Noir
+      'https://images.vivino.com/thumbs/Yt464jw0QS-ugF7ESTq7Gw_pb_600x600.png', // Merlot
+      'https://images.vivino.com/thumbs/q89m2UolSguQHcd9LJ3g-A_pb_600x600.png', // Syrah
+      'https://images.vivino.com/thumbs/01jld6h7RiOvy1YEGkRfKw_pb_600x600.png'  // Malbec
+    ];
+    return redWineImages[Math.floor(Math.random() * redWineImages.length)];
   } else if (colorLower.includes('white')) {
-    return 'https://images.vivino.com/thumbs/IEmxs47ITIaHXPJkvE9j7Q_pb_600x600.png';
+    // Collection of premium white wine images
+    const whiteWineImages = [
+      'https://images.vivino.com/thumbs/IEmxs47ITIaHXPJkvE9j7Q_pb_600x600.png', // Chardonnay
+      'https://images.vivino.com/thumbs/FLzK3orlRdWEXTbz7i7Evg_pb_600x600.png', // Sauvignon Blanc
+      'https://images.vivino.com/thumbs/4W-gxbDdRQaG4fOQdEHB2w_pb_600x600.png', // Riesling
+      'https://images.vivino.com/thumbs/nC9V6L2mQQSq0s-wZLcaxw_pb_600x600.png', // Pinot Grigio
+      'https://images.vivino.com/thumbs/yXfvK8XKRE2B3vHJGJ8q3A_pb_600x600.png'  // Viognier
+    ];
+    return whiteWineImages[Math.floor(Math.random() * whiteWineImages.length)];
   } else if (colorLower.includes('rose') || colorLower.includes('rosé')) {
-    return 'https://images.vivino.com/thumbs/ElcyI1YpRSes_LvNodMeSQ_pb_600x600.png';
-  } else if (wine.wine_type && wine.wine_type.toLowerCase().includes('sparkl')) {
-    return 'https://images.vivino.com/thumbs/O-f9VelHQTiR-KJVYIXJcw_pb_600x600.png';
+    // Collection of premium rosé wine images
+    const roseWineImages = [
+      'https://images.vivino.com/thumbs/ElcyI1YpRSes_LvNodMeSQ_pb_600x600.png', // Provence Rosé
+      'https://images.vivino.com/thumbs/5VTsFuC8SQ6aZ5guFcPzxw_pb_600x600.png', // Rosé blend
+      'https://images.vivino.com/thumbs/vPJ9rHzsTJGcm5NrKZqKSw_pb_600x600.png'  // Premium Rosé
+    ];
+    return roseWineImages[Math.floor(Math.random() * roseWineImages.length)];
+  } else if (typeLower.includes('sparkl') || typeLower.includes('champagne')) {
+    // Collection of premium sparkling wine/champagne images
+    const sparklingWineImages = [
+      'https://images.vivino.com/thumbs/O-f9VelHQTiR-KJVYIXJcw_pb_600x600.png', // Champagne
+      'https://images.vivino.com/thumbs/3V5BZ71jQUC2X3_gwqGOBQ_pb_600x600.png', // Prosecco
+      'https://images.vivino.com/thumbs/AJK9MS_PSXKbtn-jSJWb3g_pb_600x600.png', // Sparkling
+      'https://images.vivino.com/thumbs/GpcSXs2EQnKX2RnBzMtDVw_pb_600x600.png'  // Premium Champagne
+    ];
+    return sparklingWineImages[Math.floor(Math.random() * sparklingWineImages.length)];
+  } else if (typeLower.includes('dessert') || typeLower.includes('port') || typeLower.includes('sweet')) {
+    // Collection of premium dessert wine images
+    const dessertWineImages = [
+      'https://images.vivino.com/thumbs/FGfB1q0wSs-ySFhMN5uE1Q_pb_600x600.png', // Port
+      'https://images.vivino.com/thumbs/1XYwrqzfSQqxvZnXxnGQSg_pb_600x600.png', // Sauternes
+      'https://images.vivino.com/thumbs/DHWQz_QoSvCLdJzp7DepkA_pb_600x600.png'  // Ice Wine
+    ];
+    return dessertWineImages[Math.floor(Math.random() * dessertWineImages.length)];
   }
   
-  // Default wine image
-  return 'https://images.vivino.com/thumbs/FGfB1q0wSs-ySFhMN5uE1Q_pb_600x600.png';
+  // Default wine image - use a premium red wine as default
+  return 'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png';
 };
 
 /**
@@ -410,6 +485,53 @@ const getMockWineData = (query: string): WineInfo[] => {
       ((rating - 85) / 15 * 50)
     );
     
+    // Select appropriate wine image based on varietal
+    let imageUrl;
+    const varietalLower = varietal.toLowerCase();
+    
+    if (varietalLower.includes('cabernet') || varietalLower.includes('merlot') || 
+        varietalLower.includes('syrah') || varietalLower.includes('malbec') || 
+        varietalLower.includes('zinfandel')) {
+      // Red wine images
+      const redWineImages = [
+        'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png', // Cabernet Sauvignon
+        'https://images.vivino.com/thumbs/sGVnwkq3Rtp-CDAfnaCy-A_pb_600x600.png', // Pinot Noir
+        'https://images.vivino.com/thumbs/Yt464jw0QS-ugF7ESTq7Gw_pb_600x600.png', // Merlot
+        'https://images.vivino.com/thumbs/q89m2UolSguQHcd9LJ3g-A_pb_600x600.png', // Syrah
+        'https://images.vivino.com/thumbs/01jld6h7RiOvy1YEGkRfKw_pb_600x600.png'  // Malbec
+      ];
+      imageUrl = redWineImages[Math.floor((seed + i) % redWineImages.length)];
+    } else if (varietalLower.includes('chardonnay') || varietalLower.includes('sauvignon') || 
+               varietalLower.includes('riesling')) {
+      // White wine images
+      const whiteWineImages = [
+        'https://images.vivino.com/thumbs/IEmxs47ITIaHXPJkvE9j7Q_pb_600x600.png', // Chardonnay
+        'https://images.vivino.com/thumbs/FLzK3orlRdWEXTbz7i7Evg_pb_600x600.png', // Sauvignon Blanc
+        'https://images.vivino.com/thumbs/4W-gxbDdRQaG4fOQdEHB2w_pb_600x600.png', // Riesling
+        'https://images.vivino.com/thumbs/nC9V6L2mQQSq0s-wZLcaxw_pb_600x600.png'  // Pinot Grigio
+      ];
+      imageUrl = whiteWineImages[Math.floor((seed + i) % whiteWineImages.length)];
+    } else if (varietalLower.includes('pinot')) {
+      // Determine if it's Pinot Noir (red) or Pinot Grigio/Gris (white)
+      if (varietalLower.includes('noir')) {
+        imageUrl = 'https://images.vivino.com/thumbs/sGVnwkq3Rtp-CDAfnaCy-A_pb_600x600.png'; // Pinot Noir
+      } else {
+        imageUrl = 'https://images.vivino.com/thumbs/nC9V6L2mQQSq0s-wZLcaxw_pb_600x600.png'; // Pinot Grigio
+      }
+    } else if (regions[regionIndex].toLowerCase().includes('champagne')) {
+      // Champagne/sparkling image
+      imageUrl = 'https://images.vivino.com/thumbs/O-f9VelHQTiR-KJVYIXJcw_pb_600x600.png';
+    } else {
+      // Fallback based on a consistent pattern
+      const allWineImages = [
+        'https://images.vivino.com/thumbs/4RHhCzeQTsCeyCScxO0LOw_pb_600x600.png', // Red
+        'https://images.vivino.com/thumbs/IEmxs47ITIaHXPJkvE9j7Q_pb_600x600.png', // White
+        'https://images.vivino.com/thumbs/ElcyI1YpRSes_LvNodMeSQ_pb_600x600.png', // Rosé
+        'https://images.vivino.com/thumbs/O-f9VelHQTiR-KJVYIXJcw_pb_600x600.png'  // Sparkling
+      ];
+      imageUrl = allWineImages[(seed + i) % allWineImages.length];
+    }
+    
     result.push({
       id: `wine-${Date.now()}-${i}`,
       name: `${winery} ${varietal}`,
@@ -421,9 +543,15 @@ const getMockWineData = (query: string): WineInfo[] => {
       marketPrice: Math.round(marketPrice),
       rating: rating,
       valueScore: valueScore,
-      imageUrl: `https://images.vivino.com/thumbs/${['4RHhCzeQTsCeyCScxO0LOw', 'FGfB1q0wSs-ySFhMN5uE1Q', 'ElcyI1YpRSes_LvNodMeSQ'][i % 3]}_pb_600x600.png`
+      imageUrl: imageUrl
     });
   }
   
   return result.sort((a, b) => b.valueScore - a.valueScore);
+};
+
+// Export all the necessary functions
+export {
+  searchWines,
+  getWineById
 };
