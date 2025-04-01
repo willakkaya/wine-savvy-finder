@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { config } from '@/lib/config';
@@ -12,18 +11,18 @@ const Footer = () => {
       <div className="container max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-lg font-medium mb-4">{config.appName}</h3>
+            <h3 className="text-lg font-medium mb-4">WineCheck</h3>
             <p className="text-muted-foreground text-sm mb-4">
               Discover the best value wines on restaurant wine lists with our AI-powered analysis.
             </p>
             <div className="flex space-x-4">
-              <a href="https://instagram.com/winewhisperer" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://instagram.com/winecheck" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="https://twitter.com/winewhisperer" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://twitter.com/winecheck" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="https://facebook.com/winewhisperer" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://facebook.com/winecheck" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Facebook size={20} />
               </a>
             </div>
@@ -78,9 +77,9 @@ const Footer = () => {
         </div>
         
         <div className="pt-6 border-t text-center text-sm text-muted-foreground">
-          <p>© {currentYear} {config.appName}. All rights reserved.</p>
+          <p>© {currentYear} WineCheck. All rights reserved.</p>
           <p className="mt-2">
-            Wine Whisperer is not affiliated with any restaurants or wine producers. 
+            WineCheck is not affiliated with any restaurants or wine producers. 
             Prices and availability subject to change.
           </p>
         </div>

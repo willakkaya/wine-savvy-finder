@@ -1,6 +1,6 @@
 
 /**
- * Configuration settings for the Wine Whisperer app
+ * Configuration settings for the WineCheck app
  * Different values can be set based on the environment
  */
 
@@ -9,12 +9,12 @@ const isProd = import.meta.env.PROD;
 
 export const config = {
   // App metadata
-  appName: 'Wine Whisperer',
+  appName: 'WineCheck',
   company: {
-    name: 'Wine Whisperer Inc.',
+    name: 'WineCheck Inc.',
     foundedYear: 2023,
     address: '123 Vineyard Lane, San Francisco, CA 94105',
-    email: 'hello@winewhisperer.com',
+    email: 'hello@winecheck.com',
     phone: '+1 (415) 555-5555',
   },
   
@@ -75,10 +75,10 @@ export const config = {
   
   // Social media and sharing
   social: {
-    twitter: 'https://twitter.com/winewhisperer',
-    facebook: 'https://facebook.com/winewhisperer',
-    instagram: 'https://instagram.com/winewhisperer',
-    pinterest: 'https://pinterest.com/winewhisperer',
+    twitter: 'https://twitter.com/winecheck',
+    facebook: 'https://facebook.com/winecheck',
+    instagram: 'https://instagram.com/winecheck',
+    pinterest: 'https://pinterest.com/winecheck',
   },
   
   // Legal and compliance
@@ -93,7 +93,7 @@ export const config = {
   
   // Customer support
   support: {
-    email: 'support@winewhisperer.com',
+    email: 'support@winecheck.com',
     phone: '+1 (415) 555-5555',
     hours: 'Monday-Friday, 9am-6pm PST',
     liveChatEnabled: isProd,

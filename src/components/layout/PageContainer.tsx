@@ -18,7 +18,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   // Set document title if provided
   useEffect(() => {
     if (title) {
-      document.title = `${title} | Wine Whisperer`;
+      document.title = `${title} | WineCheck`;
     }
   }, [title]);
   

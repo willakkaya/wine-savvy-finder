@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     )}>
       <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
         <Wine size={28} className="text-wine animate-float" />
-        <h1 className="text-xl font-serif font-semibold text-foreground">Wine Whisperer</h1>
+        <h1 className="text-xl font-serif font-semibold text-foreground">WineCheck</h1>
       </Link>
       
       <div className="flex items-center gap-3">

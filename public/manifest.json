@@ -1,7 +1,7 @@
 
 {
-  "name": "Wine Whisperer",
-  "short_name": "Wine Whisperer",
+  "name": "WineCheck",
+  "short_name": "WineCheck",
   "description": "Find the best value wines on restaurant wine lists",
   "start_url": "/",
   "display": "standalone",
@@ -26,5 +26,5 @@
   ],
   "apple_mobile_web_app_capable": "yes",
   "apple_mobile_web_app_status_bar_style": "black-translucent",
-  "apple_mobile_web_app_title": "Wine Whisperer"
+  "apple_mobile_web_app_title": "WineCheck"
 }
