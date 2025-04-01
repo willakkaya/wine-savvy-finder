@@ -19,6 +19,11 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Segoe UI', 'Roboto', 'sans-serif'],
+				serif: ['New York', 'Georgia', 'serif'],
+				mono: ['SF Mono', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -64,18 +69,25 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				wine: {
-					DEFAULT: '#722F37',
-					dark: '#511E25',
-					light: '#9A4D56',
-					muted: '#D8BFC2'
+					DEFAULT: '#8C0F1C', // Deeper burgundy red
+					dark: '#5A0912', 
+					light: '#B5293A',
+					muted: '#EBD4D7'
 				},
-				cream: '#F5F0E5',
-				gold: '#D4AF37'
+				cream: '#F9F6F0', // Warmer cream
+				gold: '#B8860B', // More subdued gold
+				graphite: '#7D7D7D' // Apple graphite
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'apple': '0 1px 3px rgba(0,0,0,0.08), 0 4px 20px rgba(0,0,0,0.06)',
+				'apple-md': '0 2px 6px rgba(0,0,0,0.06), 0 8px 30px rgba(0,0,0,0.08)',
+				'apple-lg': '0 4px 12px rgba(0,0,0,0.08), 0 20px 40px rgba(0,0,0,0.12)',
+				'apple-xl': '0 8px 24px rgba(0,0,0,0.12), 0 40px 60px rgba(0,0,0,0.15)'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -97,16 +109,22 @@ export default {
 				fadeIn: {
 					from: { opacity: '0' },
 					to: { opacity: '1' }
+				},
+				slideUp: {
+					from: { transform: 'translateY(10px)', opacity: '0' },
+					to: { transform: 'translateY(0)', opacity: '1' }
+				},
+				scaleIn: {
+					from: { transform: 'scale(0.98)', opacity: '0' },
+					to: { transform: 'scale(1)', opacity: '1' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				fadeIn: 'fadeIn 0.5s ease-in-out'
-			},
-			fontFamily: {
-				serif: ['Playfair Display', 'serif'],
-				sans: ['Inter', 'sans-serif']
+				fadeIn: 'fadeIn 0.5s ease-in-out',
+				slideUp: 'slideUp 0.5s ease-out',
+				scaleIn: 'scaleIn 0.4s ease-out'
 			}
 		}
 	},
