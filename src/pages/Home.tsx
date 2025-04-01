@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { GlassWater, ArrowRight, Camera, Award, Banknote, Star } from 'lucide-react';
+import { Wine, ArrowRight, Camera, Award, Banknote, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/layout/Header';
@@ -20,7 +19,7 @@ const Home: React.FC = () => {
           
           <div className="relative z-10 max-w-3xl mx-auto text-center animate-scaleIn">
             <div className="inline-block p-3 rounded-full bg-wine/20 mb-8 backdrop-blur-md">
-              <GlassWater size={40} className="text-cream" />
+              <Wine size={40} className="text-cream" />
             </div>
             
             <h1 className="text-5xl md:text-6xl font-serif font-bold text-cream mb-8 tracking-tight">
