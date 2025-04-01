@@ -17,7 +17,7 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="bg-cream border-b border-wine/10 sticky top-0 z-50 shadow-sm backdrop-blur-lg bg-cream/90">
+    <header className="bg-cream border-b border-wine/10 sticky top-0 z-50 shadow-sm backdrop-blur-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -33,7 +33,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                    : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
                 }`}
               >
                 Home
@@ -43,7 +43,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/scan') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                    : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
                 }`}
               >
                 Scan
@@ -53,7 +53,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/favorites') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                    : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
                 }`}
               >
                 Favorites
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/settings') 
                     ? 'text-wine bg-wine/5' 
-                    : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                    : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
                 }`}
               >
                 Settings
@@ -96,7 +96,7 @@ const Header: React.FC = () => {
               className={`block px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                  : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -107,7 +107,7 @@ const Header: React.FC = () => {
               className={`block px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/scan') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                  : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -118,7 +118,7 @@ const Header: React.FC = () => {
               className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/favorites') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                  : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -130,7 +130,7 @@ const Header: React.FC = () => {
               className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
                 isActive('/settings') 
                   ? 'text-wine bg-wine/5' 
-                  : 'text-stone-800 hover:bg-wine/5 hover:text-wine-dark transition-colors'
+                  : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
