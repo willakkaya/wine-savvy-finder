@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -93,10 +94,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans selection:bg-wine/20 selection:text-wine-dark dark:selection:bg-wine/30 dark:selection:text-wine-light;
     scroll-behavior: smooth;
   }
 
@@ -149,6 +151,27 @@
   .apple-button {
     @apply rounded-full font-medium transition-transform active:scale-[0.97];
   }
+  
+  /* New premium UI elements */
+  .premium-section {
+    @apply py-16 px-6 overflow-hidden relative;
+  }
+  
+  .premium-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border/40 rounded-xl shadow-apple transition-all duration-300 hover:shadow-apple-md overflow-hidden;
+  }
+  
+  .wine-gradient {
+    @apply bg-gradient-to-br from-wine to-wine-dark/90 text-white;
+  }
+  
+  .wine-button {
+    @apply bg-wine text-white hover:bg-wine-dark transition-all duration-200 rounded-full px-5 py-2.5 font-medium shadow-sm active:scale-[0.98] flex items-center gap-2;
+  }
+  
+  .wine-outline-button {
+    @apply bg-transparent border border-wine text-wine hover:bg-wine/5 transition-all duration-200 rounded-full px-5 py-2.5 font-medium active:scale-[0.98] flex items-center gap-2;
+  }
 }
 
 @layer utilities {
@@ -166,6 +189,24 @@
 
   .blur-backdrop {
     @apply backdrop-blur-lg bg-background/80;
+  }
+  
+  /* New premium utilities */
+  .subtle-glow {
+    @apply shadow-[0_0_15px_rgba(140,15,28,0.15)];
+  }
+  
+  .premium-shadow {
+    @apply shadow-[0_10px_30px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_30px_-12px_rgba(0,0,0,0.3)];
+  }
+  
+  .soft-glass {
+    @apply backdrop-blur-md bg-white/70 dark:bg-black/30 border border-white/20 dark:border-white/10;
+  }
+  
+  .animated-bg {
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
   }
 }
 
@@ -203,6 +244,17 @@
   100% { transform: translateY(0); }
 }
 
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 /* Animation classes */
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
@@ -216,10 +268,16 @@
   animation: floatUp 3s ease-in-out infinite;
 }
 
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
 /* Rich scrollbar styles */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -228,7 +286,7 @@
 
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--muted));
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -243,4 +301,11 @@
 
 :focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .touch-lg {
+    @apply min-h-[44px] min-w-[44px]; /* Apple's recommended touch target size */
+  }
 }

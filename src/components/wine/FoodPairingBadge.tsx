@@ -11,17 +11,17 @@ interface FoodPairingBadgeProps {
 }
 
 const FoodPairingBadge: React.FC<FoodPairingBadgeProps> = ({ pairing, className }) => {
-  // Define badge color based on strength
+  // Define badge color based on strength with more refined color palette
   const getBadgeStyles = () => {
     switch (pairing.strength) {
       case 'excellent':
-        return 'bg-green-100 text-green-800 hover:bg-green-200 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/40';
+        return 'bg-green-50 text-green-700 hover:bg-green-100 border-green-100 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-900/30';
       case 'good':
-        return 'bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/40';
+        return 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30';
       case 'fair':
-        return 'bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/40';
+        return 'bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/30';
       default:
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
+        return 'bg-gray-50 text-gray-700 hover:bg-gray-100 border-gray-100 dark:bg-gray-800/40 dark:text-gray-300 dark:hover:bg-gray-800/60';
     }
   };
 
@@ -29,13 +29,13 @@ const FoodPairingBadge: React.FC<FoodPairingBadgeProps> = ({ pairing, className 
     <Badge 
       variant="outline" 
       className={cn(
-        'flex items-center gap-1 py-1 px-2 border touch-manipulation', 
+        'flex items-center gap-1.5 py-1.5 px-3 rounded-full border backdrop-blur-sm transition-all duration-200 shadow-sm', 
         getBadgeStyles(),
         className
       )}
     >
-      <Utensils size={12} />
-      <span>{pairing.food}</span>
+      <Utensils size={12} className="opacity-70" />
+      <span className="font-medium text-xs">{pairing.food}</span>
     </Badge>
   );
 };

@@ -20,7 +20,7 @@ export function ThemeToggle() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="rounded-full w-10 h-10 bg-background/50 backdrop-blur-sm border border-border/50 hover:bg-muted/80"
+          className="rounded-full w-10 h-10 bg-background/50 backdrop-blur-sm border border-border/30 hover:bg-muted/50 hover:border-border/50 transition-all duration-300 shadow-sm"
         >
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -29,25 +29,25 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end"
-        className="w-36 rounded-xl border border-border/50 shadow-apple"
+        className="w-36 rounded-xl border border-border/30 shadow-apple backdrop-blur-sm animate-in fade-in-80 slide-in-from-top-5"
       >
         <DropdownMenuItem 
           onClick={() => setTheme("light")} 
-          className={`flex items-center gap-2 rounded-lg ${theme === 'light' ? 'bg-secondary' : ''}`}
+          className={`flex items-center gap-2 rounded-lg transition-colors ${theme === 'light' ? 'bg-secondary/80 font-medium' : ''}`}
         >
           <Sun className="h-4 w-4" />
           <span>Light</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => setTheme("dark")} 
-          className={`flex items-center gap-2 rounded-lg ${theme === 'dark' ? 'bg-secondary' : ''}`}
+          className={`flex items-center gap-2 rounded-lg transition-colors ${theme === 'dark' ? 'bg-secondary/80 font-medium' : ''}`}
         >
           <Moon className="h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => setTheme("system")} 
-          className={`flex items-center gap-2 rounded-lg ${theme === 'system' ? 'bg-secondary' : ''}`}
+          className={`flex items-center gap-2 rounded-lg transition-colors ${theme === 'system' ? 'bg-secondary/80 font-medium' : ''}`}
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
