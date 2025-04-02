@@ -53,10 +53,19 @@ const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, styl
       onClick={handleClick}
       className={`cursor-pointer ${isMobile ? 'touch-manipulation' : ''}`}
       initial="initial"
-      whileHover="hover"
+      whileHover={isMobile ? undefined : "hover"} // Disable hover animation on mobile
       whileTap="tap"
       variants={variants}
       style={style}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${wine.name}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       <WineCard 
         wine={wine} 

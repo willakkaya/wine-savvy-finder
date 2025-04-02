@@ -16,8 +16,9 @@ const ShareButton: React.FC<ShareButtonProps> = ({ wine, className }) => {
   
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering parent card click
+    e.preventDefault(); // Prevent default behavior for links
     
-    const shareText = `Check out this great wine value I found with Wine Whisperer!\n\n${wine.name} (${wine.year}) - $${wine.price} (${(((wine.marketPrice - wine.price) / wine.marketPrice) * 100).toFixed(0)}% below market price!)`;
+    const shareText = `Check out this great wine value I found with WineCheck!\n\n${wine.name} (${wine.year}) - $${wine.price} (${(((wine.marketPrice - wine.price) / wine.marketPrice) * 100).toFixed(0)}% below market price!)`;
     
     if (navigator.share) {
       navigator.share({
@@ -61,6 +62,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ wine, className }) => {
       aria-label="Share this wine"
     >
       <Share2 size={isMobile ? 16 : 18} />
+      {!isMobile && <span className="ml-1">Share</span>}
     </Button>
   );
 };

@@ -24,24 +24,28 @@ const MobileNavBar: React.FC = () => {
   ];
   
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-2 py-1.5">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-2 py-1">
       <div className="flex justify-around">
         {navItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
             className={cn(
-              "flex flex-col items-center justify-center px-2 py-2 text-xs font-medium rounded-md touch-manipulation",
+              "flex flex-col items-center justify-center px-2 py-2 text-xs font-medium rounded-md",
+              // Better touch target - adding min dimensions
+              "min-w-[64px] min-h-[56px] touch-manipulation",
               isActive(item.path)
                 ? "text-wine"
-                : "text-gray-500 hover:text-wine-dark"
+                : "text-gray-500 hover:text-wine-dark active:text-wine"
             )}
             aria-current={isActive(item.path) ? "page" : undefined}
+            aria-label={item.label}
           >
             <item.icon 
-              size={20} 
+              size={22} 
               className={cn(
                 isActive(item.path) ? "text-wine" : "text-gray-500",
+                "transition-colors"
               )} 
             />
             <span className="mt-1">{item.label}</span>

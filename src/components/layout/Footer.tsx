@@ -10,7 +10,7 @@ const Footer = () => {
   const isMobile = useIsMobile();
   
   return (
-    <footer className="w-full py-4 md:py-6 px-4 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <footer className={`w-full py-4 md:py-6 px-4 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${isMobile ? 'pb-20' : ''}`}>
       <div className="container max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
           <div>
@@ -35,23 +35,23 @@ const Footer = () => {
             <h3 className="text-base md:text-lg font-medium mb-3 md:mb-4">Resources</h3>
             <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
               <li>
-                <Link to="/learn" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center">
+                <Link to="/learn" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center touch-manipulation py-1">
                   Learn About Wine
                 </Link>
               </li>
               <li>
-                <a href="https://blog.winewhisperer.com" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center">
+                <a href="https://blog.winecheck.com" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center touch-manipulation py-1">
                   Blog
                 </a>
               </li>
               <li>
-                <Link to="/faq" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center">
+                <Link to="/faq" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center touch-manipulation py-1">
                   <HelpCircle className="mr-1 h-3 w-3" />
                   FAQ
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@winewhisperer.com" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center">
+                <a href="mailto:support@winecheck.com" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center touch-manipulation py-1">
                   Contact Support
                 </a>
               </li>
@@ -62,17 +62,17 @@ const Footer = () => {
             <h3 className="text-base md:text-lg font-medium mb-3 md:mb-4">Legal</h3>
             <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
               <li>
-                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors touch-manipulation py-1 inline-block">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors touch-manipulation py-1 inline-block">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="/cookie-policy" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/cookie-policy" className="text-muted-foreground hover:text-foreground transition-colors touch-manipulation py-1 inline-block">
                   Cookie Policy
                 </Link>
               </li>

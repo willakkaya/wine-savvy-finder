@@ -26,6 +26,18 @@ const Header: React.FC = () => {
     window.addEventListener('keydown', handleEscapeKey);
     return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [isMenuOpen]);
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isMenuOpen]);
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -100,8 +112,9 @@ const Header: React.FC = () => {
               onClick={toggleMenu}
               aria-expanded={isMenuOpen}
               className="text-wine touch-manipulation p-2"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
-              <span className="sr-only">Open main menu</span>
+              <span className="sr-only">{isMenuOpen ? "Close main menu" : "Open main menu"}</span>
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
@@ -110,7 +123,7 @@ const Header: React.FC = () => {
       
       {/* Mobile menu, show/hide based on menu state */}
       {isMenuOpen && (
-        <div className="sm:hidden bg-cream/95 backdrop-blur-sm absolute w-full z-50 shadow-sm">
+        <div className="sm:hidden fixed inset-0 z-50 pt-14 bg-cream/95 backdrop-blur-sm overflow-y-auto">
           <div className="pt-1 pb-2 space-y-0.5">
             <Link
               to="/"

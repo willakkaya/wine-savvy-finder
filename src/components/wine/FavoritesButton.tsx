@@ -20,6 +20,7 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) =>
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent click from bubbling to parent elements
+    e.preventDefault(); // Prevent default behavior for links
     
     const newState = toggleFavorite(wine);
     setIsFavorited(newState);
