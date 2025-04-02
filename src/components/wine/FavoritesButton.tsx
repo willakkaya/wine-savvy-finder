@@ -41,7 +41,7 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) =>
       size="icon"
       className={cn(
         "rounded-full hover:bg-background/80 transition-colors touch-manipulation",
-        isMobile ? "min-w-10 min-h-10" : "",
+        isMobile ? "min-w-12 min-h-12" : "",
         isFavorited ? "text-rose-500" : "text-muted-foreground",
         className
       )}
@@ -49,7 +49,7 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) =>
       aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
     >
       <Heart 
-        size={isMobile ? 18 : 20} 
+        size={isMobile ? 20 : 22} 
         className={cn(
           "transition-all",
           isFavorited ? "fill-rose-500 scale-110" : "fill-none"

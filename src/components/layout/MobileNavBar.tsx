@@ -9,6 +9,7 @@ const MobileNavBar: React.FC = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   
+  // Don't render on desktop
   if (!isMobile) return null;
   
   const isActive = (path: string) => {
@@ -24,16 +25,16 @@ const MobileNavBar: React.FC = () => {
   ];
   
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-2 py-1">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-2 py-1 safe-area-bottom">
       <div className="flex justify-around">
         {navItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
             className={cn(
-              "flex flex-col items-center justify-center px-2 py-2 text-xs font-medium rounded-md",
+              "flex flex-col items-center justify-center px-3 py-2 text-xs font-medium rounded-md",
               // Better touch target - adding min dimensions
-              "min-w-[64px] min-h-[56px] touch-manipulation",
+              "min-w-[68px] min-h-[64px] touch-manipulation",
               isActive(item.path)
                 ? "text-wine"
                 : "text-gray-500 hover:text-wine-dark active:text-wine"
@@ -42,7 +43,7 @@ const MobileNavBar: React.FC = () => {
             aria-label={item.label}
           >
             <item.icon 
-              size={22} 
+              size={24} 
               className={cn(
                 isActive(item.path) ? "text-wine" : "text-gray-500",
                 "transition-colors"
