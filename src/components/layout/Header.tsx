@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wine, Menu, X, Heart, Settings } from 'lucide-react';
+import { Wine, Menu, X, Heart, Settings, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 

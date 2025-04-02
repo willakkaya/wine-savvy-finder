@@ -33,7 +33,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   return (
     <div className="flex flex-col min-h-screen font-sans">
       <Header />
-      <main className={`flex-grow ${padding ? 'px-4 py-4 md:py-8' : ''} ${className}`}>
+      <main className={`flex-grow ${padding ? `px-4 py-4 ${isMobile ? 'pb-16' : 'md:py-8'}` : ''} ${className}`}>
         {children}
       </main>
       <Footer />
