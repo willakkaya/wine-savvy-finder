@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Wine, ArrowRight, Camera, Award, Banknote, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +23,7 @@ const Home: React.FC = () => {
             </div>
             
             <h1 className="text-5xl md:text-6xl font-serif font-bold text-cream mb-8 tracking-tight">
-              Never Overpay for Great Wine Again
+              Unlock Hidden Wine Gems
             </h1>
             
             <p className="text-xl text-cream/90 mb-10 max-w-xl mx-auto font-light leading-relaxed">
