@@ -55,12 +55,12 @@ const ShareButton: React.FC<ShareButtonProps> = ({ wine, className }) => {
   return (
     <Button 
       variant="ghost" 
-      size="sm" 
-      className={`${className} ${isMobile ? 'touch-manipulation min-h-9 min-w-9' : ''}`}
+      size={isMobile ? "icon" : "sm"}
+      className={`${className} touch-manipulation`}
       onClick={handleShare}
       aria-label="Share this wine"
     >
-      <Share2 size={16} />
+      <Share2 size={isMobile ? 16 : 18} />
     </Button>
   );
 };

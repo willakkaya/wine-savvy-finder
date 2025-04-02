@@ -1,18 +1,25 @@
+
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+const MOBILE_BREAKPOINT = 768 // Matches md breakpoint in Tailwind
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
+    // Set initial value
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    
+    // Create responsive handler
+    const handleResize = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
+    
+    // Add event listener
+    window.addEventListener("resize", handleResize)
+    
+    // Clean up
+    return () => window.removeEventListener("resize", handleResize)
   }, [])
 
   return !!isMobile

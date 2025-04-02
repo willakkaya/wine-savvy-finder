@@ -99,7 +99,7 @@ const Header: React.FC = () => {
               size="icon"
               onClick={toggleMenu}
               aria-expanded={isMenuOpen}
-              className="text-wine touch-lg p-2"
+              className="text-wine touch-manipulation p-2"
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -114,7 +114,7 @@ const Header: React.FC = () => {
           <div className="pt-1 pb-2 space-y-0.5">
             <Link
               to="/"
-              className={`block px-4 py-2.5 rounded-md text-base font-medium ${
+              className={`block px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
                 isActive('/') 
                   ? 'text-wine bg-wine/5' 
                   : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
@@ -125,7 +125,7 @@ const Header: React.FC = () => {
             </Link>
             <Link
               to="/scan"
-              className={`block px-4 py-2.5 rounded-md text-base font-medium ${
+              className={`block px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
                 isActive('/scan') 
                   ? 'text-wine bg-wine/5' 
                   : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
@@ -136,7 +136,7 @@ const Header: React.FC = () => {
             </Link>
             <Link
               to="/favorites"
-              className={`flex items-center px-4 py-2.5 rounded-md text-base font-medium ${
+              className={`flex items-center px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
                 isActive('/favorites') 
                   ? 'text-wine bg-wine/5' 
                   : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
@@ -148,7 +148,7 @@ const Header: React.FC = () => {
             </Link>
             <Link
               to="/settings"
-              className={`flex items-center px-4 py-2.5 rounded-md text-base font-medium ${
+              className={`flex items-center px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
                 isActive('/settings') 
                   ? 'text-wine bg-wine/5' 
                   : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
@@ -160,7 +160,7 @@ const Header: React.FC = () => {
             </Link>
             <Link
               to="/faq"
-              className={`flex items-center px-4 py-2.5 rounded-md text-base font-medium ${
+              className={`flex items-center px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
                 isActive('/faq') 
                   ? 'text-wine bg-wine/5' 
                   : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'

@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import MobileNavBar from './MobileNavBar';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -33,10 +34,11 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   return (
     <div className="flex flex-col min-h-screen font-sans">
       <Header />
-      <main className={`flex-grow ${padding ? `px-4 py-4 ${isMobile ? 'pb-16' : 'md:py-8'}` : ''} ${className}`}>
+      <main className={`flex-grow ${padding ? `px-4 py-4 ${isMobile ? 'pb-24' : 'md:py-8'}` : ''} ${className}`}>
         {children}
       </main>
       <Footer />
+      <MobileNavBar />
     </div>
   );
 };
