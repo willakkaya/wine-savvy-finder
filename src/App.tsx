@@ -17,6 +17,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Contact from "./pages/Contact";
 import { AppSettingsProvider } from "./hooks/useAppSettings";
+import { UserPreferencesProvider } from "./hooks/useUserPreferences";
 
 const App = () => {
   // Initialize QueryClient inside the component with refined settings
@@ -34,37 +35,39 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="wine-whisperer-theme">
         <AppSettingsProvider>
-          <TooltipProvider>
-            <div className="min-h-screen flex flex-col bg-background text-foreground antialiased">
-              <Toaster />
-              <Sonner 
-                position="top-center"
-                toastOptions={{
-                  classNames: {
-                    toast: "group font-sans rounded-xl border-border shadow-apple-md",
-                    title: "text-sm font-medium",
-                    description: "text-xs text-muted-foreground",
-                  }
-                }}
-              />
-              <BrowserRouter>
-                <AnimatePresence mode="wait">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/scan" element={<ScanPage />} />
-                    <Route path="/wine/:id" element={<WineDetailsPage />} />
-                    <Route path="/favorites" element={<FavoritesPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/privacy" element={<PrivacyPolicy />} />
-                    <Route path="/terms" element={<TermsOfService />} />
-                    <Route path="/contact" element={<Contact />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </AnimatePresence>
-              </BrowserRouter>
-            </div>
-          </TooltipProvider>
+          <UserPreferencesProvider>
+            <TooltipProvider>
+              <div className="min-h-screen flex flex-col bg-background text-foreground antialiased">
+                <Toaster />
+                <Sonner 
+                  position="top-center"
+                  toastOptions={{
+                    classNames: {
+                      toast: "group font-sans rounded-xl border-border shadow-apple-md",
+                      title: "text-sm font-medium",
+                      description: "text-xs text-muted-foreground",
+                    }
+                  }}
+                />
+                <BrowserRouter>
+                  <AnimatePresence mode="wait">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/scan" element={<ScanPage />} />
+                      <Route path="/wine/:id" element={<WineDetailsPage />} />
+                      <Route path="/favorites" element={<FavoritesPage />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
+                      <Route path="/terms" element={<TermsOfService />} />
+                      <Route path="/contact" element={<Contact />} />
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </AnimatePresence>
+                </BrowserRouter>
+              </div>
+            </TooltipProvider>
+          </UserPreferencesProvider>
         </AppSettingsProvider>
       </ThemeProvider>
     </QueryClientProvider>
