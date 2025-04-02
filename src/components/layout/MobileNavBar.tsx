@@ -33,8 +33,8 @@ const MobileNavBar: React.FC = () => {
             to={item.path}
             className={cn(
               "flex flex-col items-center justify-center px-3 py-2 text-xs font-medium rounded-md",
-              // Better touch target - adding min dimensions
               "min-w-[68px] min-h-[64px] touch-manipulation",
+              "transition-colors duration-200 active:scale-95",
               isActive(item.path)
                 ? "text-wine"
                 : "text-gray-500 hover:text-wine-dark active:text-wine"

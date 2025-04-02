@@ -5,6 +5,10 @@ import * as React from "react"
 const MOBILE_BREAKPOINT = 768 // md breakpoint
 const TABLET_BREAKPOINT = 1024 // lg breakpoint
 
+// Cache the current device state across component renders
+let cachedIsMobile: boolean | undefined = undefined;
+let cachedDeviceInfo: DeviceInfo | undefined = undefined;
+
 interface DeviceInfo {
   isMobile: boolean
   isTablet: boolean
@@ -12,88 +16,125 @@ interface DeviceInfo {
   screenWidth: number | undefined
 }
 
+/**
+ * Optimized hook that provides mobile detection with caching
+ * for better performance across components
+ */
 export function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  const [isMobile, setIsMobile] = React.useState<boolean>(
+    cachedIsMobile !== undefined ? cachedIsMobile : false
+  );
 
   React.useEffect(() => {
     // Handle initial load - check if window exists (for SSR)
     if (typeof window !== "undefined") {
-      // Set initial value
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+      // Only recalculate if we don't have a cached value
+      if (cachedIsMobile === undefined) {
+        cachedIsMobile = window.innerWidth < MOBILE_BREAKPOINT;
+        setIsMobile(cachedIsMobile);
+      }
       
-      // Create responsive handler with debouncing for better performance
+      // Create responsive handler with efficient debouncing
       let timeoutId: ReturnType<typeof setTimeout>;
+      let lastWidth = window.innerWidth;
+      
       const handleResize = () => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-        }, 100); // Small debounce for performance
+        // Only process if width actually changed (ignores height-only changes)
+        if (window.innerWidth !== lastWidth) {
+          lastWidth = window.innerWidth;
+          clearTimeout(timeoutId);
+          
+          timeoutId = setTimeout(() => {
+            const newIsMobile = window.innerWidth < MOBILE_BREAKPOINT;
+            if (newIsMobile !== cachedIsMobile) {
+              cachedIsMobile = newIsMobile;
+              setIsMobile(newIsMobile);
+            }
+          }, 100); // Small debounce for performance
+        }
       }
       
       // Add event listener
-      window.addEventListener("resize", handleResize)
+      window.addEventListener("resize", handleResize);
       
       // Clean up
       return () => {
-        window.removeEventListener("resize", handleResize)
+        window.removeEventListener("resize", handleResize);
         clearTimeout(timeoutId);
       }
     }
-  }, [])
+  }, []);
 
-  // For SSR, default to non-mobile (undefined becomes false)
-  return isMobile === undefined ? false : isMobile
+  return isMobile;
 }
 
 /**
  * Enhanced hook that provides detailed device information
+ * with caching for better performance
  */
 export function useDeviceInfo(): DeviceInfo {
-  const [deviceInfo, setDeviceInfo] = React.useState<DeviceInfo>({
-    isMobile: false,
-    isTablet: false,
-    isDesktop: true,
-    screenWidth: undefined
-  })
+  const [deviceInfo, setDeviceInfo] = React.useState<DeviceInfo>(
+    cachedDeviceInfo || {
+      isMobile: false,
+      isTablet: false,
+      isDesktop: true,
+      screenWidth: undefined
+    }
+  );
 
   React.useEffect(() => {
     // Handle initial load - check if window exists (for SSR)
     if (typeof window !== "undefined") {
-      const width = window.innerWidth
+      // Only recalculate if we don't have a cached value
+      if (!cachedDeviceInfo) {
+        const width = window.innerWidth;
+        cachedDeviceInfo = {
+          isMobile: width < MOBILE_BREAKPOINT,
+          isTablet: width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT,
+          isDesktop: width >= TABLET_BREAKPOINT,
+          screenWidth: width
+        };
+        setDeviceInfo(cachedDeviceInfo);
+      }
       
-      // Calculate initial device information
-      setDeviceInfo({
-        isMobile: width < MOBILE_BREAKPOINT,
-        isTablet: width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT,
-        isDesktop: width >= TABLET_BREAKPOINT,
-        screenWidth: width
-      })
-      
-      // Create responsive handler with debouncing for better performance
+      // Create responsive handler with efficient debouncing
       let timeoutId: ReturnType<typeof setTimeout>;
+      let lastWidth = window.innerWidth;
+      
       const handleResize = () => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          const newWidth = window.innerWidth
-          setDeviceInfo({
-            isMobile: newWidth < MOBILE_BREAKPOINT,
-            isTablet: newWidth >= MOBILE_BREAKPOINT && newWidth < TABLET_BREAKPOINT,
-            isDesktop: newWidth >= TABLET_BREAKPOINT,
-            screenWidth: newWidth
-          })
-        }, 100); // Small debounce for performance
+        // Only process if width actually changed (ignores height-only changes)
+        if (window.innerWidth !== lastWidth) {
+          lastWidth = window.innerWidth;
+          clearTimeout(timeoutId);
+          
+          timeoutId = setTimeout(() => {
+            const newWidth = window.innerWidth;
+            const newDeviceInfo = {
+              isMobile: newWidth < MOBILE_BREAKPOINT,
+              isTablet: newWidth >= MOBILE_BREAKPOINT && newWidth < TABLET_BREAKPOINT,
+              isDesktop: newWidth >= TABLET_BREAKPOINT,
+              screenWidth: newWidth
+            };
+            
+            // Only update if values changed
+            if (JSON.stringify(newDeviceInfo) !== JSON.stringify(cachedDeviceInfo)) {
+              cachedDeviceInfo = newDeviceInfo;
+              setDeviceInfo(newDeviceInfo);
+            }
+          }, 100); // Small debounce for performance
+        }
       }
       
       // Add event listener
-      window.addEventListener("resize", handleResize)
+      window.addEventListener("resize", handleResize);
       
       // Clean up
       return () => {
-        window.removeEventListener("resize", handleResize)
+        window.removeEventListener("resize", handleResize);
         clearTimeout(timeoutId);
       }
     }
-  }, [])
+  }, []);
 
-  return deviceInfo
+  return deviceInfo;
 }

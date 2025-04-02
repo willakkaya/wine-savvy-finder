@@ -20,7 +20,7 @@ const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, styl
     navigate(`/wine/${wine.id}`);
   };
   
-  // Enhanced animation variants with mobile-specific adjustments
+  // Mobile-optimized variants with reduced animations for better performance
   const variants = {
     initial: { 
       scale: 1, 
@@ -29,12 +29,13 @@ const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, styl
     },
     hover: { 
       scale: isMobile ? 1.01 : 1.02, // Smaller scale on mobile
-      y: isMobile ? -3 : -6, // Less elevation on mobile
+      y: isMobile ? -2 : -6, // Less elevation on mobile
       boxShadow: '0 6px 16px rgba(0,0,0,0.05), 0 12px 32px rgba(0,0,0,0.03)',
       transition: { 
         type: "spring", 
-        stiffness: 300, 
-        damping: 20 
+        stiffness: isMobile ? 400 : 300, // Faster springs on mobile
+        damping: isMobile ? 25 : 20,
+        mass: isMobile ? 0.8 : 1  // Lighter mass for faster mobile animations
       }
     },
     tap: { 
@@ -48,12 +49,39 @@ const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, styl
     }
   };
   
+  // For mobile, reduce motion for better performance
+  if (isMobile) {
+    return (
+      <div 
+        onClick={handleClick}
+        className="cursor-pointer touch-manipulation active:scale-[0.98] transition-transform"
+        style={style}
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${wine.name}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
+      >
+        <WineCard 
+          wine={wine} 
+          rank={rank} 
+          className={className}
+        />
+      </div>
+    );
+  }
+  
+  // Use full animations for desktop
   return (
     <motion.div 
       onClick={handleClick}
-      className={`cursor-pointer ${isMobile ? 'touch-manipulation' : ''}`}
+      className="cursor-pointer"
       initial="initial"
-      whileHover={isMobile ? undefined : "hover"} // Disable hover animation on mobile
+      whileHover="hover"
       whileTap="tap"
       variants={variants}
       style={style}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Wine, Menu, X, Heart, Settings, HelpCircle } from 'lucide-react';
@@ -39,6 +38,20 @@ const Header: React.FC = () => {
     };
   }, [isMenuOpen]);
   
+  // Handle iOS viewport height calculation
+  useEffect(() => {
+    const updateVh = () => {
+      // Set the value of --vh to the actual viewport height
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    };
+    
+    // Update immediately and on resize
+    updateVh();
+    window.addEventListener('resize', updateVh);
+    
+    return () => window.removeEventListener('resize', updateVh);
+  }, []);
+  
   const isActive = (path: string) => {
     return location.pathname === path;
   };
@@ -48,7 +61,7 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="bg-cream border-b border-wine/10 sticky top-0 z-50 shadow-sm backdrop-blur-lg">
+    <header className="bg-cream border-b border-wine/10 sticky top-0 z-50 shadow-sm backdrop-blur-lg safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 md:h-16 items-center">
           <div className="flex">
