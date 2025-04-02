@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import PreferencesForm from './PreferencesForm';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PreferencesDialogProps {
   trigger?: React.ReactNode;
@@ -23,6 +24,7 @@ const PreferencesDialog: React.FC<PreferencesDialogProps> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   const { hasSetPreferences, setHasSetPreferences } = useUserPreferences();
+  const isMobile = useIsMobile();
 
   // If showWelcome is true and user hasn't set preferences, show dialog automatically
   React.useEffect(() => {
@@ -34,12 +36,12 @@ const PreferencesDialog: React.FC<PreferencesDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className={`${isMobile ? 'max-w-[90vw] p-4' : 'max-w-lg p-6'} max-h-[90vh] overflow-y-auto`}>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className={isMobile ? 'text-lg' : ''}>
             {showWelcome ? 'Welcome to Wine Whisperer!' : 'Your Wine Preferences'}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={isMobile ? 'text-sm' : ''}>
             {showWelcome 
               ? 'Tell us about your wine preferences to help us personalize your experience.'
               : 'Update your wine preferences to get better recommendations.'}
@@ -54,6 +56,7 @@ const PreferencesDialog: React.FC<PreferencesDialogProps> = ({
                 setHasSetPreferences(true);
                 setOpen(false);
               }}
+              className={isMobile ? 'text-sm py-1.5' : ''}
             >
               Skip for now
             </Button>

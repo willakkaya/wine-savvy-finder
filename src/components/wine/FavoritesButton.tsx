@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { WineInfo } from './WineCard';
 import { toggleFavorite, isFavorite } from '@/utils/favoritesUtils';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface FavoritesButtonProps {
   wine: WineInfo;
@@ -15,6 +16,7 @@ interface FavoritesButtonProps {
 const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) => {
   const [isFavorited, setIsFavorited] = useState(isFavorite(wine.id));
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent click from bubbling to parent elements

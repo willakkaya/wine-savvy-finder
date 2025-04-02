@@ -4,6 +4,7 @@ import { Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { WineInfo } from './WineCard';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ShareButtonProps {
   wine: WineInfo;
@@ -11,6 +12,8 @@ interface ShareButtonProps {
 }
 
 const ShareButton: React.FC<ShareButtonProps> = ({ wine, className }) => {
+  const isMobile = useIsMobile();
+  
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering parent card click
     
@@ -53,7 +56,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ wine, className }) => {
     <Button 
       variant="ghost" 
       size="sm" 
-      className={className}
+      className={`${className} ${isMobile ? 'touch-manipulation min-h-9 min-w-9' : ''}`}
       onClick={handleShare}
       aria-label="Share this wine"
     >
