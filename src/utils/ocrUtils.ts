@@ -135,8 +135,10 @@ export const performOCR = async (imageData: string): Promise<OCRResult[]> => {
   }
 };
 
-// Export the other function to avoid breaking existing references
-export { parseWineInformation } from './wineOcrService';
-export { enhanceWineData } from './wineOcrService';
+// Remove these incorrect exports
+// export { parseWineInformation } from './wineOcrService';
+// export { enhanceWineData } from './wineOcrService';
 
-// Remove the other functions that are now in the service
+// Instead, export what we need directly from the WineOcrService
+export const parseWineInformation = WineOcrService.parseOcrResults;
+export const enhanceWineData = WineOcrService.enrichWineData;
