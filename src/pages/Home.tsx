@@ -1,13 +1,19 @@
-import React from 'react';
-import { Wine, ArrowRight, Camera, Award, Banknote, Star } from 'lucide-react';
+
+import React, { lazy, Suspense } from 'react';
+import { Wine, ArrowRight, Camera, Award, Banknote, Star, Info, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Card, CardContent } from '@/components/ui/card';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+// Lazy load testimonials section for better initial load performance
+const TestimonialsSection = lazy(() => import('@/components/home/TestimonialsSection'));
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -115,7 +121,12 @@ const Home: React.FC = () => {
               ].map((wine, index) => (
                 <Card key={wine.name} className="overflow-hidden shadow-apple-md transition-all duration-300 hover:shadow-apple-lg hover:translate-y-[-2px] animate-fadeIn" style={{ animationDelay: `${index * 0.15}s` }}>
                   <div className="h-48 overflow-hidden">
-                    <img src={wine.image} alt={wine.name} className="w-full h-full object-cover" />
+                    <img 
+                      src={wine.image} 
+                      alt={wine.name} 
+                      className="w-full h-full object-cover" 
+                      loading="lazy"
+                    />
                   </div>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-3">
@@ -144,6 +155,17 @@ const Home: React.FC = () => {
             </div>
           </div>
         </section>
+        
+        {/* Lazy-loaded testimonials section */}
+        <Suspense fallback={<div className="py-16 px-6 flex justify-center items-center">
+          <div className="animate-pulse flex space-x-2">
+            <div className="h-3 w-3 bg-wine rounded-full"></div>
+            <div className="h-3 w-3 bg-wine rounded-full"></div>
+            <div className="h-3 w-3 bg-wine rounded-full"></div>
+          </div>
+        </div>}>
+          <TestimonialsSection />
+        </Suspense>
         
         <section className="py-16 px-6 bg-wine/10 backdrop-blur-sm">
           <div className="max-w-4xl mx-auto text-center">
