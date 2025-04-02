@@ -9,6 +9,7 @@ import FavoritesButton from './FavoritesButton';
 import FoodPairingBadge from './FoodPairingBadge';
 import { getTopFoodPairings } from '@/utils/foodPairingUtils';
 import { useAppSettings } from '@/hooks/useAppSettings';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface WineInfo {
   id: string;
@@ -34,6 +35,7 @@ interface WineCardProps {
 
 const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => {
   const { settings } = useAppSettings();
+  const isMobile = useIsMobile();
   
   const savings = ((wine.marketPrice - wine.price) / wine.marketPrice * 100).toFixed(0);
   const valueLabel = 
@@ -60,7 +62,7 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
   };
   
   // Get food pairings if wine type is available
-  const foodPairings = wine.wineType ? getTopFoodPairings(wine.wineType) : [];
+  const foodPairings = wine.wineType ? getTopFoodPairings(wine.wineType).slice(0, isMobile ? 2 : 3) : [];
 
   return (
     <Card className={cn(
@@ -70,12 +72,12 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
     )} style={style}>
       <div className="relative">
         {rank === 1 && (
-          <div className="absolute top-0 right-0 bg-gold text-white px-3 py-1 rounded-bl-md font-semibold text-sm z-10 flex items-center gap-1">
-            <Award size={14} className="animate-pulse" />
+          <div className="absolute top-0 right-0 bg-gold text-white px-2 py-0.5 md:px-3 md:py-1 rounded-bl-md font-semibold text-xs md:text-sm z-10 flex items-center gap-1">
+            <Award size={isMobile ? 12 : 14} className="animate-pulse" />
             <span>Top Value</span>
           </div>
         )}
-        <div className={`h-44 bg-gradient-to-b ${getWineTypeGradient()} flex items-center justify-center overflow-hidden`}>
+        <div className={`h-32 md:h-44 bg-gradient-to-b ${getWineTypeGradient()} flex items-center justify-center overflow-hidden`}>
           {wine.imageUrl ? (
             <div className="relative w-full h-full flex items-center justify-center">
               <div className="absolute inset-0 backdrop-blur-[1px] bg-black/5"></div>
@@ -86,38 +88,38 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
               />
             </div>
           ) : (
-            <Wine size={60} className="text-wine opacity-30" />
+            <Wine size={isMobile ? 40 : 60} className="text-wine opacity-30" />
           )}
         </div>
       </div>
       
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1 md:pb-2 px-3 md:px-4 pt-3 md:pt-4">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg font-serif line-clamp-2">{wine.name}</CardTitle>
-          <div className="flex gap-1">
+          <CardTitle className="text-base md:text-lg font-serif line-clamp-2">{wine.name}</CardTitle>
+          <div className="flex gap-1 ml-2">
             <FavoritesButton wine={wine} className="mt-[-8px]" />
             <ShareButton wine={wine} className="mt-[-8px] mr-[-8px]" />
           </div>
         </div>
-        <CardDescription className="line-clamp-1">
+        <CardDescription className="line-clamp-1 text-xs md:text-sm">
           {wine.winery} • {wine.year}
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="pb-3">
-        <div className="flex flex-col gap-3">
+      <CardContent className="pb-2 md:pb-3 px-3 md:px-4">
+        <div className="flex flex-col gap-2 md:gap-3">
           <div className="flex flex-wrap gap-1 items-center">
-            <Badge className="bg-wine text-white hover:bg-wine-dark">
+            <Badge className="bg-wine text-white hover:bg-wine-dark text-xs">
               {valueLabel}
             </Badge>
             {settings.showSavings && !settings.discreetMode && (
-              <span className="text-sm text-wine-dark font-medium">Save {savings}%</span>
+              <span className="text-xs md:text-sm text-wine-dark font-medium">Save {savings}%</span>
             )}
           </div>
           
           {/* Food Pairings */}
           {foodPairings.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-1">
+            <div className="flex flex-wrap gap-1 md:gap-1.5 mb-0.5 md:mb-1">
               {foodPairings.map((pairing, index) => (
                 <FoodPairingBadge key={index} pairing={pairing} />
               ))}
@@ -126,36 +128,36 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
           
           {/* Price Information (conditional on settings) */}
           {(!settings.discreetMode && settings.showPrices) && (
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center gap-1 bg-secondary/50 p-2 rounded-md dark:bg-secondary">
-                <DollarSign size={14} className="text-wine" />
+            <div className="grid grid-cols-2 gap-1 md:gap-2 text-xs md:text-sm">
+              <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
+                <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
                 <span className="font-medium">${wine.price}</span>
-                <span className="text-xs text-muted-foreground ml-1">menu</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">menu</span>
               </div>
-              <div className="flex items-center gap-1 bg-secondary/50 p-2 rounded-md dark:bg-secondary">
-                <DollarSign size={14} className="text-wine" />
+              <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
+                <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
                 <span className="font-medium">${wine.marketPrice}</span>
-                <span className="text-xs text-muted-foreground ml-1">retail</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">retail</span>
               </div>
             </div>
           )}
           
           {/* Discreet Mode Alternative */}
           {settings.discreetMode && (
-            <div className="bg-secondary/50 p-2 rounded-md dark:bg-secondary text-center">
-              <span className="text-sm font-medium">Price information hidden</span>
+            <div className="bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary text-center">
+              <span className="text-xs md:text-sm font-medium">Price information hidden</span>
             </div>
           )}
           
           {/* Rating (conditional on settings) */}
           {(!settings.discreetMode && settings.showRatings) && (
-            <div className="flex items-center gap-2 bg-card p-2 rounded-md border border-border">
-              <span className="text-sm font-medium">{wine.rating}/100</span>
+            <div className="flex items-center gap-1 md:gap-2 bg-card p-1.5 md:p-2 rounded-md border border-border">
+              <span className="text-xs md:text-sm font-medium">{wine.rating}/100</span>
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    size={14}
+                    size={isMobile ? 12 : 14}
                     className={i < Math.round(wine.rating / 20) ? "text-gold fill-gold" : "text-muted-foreground"}
                   />
                 ))}
@@ -165,10 +167,10 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
         </div>
       </CardContent>
       
-      <CardFooter className="pt-0 text-xs text-muted-foreground">
+      <CardFooter className="pt-0 text-[10px] md:text-xs text-muted-foreground px-3 md:px-4 pb-3 md:pb-4">
         <div className="w-full flex items-center justify-between">
-          <span>{wine.region}, {wine.country}</span>
-          <Badge variant="outline" className="text-xs font-normal">
+          <span className="truncate max-w-[70%]">{wine.region}, {wine.country}</span>
+          <Badge variant="outline" className="text-[10px] md:text-xs font-normal">
             #{rank}
           </Badge>
         </div>

@@ -8,8 +8,11 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion';
 import { Wine, GlassWater, DollarSign, MapPin, HeartHandshake, HelpCircle } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const FAQPage: React.FC = () => {
+  const isMobile = useIsMobile();
+  
   const faqSections = [
     {
       title: "About Wine Whisperer",
@@ -119,29 +122,42 @@ const FAQPage: React.FC = () => {
 
   return (
     <PageContainer title="Frequently Asked Questions">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-3xl md:text-4xl font-serif text-wine-dark text-center mb-2">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:py-12">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif text-wine-dark text-center mb-2">
           Frequently Asked Questions
         </h1>
-        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto text-sm md:text-base">
           Everything you need to know about using Wine Whisperer to find great value wines
         </p>
 
-        <div className="space-y-8">
+        <div className="space-y-4 md:space-y-8">
           {faqSections.map((section, index) => (
-            <div key={index} className="rounded-lg border border-border p-6 bg-card">
-              <div className="flex items-center gap-3 mb-4">
+            <div 
+              key={index} 
+              className="rounded-lg border border-border p-4 md:p-6 bg-card"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                 {section.icon}
-                <h2 className="text-xl font-serif font-medium text-foreground">{section.title}</h2>
+                <h2 className="text-lg md:text-xl font-serif font-medium text-foreground">{section.title}</h2>
               </div>
               
-              <Accordion type="single" collapsible className="space-y-2">
+              <Accordion type="single" collapsible className="space-y-1 md:space-y-2">
                 {section.questions.map((faq, faqIndex) => (
-                  <AccordionItem key={faqIndex} value={`item-${index}-${faqIndex}`} className="border-0">
-                    <AccordionTrigger className="text-left font-medium hover:no-underline py-3 px-4 rounded-md hover:bg-muted">
+                  <AccordionItem 
+                    key={faqIndex} 
+                    value={`item-${index}-${faqIndex}`} 
+                    className="border-0"
+                    data-testid={`faq-item-${index}-${faqIndex}`}
+                  >
+                    <AccordionTrigger 
+                      className="text-left font-medium hover:no-underline py-2 md:py-3 px-3 md:px-4 rounded-md hover:bg-muted text-sm md:text-base"
+                    >
                       {faq.question}
                     </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-3 pt-1 text-muted-foreground">
+                    <AccordionContent 
+                      className="px-3 md:px-4 pb-2 md:pb-3 pt-1 text-muted-foreground text-xs md:text-sm"
+                    >
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
