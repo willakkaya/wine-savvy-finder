@@ -6,7 +6,7 @@
 // App version - this would be updated with each release
 export const APP_VERSION = '1.0.0';
 
-// Build timestamp - helpful for debugging and support
+// Build timestamp - generated at build time for debugging
 export const BUILD_TIMESTAMP = new Date().toISOString();
 
 /**
@@ -46,7 +46,10 @@ export const getUserAgentInfo = (): UserAgentInfo => {
  * This is useful for debugging production issues
  */
 export const logAppInfo = (): void => {
-  if (!import.meta.env.PROD) {
-    console.log('Wine Whisperer', getUserAgentInfo());
+  // Log in all environments but with different levels
+  if (import.meta.env.PROD) {
+    console.info('WineCheck', getUserAgentInfo());
+  } else {
+    console.log('WineCheck', getUserAgentInfo());
   }
 };

@@ -2,7 +2,8 @@
 {
   "name": "WineCheck",
   "short_name": "WineCheck",
-  "description": "Find the best value wines on restaurant wine lists",
+  "description": "Find the best value wines on restaurant wine lists with AI-powered analysis",
+  "version": "1.0.0",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#722F37",
@@ -16,14 +17,19 @@
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
+  "orientation": "portrait",
+  "categories": ["food", "lifestyle", "utilities"],
+  "screenshots": [],
   "apple_mobile_web_app_capable": "yes",
   "apple_mobile_web_app_status_bar_style": "black-translucent",
   "apple_mobile_web_app_title": "WineCheck"

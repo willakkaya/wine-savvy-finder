@@ -1,10 +1,10 @@
 
 import React, { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import PreferencesDialog from '@/components/preferences/PreferencesDialog';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import Home from './Home';
+import PreferencesDialog from '@/components/preferences/PreferencesDialog';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
 
 const Index = () => {
   const { hasSetPreferences } = useUserPreferences();
@@ -19,6 +19,12 @@ const Index = () => {
     preloadLink.href = '/wine-background.jpg';
     document.head.appendChild(preloadLink);
     
+    // Add meta description for SEO
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Find the best value wines on restaurant wine lists with WineCheck. Save money and discover exceptional wines with our AI-powered app.');
+    }
+    
     return () => {
       document.head.removeChild(preloadLink);
     };
@@ -26,8 +32,8 @@ const Index = () => {
   
   return (
     <PageContainer className={isMobile ? 'px-2 py-2' : ''} padding={false}>
-      <PreferencesDialog showWelcome={true} />
-      <Navigate to="/" replace />
+      {!hasSetPreferences && <PreferencesDialog showWelcome={true} />}
+      <Home />
     </PageContainer>
   );
 };

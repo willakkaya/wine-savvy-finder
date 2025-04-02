@@ -1,7 +1,6 @@
 
 /**
  * Configuration settings for the WineCheck app
- * Different values can be set based on the environment
  */
 
 // Check if we're in production mode
@@ -22,41 +21,41 @@ export const config = {
   features: {
     enableSharing: true,
     enableDebugMode: !isProd,
-    enableRealWineApi: true, // Set to true to use the real API
-    useCellarTrackerApi: true, // Set to true to use CellarTracker API
-    enablePremiumFeatures: false, // Unlock premium features with subscription
-    enableOfflineMode: true, // Enable offline caching and functionality
+    enableRealWineApi: true,
+    useCellarTrackerApi: true,
+    enablePremiumFeatures: false,
+    enableOfflineMode: true,
   },
   
   // Performance settings
   performance: {
-    imageQuality: isProd ? 0.9 : 0.9, // Higher quality even in prod for Apple-like experience
+    imageQuality: 0.9,
     cacheResults: true,
-    preloadImages: true, // Apple-like optimization
-    useTouchEvents: true, // Better touch handling
-    prefetchWineData: true, // Prefetch related wine data when viewing details
+    preloadImages: true,
+    useTouchEvents: true,
+    prefetchWineData: isProd,
   },
   
-  // Analytics (would connect to real analytics in production)
+  // Analytics
   analytics: {
     enabled: isProd,
     trackPageViews: isProd,
     trackEvents: isProd,
     trackConversions: isProd,
     anonymizeIp: true,
-    consentRequired: true, // GDPR compliance
+    consentRequired: true,
     providers: {
       googleAnalytics: {
         enabled: isProd,
         measurementId: 'G-XXXXXXXXXX', // Replace with real ID in production
       },
       mixpanel: {
-        enabled: isProd,
-        projectToken: 'XXXXXXXXXXXXXXXXXXXXXXXX', // Replace with real token in production
+        enabled: false, // Disabled until we have a real token
+        projectToken: '',
       },
       segment: {
-        enabled: isProd,
-        writeKey: 'XXXXXXXXXXXXXXXXXXXXXXXX', // Replace with real key in production
+        enabled: false, // Disabled until we have a real key
+        writeKey: '',
       }
     }
   },
@@ -66,11 +65,11 @@ export const config = {
     animationsEnabled: true,
     glassmorphismEnabled: true, 
     useRichTransitions: true,
-    useHighQualityRendering: true, // Apple-like premium rendering
-    useSmoothScrolling: true, // Apple-like smooth scroll
-    reducedMotion: false, // Respect user preferences
-    useHighContrastMode: false, // Accessibility setting
-    fontScaling: 1.0, // Default font scaling
+    useHighQualityRendering: !isMobile(), // Reduce rendering quality on mobile
+    useSmoothScrolling: true,
+    reducedMotion: checkReducedMotion(),
+    useHighContrastMode: false,
+    fontScaling: 1.0,
   },
   
   // Social media and sharing
@@ -88,7 +87,7 @@ export const config = {
     cookiePolicyUrl: '/cookie-policy',
     gdprCompliant: true,
     ccpaCompliant: true,
-    minimumAge: 21, // Legal drinking age in US
+    minimumAge: 21,
   },
   
   // Customer support
@@ -101,3 +100,16 @@ export const config = {
     contactUrl: '/contact',
   }
 };
+
+// Helper function to check if user prefers reduced motion
+function checkReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Helper function to check if device is mobile
+function isMobile(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768 || 
+         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
