@@ -93,7 +93,12 @@
   "dir": "ltr",
   "id": "winecheck-app",
   "scope": "/",
-  "protocol_handlers": [],
+  "protocol_handlers": [
+    {
+      "protocol": "web+winecheck",
+      "url": "/?wine=%s"
+    }
+  ],
   "apple_mobile_web_app_capable": "yes",
   "apple_mobile_web_app_status_bar_style": "black-translucent", 
   "apple_mobile_web_app_title": "WineCheck"

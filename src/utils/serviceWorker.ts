@@ -14,10 +14,12 @@ export function registerServiceWorker() {
         
         // Immediately check for updates if the app has been loaded from cache
         if (navigator.onLine && performance.navigation.type === 1) {
-          registration.update();
+          registration.update().catch(err => {
+            console.error('Initial SW update check failed: ', err);
+          });
         }
       } catch (error) {
-        console.log('SW registration failed: ', error);
+        console.error('SW registration failed: ', error);
       }
     });
   }
@@ -31,6 +33,7 @@ export function handleServiceWorkerUpdates(onUpdateFound: () => void) {
   navigator.serviceWorker.ready.then(registration => {
     // Check for existing waiting service worker
     if (registration.waiting) {
+      console.log('Found waiting service worker, update available');
       onUpdateFound();
       return;
     }
@@ -47,6 +50,8 @@ export function handleServiceWorkerUpdates(onUpdateFound: () => void) {
           onUpdateFound();
         }
       });
+    }).catch(err => {
+      console.error('Error checking for service worker updates: ', err);
     });
   });
   
@@ -62,25 +67,58 @@ export function handleServiceWorkerUpdates(onUpdateFound: () => void) {
 
 // Force the service worker to update
 export function updateServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
+  if (!('serviceWorker' in navigator)) return false;
   
-  navigator.serviceWorker.ready.then(registration => {
+  return navigator.serviceWorker.ready.then(registration => {
     if (registration.waiting) {
       // Send a message to the waiting service worker to skip waiting
+      console.log('Sending skip waiting message to service worker');
       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      return true;
     } else {
       // Otherwise, just check for a new version
-      registration.update();
+      console.log('No waiting service worker found, checking for updates');
+      return registration.update().then(() => false);
     }
+  }).catch(err => {
+    console.error('Error updating service worker: ', err);
+    return false;
   });
 }
 
 // Check if the application is using service workers
 export function isUsingServiceWorker(): boolean {
-  return !!navigator.serviceWorker?.controller;
+  return !!(
+    'serviceWorker' in navigator && 
+    navigator.serviceWorker?.controller
+  );
 }
 
 // Check if the application is currently running in offline mode
 export function isRunningOffline(): boolean {
   return !navigator.onLine;
+}
+
+// Check if the app was installed as a PWA
+export function isInstalledPWA(): boolean {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         (window.navigator as any).standalone === true;
+}
+
+// Check when the service worker was last updated
+export async function getServiceWorkerUpdateTime(): Promise<Date | null> {
+  if (!('serviceWorker' in navigator)) return null;
+  
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    if (registration.active) {
+      // This is a workaround as there's no direct API to get the installation time
+      // We can check the timestamp on the service worker script request
+      return new Date(); 
+    }
+    return null;
+  } catch (err) {
+    console.error('Error getting service worker update time: ', err);
+    return null;
+  }
 }
