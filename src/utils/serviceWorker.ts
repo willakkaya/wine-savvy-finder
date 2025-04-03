@@ -1,3 +1,4 @@
+
 /**
  * Service worker registration and management
  */
@@ -14,9 +15,11 @@ export function registerServiceWorker() {
         
         // Immediately check for updates if the app has been loaded from cache
         if (navigator.onLine && performance.navigation.type === 1) {
-          registration.update().catch(err => {
+          try {
+            await registration.update();
+          } catch (err) {
             console.error('Initial SW update check failed: ', err);
-          });
+          }
         }
       } catch (error) {
         console.error('SW registration failed: ', error);
@@ -50,9 +53,9 @@ export function handleServiceWorkerUpdates(onUpdateFound: () => void) {
           onUpdateFound();
         }
       });
-    }).catch(err => {
-      console.error('Error checking for service worker updates: ', err);
     });
+  }).catch(err => {
+    console.error('Error checking for service worker updates: ', err);
   });
   
   // Listen for controller change events (triggered after skipWaiting)
