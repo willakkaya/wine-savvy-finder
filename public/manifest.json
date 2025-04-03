@@ -1,10 +1,10 @@
 
 {
-  "name": "WineCheck",
+  "name": "WineCheck - Wine List Analyzer",
   "short_name": "WineCheck",
   "description": "Find the best value wines on restaurant wine lists with AI-powered analysis",
-  "version": "1.0.0",
-  "start_url": "/",
+  "version": "1.0.1",
+  "start_url": "/?source=pwa",
   "display": "standalone",
   "background_color": "#722F37",
   "theme_color": "#722F37",
@@ -28,7 +28,7 @@
     }
   ],
   "orientation": "portrait",
-  "categories": ["food", "lifestyle", "utilities"],
+  "categories": ["food", "lifestyle", "utilities", "wine", "restaurants"],
   "screenshots": [
     {
       "src": "screenshot-home.png",
@@ -52,8 +52,49 @@
       "label": "Wine Details"
     }
   ],
+  "shortcuts": [
+    {
+      "name": "Scan Wine List",
+      "short_name": "Scan",
+      "description": "Scan a wine list to analyze",
+      "url": "/scan",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Favorites",
+      "short_name": "Favorites",
+      "description": "View your favorite wines",
+      "url": "/favorites",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "iarc_rating_id": "",
+  "share_target": {
+    "action": "/scan",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "file_handlers": [],
+  "lang": "en-US",
+  "dir": "ltr",
+  "id": "winecheck-app",
+  "scope": "/",
+  "protocol_handlers": [],
   "apple_mobile_web_app_capable": "yes",
-  "apple_mobile_web_app_status_bar_style": "black-translucent",
-  "apple_mobile_web_app_title": "WineCheck",
-  "prefer_related_applications": false
+  "apple_mobile_web_app_status_bar_style": "black-translucent", 
+  "apple_mobile_web_app_title": "WineCheck"
 }
