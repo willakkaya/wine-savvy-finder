@@ -4,6 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import { logAppInfo } from './utils/versionUtils'
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import { registerServiceWorker } from './utils/serviceWorker';
 
 // Enhanced font preloading for premium typography
 const preloadFonts = () => {
@@ -45,6 +46,9 @@ preloadFonts();
 
 // Initialize Capacitor PWA elements for native features with smoother loading
 defineCustomElements(window);
+
+// Register service worker for offline capabilities
+registerServiceWorker();
 
 // Log application info on startup (useful for debugging)
 logAppInfo();

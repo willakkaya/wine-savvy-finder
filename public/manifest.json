@@ -29,8 +29,31 @@
   ],
   "orientation": "portrait",
   "categories": ["food", "lifestyle", "utilities"],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "screenshot-home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "WineCheck Home Screen"
+    },
+    {
+      "src": "screenshot-scan.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Scan a Wine List"
+    },
+    {
+      "src": "screenshot-details.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Wine Details"
+    }
+  ],
   "apple_mobile_web_app_capable": "yes",
   "apple_mobile_web_app_status_bar_style": "black-translucent",
-  "apple_mobile_web_app_title": "WineCheck"
+  "apple_mobile_web_app_title": "WineCheck",
+  "prefer_related_applications": false
 }

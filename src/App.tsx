@@ -19,6 +19,7 @@ import Contact from "./pages/Contact";
 import FAQPage from "./pages/FAQPage";
 import { AppSettingsProvider } from "./hooks/useAppSettings";
 import { UserPreferencesProvider } from "./hooks/useUserPreferences";
+import AppUpdate from "./components/update/AppUpdate";
 
 const App = () => {
   // Initialize QueryClient inside the component with refined settings
@@ -50,6 +51,7 @@ const App = () => {
                     }
                   }}
                 />
+                <AppUpdate />
                 <BrowserRouter>
                   <AnimatePresence mode="wait">
                     <Routes>
