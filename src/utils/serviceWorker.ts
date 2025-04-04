@@ -125,3 +125,37 @@ export async function getServiceWorkerUpdateTime(): Promise<Date | null> {
     return null;
   }
 }
+
+// Set up periodic service worker update checking
+export function setupPeriodicUpdateChecks(intervalMinutes: number = 60) {
+  // Don't run in development
+  if (!import.meta.env.PROD) return;
+  
+  // Don't set up if service workers aren't supported
+  if (!('serviceWorker' in navigator)) return;
+  
+  const checkForUpdates = () => {
+    if (!navigator.onLine) return; // Skip check if offline
+    
+    console.log('Performing periodic service worker update check');
+    navigator.serviceWorker.ready.then(registration => {
+      registration.update().catch(err => {
+        console.error('Periodic update check failed:', err);
+      });
+    });
+  };
+  
+  // First check after 5 minutes (give app time to initialize properly)
+  const initialDelay = 5 * 60 * 1000;
+  setTimeout(() => {
+    checkForUpdates();
+    
+    // Then check at the specified interval
+    const interval = intervalMinutes * 60 * 1000;
+    setInterval(checkForUpdates, interval);
+  }, initialDelay);
+  
+  // Also check when the app comes online after being offline
+  window.addEventListener('online', checkForUpdates);
+}
+

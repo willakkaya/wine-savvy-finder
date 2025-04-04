@@ -3,16 +3,28 @@ import { WineInfo } from '@/components/wine/WineCard';
 import { getWineById, searchWines } from './wineApi';
 import { config } from '@/lib/config';
 
-// In-memory cache for wines
-const wineCache: Record<string, WineInfo> = {};
+// In-memory cache for wines with expiration
+interface CachedWine {
+  data: WineInfo;
+  timestamp: number;
+}
+
+const wineCache: Record<string, CachedWine> = {};
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 /**
  * Get detailed information about a specific wine
  */
 export const getWineDetails = async (id: string): Promise<WineInfo> => {
-  // Check if wine exists in cache
-  if (wineCache[id] && config.performance.cacheResults) {
-    return wineCache[id];
+  const now = Date.now();
+  
+  // Check if wine exists in cache and is not expired
+  if (
+    config.performance.cacheResults && 
+    wineCache[id] && 
+    (now - wineCache[id].timestamp) < CACHE_EXPIRY
+  ) {
+    return wineCache[id].data;
   }
   
   try {
@@ -20,9 +32,12 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
     const wineData = await getWineById(id);
     
     if (wineData) {
-      // Cache the result
+      // Cache the result with timestamp
       if (config.performance.cacheResults) {
-        wineCache[id] = wineData;
+        wineCache[id] = { 
+          data: wineData, 
+          timestamp: now 
+        };
       }
       return wineData;
     }
@@ -49,7 +64,10 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
     
     // Cache the result
     if (config.performance.cacheResults) {
-      wineCache[id] = genericWine;
+      wineCache[id] = {
+        data: genericWine,
+        timestamp: now
+      };
     }
     
     return genericWine;
@@ -65,8 +83,12 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
 export const storeWineResults = (wines: WineInfo[]): void => {
   if (!config.performance.cacheResults) return;
   
+  const now = Date.now();
   wines.forEach(wine => {
-    wineCache[wine.id] = wine;
+    wineCache[wine.id] = {
+      data: wine,
+      timestamp: now
+    };
   });
 };
 
@@ -74,7 +96,10 @@ export const storeWineResults = (wines: WineInfo[]): void => {
  * Get all stored wines
  */
 export const getAllStoredWines = (): WineInfo[] => {
-  return Object.values(wineCache);
+  const now = Date.now();
+  return Object.values(wineCache)
+    .filter(cached => (now - cached.timestamp) < CACHE_EXPIRY)
+    .map(cached => cached.data);
 };
 
 /**
@@ -102,3 +127,26 @@ export const clearWineCache = (): void => {
     delete wineCache[key];
   });
 };
+
+/**
+ * Clear expired entries from the wine cache
+ */
+export const pruneExpiredCache = (): number => {
+  const now = Date.now();
+  let prunedCount = 0;
+  
+  Object.keys(wineCache).forEach(key => {
+    if ((now - wineCache[key].timestamp) >= CACHE_EXPIRY) {
+      delete wineCache[key];
+      prunedCount++;
+    }
+  });
+  
+  return prunedCount;
+};
+
+// Periodically clean up expired cache entries (every 30 minutes)
+if (typeof window !== 'undefined') {
+  setInterval(pruneExpiredCache, 30 * 60 * 1000);
+}
+

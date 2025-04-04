@@ -4,7 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import { logAppInfo } from './utils/versionUtils'
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
-import { registerServiceWorker } from './utils/serviceWorker';
+import { registerServiceWorker, setupPeriodicUpdateChecks } from './utils/serviceWorker';
 
 // Enhanced font preloading for premium typography
 const preloadFonts = () => {
@@ -41,30 +41,43 @@ const preloadFonts = () => {
   });
 };
 
-// Initialize premium fonts
-preloadFonts();
-
-// Initialize Capacitor PWA elements for native features with smoother loading
-defineCustomElements(window);
-
-// Register service worker for offline capabilities
-registerServiceWorker();
-
-// Log application info on startup (useful for debugging)
-logAppInfo();
-
-// Create app with enhanced smooth animation
-const container = document.getElementById("root");
-if (container) {
-  // Add initial loading transition with premium feel
-  container.classList.add('opacity-0');
+// Function to initialize the application
+const initApp = () => {
+  // Initialize premium fonts
+  preloadFonts();
   
-  const root = createRoot(container);
-  root.render(<App />);
+  // Initialize Capacitor PWA elements for native features with smoother loading
+  defineCustomElements(window);
   
-  // Enhanced fade-in animation for a more premium experience
-  setTimeout(() => {
-    container.classList.remove('opacity-0');
-    container.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-100');
-  }, 50);
+  // Register service worker for offline capabilities
+  registerServiceWorker();
+  
+  // Set up periodic update checks 
+  setupPeriodicUpdateChecks();
+  
+  // Log application info on startup (useful for debugging)
+  logAppInfo();
+  
+  // Create app with enhanced smooth animation
+  const container = document.getElementById("root");
+  if (container) {
+    // Add initial loading transition with premium feel
+    container.classList.add('opacity-0');
+    
+    const root = createRoot(container);
+    root.render(<App />);
+    
+    // Enhanced fade-in animation for a more premium experience
+    setTimeout(() => {
+      container.classList.remove('opacity-0');
+      container.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-100');
+    }, 50);
+  }
+};
+
+// Initialize app with performance optimizations
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }

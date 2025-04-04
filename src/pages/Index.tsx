@@ -1,15 +1,22 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Home from './Home';
 import PreferencesDialog from '@/components/preferences/PreferencesDialog';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import AppUpdate from '@/components/update/AppUpdate';
+import { isInstalledPWA } from '@/utils/serviceWorker';
 
 const Index = () => {
   const { hasSetPreferences } = useUserPreferences();
   const isMobile = useIsMobile();
+  const [isPWA, setIsPWA] = useState<boolean | null>(null);
+  
+  // Check PWA status
+  useEffect(() => {
+    setIsPWA(isInstalledPWA());
+  }, []);
   
   // Preload critical resources
   useEffect(() => {
@@ -46,6 +53,20 @@ const Index = () => {
         document.head.appendChild(newTag);
       }
     });
+    
+    // Conditionally prefetch common navigation paths
+    if ('connection' in navigator) {
+      const conn = (navigator as any).connection;
+      if (!conn.saveData && (conn.effectiveType === '4g' || !conn.effectiveType)) {
+        const routes = ['/scan', '/favorites', '/settings'];
+        routes.forEach(route => {
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.href = route;
+          document.head.appendChild(link);
+        });
+      }
+    }
     
     return () => {
       document.head.removeChild(preloadLink);

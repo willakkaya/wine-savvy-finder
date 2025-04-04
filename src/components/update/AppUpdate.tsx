@@ -1,10 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
-import { handleServiceWorkerUpdates, updateServiceWorker, isUsingServiceWorker } from '@/utils/serviceWorker';
+import { handleServiceWorkerUpdates, updateServiceWorker, isUsingServiceWorker, setupPeriodicUpdateChecks } from '@/utils/serviceWorker';
 import { toast } from '@/components/ui/use-toast';
 import { toast as sonnerToast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, WifiOff, Wifi } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const AppUpdate: React.FC = () => {
@@ -12,8 +12,36 @@ const AppUpdate: React.FC = () => {
   const [updateChecked, setUpdateChecked] = useState(false);
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [updateInProgress, setUpdateInProgress] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
+    // Setup periodic update checks (check every hour)
+    setupPeriodicUpdateChecks(60);
+    
+    // Setup online/offline detection
+    const handleOnlineStatus = () => {
+      setIsOffline(!navigator.onLine);
+      
+      // Show toast when connection status changes
+      if (navigator.onLine) {
+        sonnerToast.success("You're back online", {
+          icon: <Wifi size={16} />,
+          position: "top-center",
+          duration: 3000,
+        });
+      } else {
+        sonnerToast.warning("You're offline", {
+          icon: <WifiOff size={16} />,
+          description: "Don't worry, the app will continue to work",
+          position: "top-center",
+          duration: 5000,
+        });
+      }
+    };
+    
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+    
     // Only proceed if service worker is supported
     if (!isUsingServiceWorker()) {
       console.log('Service worker is not supported or not registered');
@@ -54,26 +82,13 @@ const AppUpdate: React.FC = () => {
       });
     });
 
-    // Periodically check for updates if the user hasn't updated yet
-    const checkInterval = setInterval(() => {
-      if (!updateAvailable && isUsingServiceWorker()) {
-        navigator.serviceWorker.ready.then(registration => {
-          registration.update().then(() => {
-            setUpdateChecked(true);
-            console.log('Service worker update check completed');
-          }).catch(err => {
-            console.error('Service worker update check failed:', err);
-          });
-        });
-      }
-    }, 60 * 60 * 1000); // Check every hour
-
     // Check for updates when the app comes back online
     window.addEventListener('online', handleOnlineEvent);
 
     return () => {
-      clearInterval(checkInterval);
       window.removeEventListener('online', handleOnlineEvent);
+      window.removeEventListener('offline', handleOnlineStatus);
+      window.removeEventListener('online', handleOnlineStatus);
     };
   }, [updateAvailable]);
 
@@ -110,6 +125,17 @@ const AppUpdate: React.FC = () => {
 
   return (
     <>
+      {/* Offline indicator */}
+      {isOffline && (
+        <div className="fixed bottom-16 sm:bottom-4 right-4 z-50">
+          <div className="bg-amber-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+            <WifiOff size={16} />
+            <span className="text-sm font-medium">Offline Mode</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Update dialog */}
       <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
