@@ -1,20 +1,50 @@
 
 import { CapacitorConfig } from '@capacitor/cli';
+import { APP_VERSION } from './src/utils/versionUtils';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.0c2ede1092234273abfc3f8e5843a9ae',
-  appName: 'wine-savvy-finder',
+  appId: 'app.winecheck.mobile',
+  appName: 'WineCheck',
   webDir: 'dist',
-  server: {
-    url: 'https://0c2ede10-9223-4273-abfc-3f8e5843a9ae.lovableproject.com?forceHideBadge=true',
-    cleartext: true
+  bundledWebRuntime: false,
+  plugins: {
+    SplashScreen: {
+      launchAutoHide: false,
+      backgroundColor: "#722F37",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: true,
+      androidSpinnerStyle: "large",
+      iosSpinnerStyle: "small",
+      spinnerColor: "#FFFFFF",
+      splashFullScreen: true,
+      splashImmersive: true,
+    },
   },
-  // Enable browser dev tools in the mobile app (remove in production)
   android: {
-    allowMixedContent: true
+    allowMixedContent: true,
+    captureInput: true,
+    webContentsDebuggingEnabled: false,
+    backgroundColor: "#722F37",
+    buildOptions: {
+      keystorePath: "winecheck.keystore",
+      keystoreAlias: "winecheck",
+      minSdkVersion: 22, // Android 5.1 and above
+      targetSdkVersion: 33, // Android 13
+    }
   },
   ios: {
-    limitsNavigationsToAppBoundDomains: false
+    contentInset: "always",
+    cordovaSwiftVersion: "5.0",
+    minVersion: "13.0", // iOS 13 minimum
+    backgroundColor: "#722F37",
+    preferredContentMode: "mobile",
+    scheme: "winecheck",
+    limitsNavigationsToAppBoundDomains: true
+  },
+  server: {
+    hostname: "app.winecheck.mobile",
+    androidScheme: "https"
   }
 };
 

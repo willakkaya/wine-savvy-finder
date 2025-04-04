@@ -18,76 +18,73 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-xl font-medium mb-3">1. Introduction</h2>
             <p>
-              Welcome to {config.appName} ("we," "our," or "us"). We are committed to protecting your privacy and handling your data in an open and transparent manner. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application.
+              Welcome to {config.appName}'s Privacy Policy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.
             </p>
           </section>
           
           <section>
             <h2 className="text-xl font-medium mb-3">2. Information We Collect</h2>
-            <p className="mb-3">We collect the following types of information:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Wine list images you upload through our app</li>
-              <li>Your saved wine preferences and history</li>
-              <li>Device information and app usage statistics</li>
-              <li>Information you provide when creating an account (if applicable)</li>
+            <p className="mb-3">We may collect information about you in various ways:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li><strong>Personal Data:</strong> Includes email address, name, and phone number when you create an account.</li>
+              <li><strong>Usage Data:</strong> Information on how you access and use the app, including wine lists you've scanned.</li>
+              <li><strong>Device Data:</strong> Information about your mobile device including device type, operating system, and unique device identifiers.</li>
+              <li><strong>Location Data:</strong> With your consent, we may collect your precise location to enhance your experience.</li>
             </ul>
           </section>
           
           <section>
-            <h2 className="text-xl font-medium mb-3">3. How We Use Your Information</h2>
-            <p className="mb-3">We use your information to:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Provide and improve our wine recommendation service</li>
-              <li>Analyze wine list images to identify wines and their prices</li>
-              <li>Personalize your experience with relevant wine recommendations</li>
-              <li>Communicate with you about app features and updates</li>
-              <li>Maintain and improve the app's functionality and security</li>
+            <h2 className="text-xl font-medium mb-3">3. Use of Your Information</h2>
+            <p className="mb-3">We use the collected information for various purposes:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>To provide and maintain our service</li>
+              <li>To notify you about changes to our service</li>
+              <li>To provide customer support</li>
+              <li>To gather analysis or valuable information so that we can improve our service</li>
+              <li>To monitor the usage of our service</li>
+              <li>To detect, prevent and address technical issues</li>
             </ul>
           </section>
           
           <section>
-            <h2 className="text-xl font-medium mb-3">4. Sharing Your Information</h2>
-            <p className="mb-3">
-              We do not sell your personal information. We may share your information with:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Service providers who help us operate our business</li>
-              <li>Wine data partners who help us provide accurate pricing information</li>
-              <li>Legal authorities when required by law</li>
-            </ul>
-          </section>
-          
-          <section>
-            <h2 className="text-xl font-medium mb-3">5. Your Choices</h2>
-            <p className="mb-3">
-              You can control your information by:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Updating or deleting your account information</li>
-              <li>Opting out of marketing communications</li>
-              <li>Adjusting your device settings for app permissions</li>
-              <li>Requesting access to or deletion of your data</li>
-            </ul>
-          </section>
-          
-          <section>
-            <h2 className="text-xl font-medium mb-3">6. Security</h2>
+            <h2 className="text-xl font-medium mb-3">4. Disclosure of Your Information</h2>
             <p>
-              We implement appropriate technical and organizational measures to protect your personal information from unauthorized access, disclosure, alteration, and destruction.
+              We may share your information with third-party service providers to monitor and analyze the use of our service, to contact you, or as required by law.
             </p>
           </section>
           
           <section>
-            <h2 className="text-xl font-medium mb-3">7. Changes to This Policy</h2>
+            <h2 className="text-xl font-medium mb-3">5. Security of Your Personal Data</h2>
             <p>
-              We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
+              The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure.
             </p>
           </section>
           
           <section>
-            <h2 className="text-xl font-medium mb-3">8. Contact Us</h2>
+            <h2 className="text-xl font-medium mb-3">6. Your Data Protection Rights</h2>
             <p>
-              If you have any questions about this Privacy Policy, please contact us at privacy@winewhisperer.com.
+              You have certain data protection rights including the right to access, update, or delete your personal information, object to processing, and data portability.
+            </p>
+          </section>
+          
+          <section>
+            <h2 className="text-xl font-medium mb-3">7. Children's Privacy</h2>
+            <p>
+              Our Service does not address anyone under the age of {config.legal.minimumAge}. We do not knowingly collect personally identifiable information from anyone under the age of {config.legal.minimumAge}.
+            </p>
+          </section>
+          
+          <section>
+            <h2 className="text-xl font-medium mb-3">8. Changes to This Privacy Policy</h2>
+            <p>
+              We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
+            </p>
+          </section>
+          
+          <section>
+            <h2 className="text-xl font-medium mb-3">9. Contact Us</h2>
+            <p>
+              If you have any questions about this Privacy Policy, please contact us at {config.support.email}.
             </p>
           </section>
         </div>

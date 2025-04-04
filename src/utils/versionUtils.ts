@@ -4,10 +4,14 @@
  */
 
 // App version - this would be updated with each release
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '1.0.1';
 
 // Build timestamp - generated at build time for debugging
 export const BUILD_TIMESTAMP = new Date().toISOString();
+
+// App store version codes
+export const APP_STORE_VERSION = '1.0.1';
+export const PLAY_STORE_VERSION_CODE = 2; // Increment with each store submission
 
 /**
  * Get user agent info for support and debugging
