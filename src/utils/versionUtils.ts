@@ -4,14 +4,14 @@
  */
 
 // App version - this would be updated with each release
-export const APP_VERSION = '1.0.2';
+export const APP_VERSION = '1.0.3';
 
 // Build timestamp - generated at build time for debugging
 export const BUILD_TIMESTAMP = new Date().toISOString();
 
 // App store version codes
-export const APP_STORE_VERSION = '1.0.2';
-export const PLAY_STORE_VERSION_CODE = 3; // Increment with each store submission
+export const APP_STORE_VERSION = '1.0.3';
+export const PLAY_STORE_VERSION_CODE = 4; // Increment with each store submission
 
 /**
  * Get user agent info for support and debugging
@@ -62,6 +62,12 @@ export const logAppInfo = (): void => {
  * Check if we're running on a native platform
  */
 export const isNativePlatform = (): boolean => {
+  // Enhanced detection that works with both Capacitor and in browser
+  if (typeof (window as any).Capacitor !== 'undefined') {
+    return (window as any).Capacitor.isNative;
+  }
+  
+  // Fallback to user agent detection
   const uaInfo = getUserAgentInfo();
   return uaInfo.isIOS || uaInfo.isAndroid;
 };

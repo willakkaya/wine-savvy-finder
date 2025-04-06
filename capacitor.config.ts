@@ -38,7 +38,7 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: true,
     captureInput: true,
-    webContentsDebuggingEnabled: false,
+    webContentsDebuggingEnabled: true, // Enable for development, set to false for production
     backgroundColor: "#722F37",
     buildOptions: {
       keystorePath: "winecheck.keystore",
@@ -58,7 +58,9 @@ const config: CapacitorConfig = {
   },
   server: {
     hostname: "app.winecheck.mobile",
-    androidScheme: "https"
+    androidScheme: "https",
+    iosScheme: "https",
+    allowNavigation: ["*.winecheck.mobile", "*.amazonaws.com"]
   }
 };
 

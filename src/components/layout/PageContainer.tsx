@@ -33,11 +33,15 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   // Initialize analytics (the hook handles page view tracking)
   useAnalytics();
   
+  // Add safe area classes based on platform
+  const safeAreaClasses = isNative ? 
+    'pt-safe-top pb-safe-bottom pl-safe-left pr-safe-right' : '';
+  
   // Add safe area bottom padding for mobile devices
   const mainClasses = [
     'flex-grow',
     padding ? `px-4 py-4 ${isMobile ? 'pb-24' : 'md:py-8'}` : '',
-    isNative ? 'safe-area-inset' : '',
+    safeAreaClasses,
     className
   ].filter(Boolean).join(' ');
   
