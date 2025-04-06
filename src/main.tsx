@@ -32,12 +32,16 @@ const preloadFonts = () => {
   ];
 
   fontLinks.forEach(({ rel, href, as, crossOrigin }) => {
-    const link = document.createElement('link');
-    link.rel = rel;
-    link.href = href;
-    if (as) link.setAttribute('as', as);
-    if (crossOrigin) link.setAttribute('crossorigin', crossOrigin);
-    document.head.appendChild(link);
+    try {
+      const link = document.createElement('link');
+      link.rel = rel;
+      link.href = href;
+      if (as) link.setAttribute('as', as);
+      if (crossOrigin) link.setAttribute('crossorigin', crossOrigin);
+      document.head.appendChild(link);
+    } catch (e) {
+      console.error("Error preloading font:", e);
+    }
   });
 };
 
@@ -63,50 +67,63 @@ const addIOSMetaTags = () => {
   ];
   
   metaTags.forEach(({ name, content }) => {
-    let meta = document.querySelector(`meta[name="${name}"]`);
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', name);
-      meta.setAttribute('content', content);
-      document.head.appendChild(meta);
+    try {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        meta.setAttribute('content', content);
+        document.head.appendChild(meta);
+      }
+    } catch (e) {
+      console.error("Error adding iOS meta tag:", e);
     }
   });
 };
 
 // Function to initialize the application
 const initApp = () => {
-  // Initialize premium fonts
-  preloadFonts();
-  
-  // Add iOS compatible meta tags
-  addIOSMetaTags();
-  
-  // Initialize Capacitor PWA elements for native features with smoother loading
-  defineCustomElements(window);
-  
-  // Register service worker for offline capabilities
-  registerServiceWorker();
-  
-  // Set up periodic update checks 
-  setupPeriodicUpdateChecks();
-  
-  // Log application info on startup (useful for debugging)
-  logAppInfo();
-  
-  // Create app with enhanced smooth animation
-  const container = document.getElementById("root");
-  if (container) {
-    // Add initial loading transition with premium feel
-    container.classList.add('opacity-0');
+  try {
+    // Initialize premium fonts
+    preloadFonts();
     
-    const root = createRoot(container);
-    root.render(<App />);
+    // Add iOS compatible meta tags
+    addIOSMetaTags();
     
-    // Enhanced fade-in animation for a more premium experience
-    setTimeout(() => {
-      container.classList.remove('opacity-0');
-      container.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-100');
-    }, 50);
+    // Initialize Capacitor PWA elements for native features with smoother loading
+    defineCustomElements(window);
+    
+    // Register service worker for offline capabilities
+    registerServiceWorker();
+    
+    // Set up periodic update checks 
+    setupPeriodicUpdateChecks();
+    
+    // Log application info on startup (useful for debugging)
+    logAppInfo();
+    
+    // Create app with enhanced smooth animation
+    const container = document.getElementById("root");
+    if (container) {
+      console.log("Root container found, rendering app");
+      
+      // Add initial loading transition with premium feel
+      container.classList.add('opacity-0');
+      
+      const root = createRoot(container);
+      root.render(<App />);
+      
+      // Enhanced fade-in animation for a more premium experience
+      setTimeout(() => {
+        container.classList.remove('opacity-0');
+        container.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-100');
+      }, 50);
+    } else {
+      console.error("Root element not found!");
+    }
+  } catch (e) {
+    console.error("Error initializing app:", e);
+    document.body.innerHTML = '<div style="padding: 20px; color: #722F37; font-family: sans-serif;"><h1>WineCheck</h1><p>There was an error loading the application. Please try refreshing the page.</p></div>';
   }
 };
 
@@ -116,3 +133,5 @@ if (document.readyState === 'loading') {
 } else {
   initApp();
 }
+
+console.log("WineCheck main.tsx processed");

@@ -15,63 +15,34 @@ const Index = () => {
   
   // Check PWA status
   useEffect(() => {
-    setIsPWA(isInstalledPWA());
+    try {
+      setIsPWA(isInstalledPWA());
+    } catch (e) {
+      console.error("Failed to check PWA status:", e);
+      setIsPWA(false);
+    }
   }, []);
   
   // Preload critical resources
   useEffect(() => {
     // Preload the wine background image for faster hero section display
-    const preloadLink = document.createElement('link');
-    preloadLink.rel = 'preload';
-    preloadLink.as = 'image';
-    preloadLink.href = '/wine-background.jpg';
-    document.head.appendChild(preloadLink);
-    
-    // Add meta description for SEO
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'Find the best value wines on restaurant wine lists with WineCheck. Save money and discover exceptional wines with our AI-powered app.');
+    try {
+      const preloadLink = document.createElement('link');
+      preloadLink.rel = 'preload';
+      preloadLink.as = 'image';
+      preloadLink.href = '/wine-background.jpg';
+      document.head.appendChild(preloadLink);
+      
+      return () => {
+        if (document.head.contains(preloadLink)) {
+          document.head.removeChild(preloadLink);
+        }
+      };
+    } catch (e) {
+      console.error("Failed to preload resources:", e);
     }
     
-    // Add Open Graph tags for better social sharing
-    const ogTags = [
-      { property: 'og:title', content: 'WineCheck - Find Value Wines on Restaurant Menus' },
-      { property: 'og:description', content: 'Discover the best value wines on any restaurant wine list. Save money while enjoying exceptional wines.' },
-      { property: 'og:image', content: window.location.origin + '/icon-512.png' },
-      { property: 'og:url', content: window.location.href },
-      { property: 'og:type', content: 'website' }
-    ];
-    
-    ogTags.forEach(tag => {
-      const metaTag = document.querySelector(`meta[property="${tag.property}"]`);
-      if (metaTag) {
-        metaTag.setAttribute('content', tag.content);
-      } else {
-        const newTag = document.createElement('meta');
-        newTag.setAttribute('property', tag.property);
-        newTag.setAttribute('content', tag.content);
-        document.head.appendChild(newTag);
-      }
-    });
-    
-    // Conditionally prefetch common navigation paths
-    if ('connection' in navigator) {
-      const conn = (navigator as any).connection;
-      if (!conn.saveData && (conn.effectiveType === '4g' || !conn.effectiveType)) {
-        const routes = ['/scan', '/favorites', '/settings'];
-        routes.forEach(route => {
-          const link = document.createElement('link');
-          link.rel = 'prefetch';
-          link.href = route;
-          document.head.appendChild(link);
-        });
-      }
-    }
-    
-    return () => {
-      document.head.removeChild(preloadLink);
-      // We don't remove the SEO tags as they should remain
-    };
+    // The SEO meta tags are now handled in main.tsx for better reliability
   }, []);
   
   return (

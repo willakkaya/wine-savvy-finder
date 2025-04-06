@@ -27,6 +27,8 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   useEffect(() => {
     if (title) {
       document.title = `${title} | WineCheck`;
+    } else {
+      document.title = "WineCheck"; // Ensure there's always a title
     }
   }, [title]);
   
@@ -52,7 +54,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
         {children}
       </main>
       <Footer />
-      <MobileNavBar />
+      {isMobile && <MobileNavBar />}
     </div>
   );
 };
