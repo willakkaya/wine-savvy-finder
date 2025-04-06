@@ -56,7 +56,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   ].filter(Boolean).join(' ');
   
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className={mainClasses}>
         {children}

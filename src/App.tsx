@@ -40,7 +40,7 @@ const App = () => {
         <AppSettingsProvider>
           <UserPreferencesProvider>
             <TooltipProvider>
-              <div className="min-h-screen flex flex-col bg-background text-foreground antialiased">
+              <div className="app-container">
                 <Toaster />
                 <Sonner 
                   position="top-center"
@@ -54,21 +54,18 @@ const App = () => {
                 />
                 <AppUpdate />
                 <BrowserRouter>
-                  <AnimatePresence mode="wait">
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/scan" element={<ScanPage />} />
-                      <Route path="/wine/:id" element={<WineDetailsPage />} />
-                      <Route path="/favorites" element={<FavoritesPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="/privacy" element={<PrivacyPolicy />} />
-                      <Route path="/terms" element={<TermsOfService />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/faq" element={<FAQPage />} />
-                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </AnimatePresence>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/scan" element={<ScanPage />} />
+                    <Route path="/wine/:id" element={<WineDetailsPage />} />
+                    <Route path="/favorites" element={<FavoritesPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/terms" element={<TermsOfService />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/faq" element={<FAQPage />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
                 </BrowserRouter>
               </div>
             </TooltipProvider>

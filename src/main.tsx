@@ -6,65 +6,15 @@ import { logAppInfo } from './utils/versionUtils'
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { registerServiceWorker, setupPeriodicUpdateChecks } from './utils/serviceWorker';
 
-// Enhanced font preloading for premium typography
-const preloadFonts = () => {
+// Initialize the application
+const initApp = () => {
   try {
-    // Preload premium fonts - using Playfair Display (serif) and Inter (sans-serif)
-    // for a luxury wine app aesthetic that balances classic and modern
-    const fontLinks = [
-      {
-        rel: 'preconnect',
-        href: 'https://fonts.googleapis.com',
-      },
-      {
-        rel: 'preconnect',
-        href: 'https://fonts.gstatic.com',
-        crossOrigin: 'anonymous',
-      },
-      {
-        rel: 'preload',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap',
-        as: 'style',
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap',
-      },
-    ];
-
-    fontLinks.forEach(({ rel, href, as, crossOrigin }) => {
-      const link = document.createElement('link');
-      link.rel = rel;
-      link.href = href;
-      if (as) link.setAttribute('as', as);
-      if (crossOrigin) link.setAttribute('crossorigin', crossOrigin);
-      document.head.appendChild(link);
-    });
-  } catch (e) {
-    console.error("Error preloading font:", e);
-  }
-};
-
-// Add iOS compatibility meta tags programmatically
-const addIOSMetaTags = () => {
-  try {
+    // Add iOS compatible meta tags
     const metaTags = [
-      {
-        name: 'apple-mobile-web-app-capable',
-        content: 'yes'
-      },
-      {
-        name: 'apple-mobile-web-app-status-bar-style',
-        content: 'black-translucent'
-      },
-      {
-        name: 'apple-mobile-web-app-title',
-        content: 'WineCheck'
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
-      }
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'apple-mobile-web-app-title', content: 'WineCheck' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' }
     ];
     
     metaTags.forEach(({ name, content }) => {
@@ -76,33 +26,20 @@ const addIOSMetaTags = () => {
         document.head.appendChild(meta);
       }
     });
-  } catch (e) {
-    console.error("Error adding iOS meta tag:", e);
-  }
-};
-
-// Function to initialize the application
-const initApp = () => {
-  try {
-    // Initialize premium fonts
-    preloadFonts();
     
-    // Add iOS compatible meta tags
-    addIOSMetaTags();
-    
-    // Initialize Capacitor PWA elements for native features with smoother loading
+    // Initialize Capacitor PWA elements
     defineCustomElements(window);
     
-    // Register service worker for offline capabilities
+    // Register service worker
     registerServiceWorker();
     
     // Set up periodic update checks 
     setupPeriodicUpdateChecks();
     
-    // Log application info on startup (useful for debugging)
+    // Log application info
     logAppInfo();
     
-    // Create app with enhanced smooth animation
+    // Create app
     const container = document.getElementById("root");
     if (!container) {
       console.error("Root element not found!");
@@ -115,10 +52,12 @@ const initApp = () => {
     const root = createRoot(container);
     root.render(<App />);
     
+    // Add a slight delay to ensure smooth transition
     setTimeout(() => {
-      container.classList.remove('opacity-0');
-      container.classList.add('transition-opacity', 'duration-700', 'ease-out', 'opacity-100');
-    }, 50);
+      if (container) {
+        container.style.opacity = '1';
+      }
+    }, 10);
     
   } catch (e) {
     console.error("Error initializing app:", e);
@@ -126,11 +65,5 @@ const initApp = () => {
   }
 };
 
-// Initialize app with performance optimizations
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
-
-console.log("WineCheck main.tsx processed");
+// Initialize app immediately
+initApp();
