@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WineCard, { WineInfo } from './WineCard';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isNativePlatform } from '@/utils/versionUtils';
 
 interface WineCardLinkProps {
   wine: WineInfo;
@@ -15,6 +16,7 @@ interface WineCardLinkProps {
 const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, style }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const isNative = isNativePlatform();
   
   const handleClick = () => {
     navigate(`/wine/${wine.id}`);
@@ -49,8 +51,8 @@ const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, styl
     }
   };
   
-  // For mobile, reduce motion for better performance
-  if (isMobile) {
+  // For mobile, reduce motion even further on native platforms
+  if (isMobile || isNative) {
     return (
       <div 
         onClick={handleClick}
@@ -104,4 +106,4 @@ const WineCardLink: React.FC<WineCardLinkProps> = ({ wine, rank, className, styl
   );
 };
 
-export default WineCardLink;
+export default memo(WineCardLink);

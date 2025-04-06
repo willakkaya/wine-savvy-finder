@@ -81,7 +81,12 @@ export function updateServiceWorker() {
     } else {
       // Otherwise, just check for a new version
       console.log('No waiting service worker found, checking for updates');
-      return registration.update().then(() => false);
+      return registration.update()
+        .then(() => false)
+        .catch(err => {
+          console.error('Error updating service worker: ', err);
+          return false;
+        });
     }
   }).catch(err => {
     console.error('Error updating service worker: ', err);
@@ -142,6 +147,8 @@ export function setupPeriodicUpdateChecks(intervalMinutes: number = 60) {
       registration.update().catch(err => {
         console.error('Periodic update check failed:', err);
       });
+    }).catch(err => {
+      console.error('Failed to get ready service worker:', err);
     });
   };
   
@@ -158,4 +165,3 @@ export function setupPeriodicUpdateChecks(intervalMinutes: number = 60) {
   // Also check when the app comes online after being offline
   window.addEventListener('online', checkForUpdates);
 }
-

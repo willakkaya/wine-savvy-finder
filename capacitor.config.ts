@@ -20,6 +20,20 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true,
     },
+    CapacitorHttp: {
+      enabled: true
+    },
+    Keyboard: {
+      resize: "body",
+      style: "dark",
+      resizeOnFullScreen: true
+    },
+    StatusBar: {
+      style: "dark",
+      backgroundColor: "#722F37",
+      overlaysWebView: false,
+      animation: "slide"
+    }
   },
   android: {
     allowMixedContent: true,

@@ -5,6 +5,7 @@ import Footer from './Footer';
 import MobileNavBar from './MobileNavBar';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isNativePlatform } from '@/utils/versionUtils';
 
 interface PageContainerProps {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   padding = true,
 }) => {
   const isMobile = useIsMobile();
+  const isNative = isNativePlatform();
   
   // Set document title if provided
   useEffect(() => {
@@ -31,10 +33,18 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   // Initialize analytics (the hook handles page view tracking)
   useAnalytics();
   
+  // Add safe area bottom padding for mobile devices
+  const mainClasses = [
+    'flex-grow',
+    padding ? `px-4 py-4 ${isMobile ? 'pb-24' : 'md:py-8'}` : '',
+    isNative ? 'safe-area-inset' : '',
+    className
+  ].filter(Boolean).join(' ');
+  
   return (
     <div className="flex flex-col min-h-screen font-sans">
       <Header />
-      <main className={`flex-grow ${padding ? `px-4 py-4 ${isMobile ? 'pb-24' : 'md:py-8'}` : ''} ${className}`}>
+      <main className={mainClasses}>
         {children}
       </main>
       <Footer />

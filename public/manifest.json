@@ -3,7 +3,7 @@
   "name": "WineCheck - Wine List Analyzer",
   "short_name": "WineCheck",
   "description": "Find the best value wines on restaurant wine lists with AI-powered analysis",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "start_url": "/?source=pwa",
   "display": "standalone",
   "background_color": "#722F37",
@@ -68,7 +68,17 @@
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ],
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=app.winecheck.mobile",
+      "id": "app.winecheck.mobile"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/winecheck/id1234567890"
+    }
+  ],
   "prefer_related_applications": false,
   "iarc_rating_id": "",
   "share_target": {

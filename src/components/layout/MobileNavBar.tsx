@@ -4,10 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, Search, Heart, Settings, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isNativePlatform } from '@/utils/versionUtils';
 
 const MobileNavBar: React.FC = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const isNative = isNativePlatform();
   
   // Don't render on desktop
   if (!isMobile) return null;
@@ -25,7 +27,10 @@ const MobileNavBar: React.FC = () => {
   ];
   
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-2 py-1 safe-area-bottom">
+    <nav className={cn(
+      "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-2 py-1",
+      isNative ? "safe-area-bottom" : "pb-2"
+    )}>
       <div className="flex justify-around">
         {navItems.map((item) => (
           <Link
