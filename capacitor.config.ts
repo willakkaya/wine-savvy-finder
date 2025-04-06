@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
-      launchAutoHide: false,
+      launchAutoHide: true,
       backgroundColor: "#722F37",
       androidSplashResourceName: "splash",
       androidScaleType: "CENTER_CROP",
@@ -19,6 +19,8 @@ const config: CapacitorConfig = {
       spinnerColor: "#FFFFFF",
       splashFullScreen: true,
       splashImmersive: true,
+      launchShowDuration: 3000,  // Show splash for at least 3 seconds
+      launchAutoHide: false,     // Don't auto-hide, we'll hide it when app is ready
     },
     CapacitorHttp: {
       enabled: true
@@ -40,6 +42,7 @@ const config: CapacitorConfig = {
     captureInput: true,
     webContentsDebuggingEnabled: true, // Enable for development, set to false for production
     backgroundColor: "#722F37",
+    initialFocus: true,   // Make sure webview gets focus immediately
     buildOptions: {
       keystorePath: "winecheck.keystore",
       keystoreAlias: "winecheck",

@@ -7,6 +7,8 @@
   flex-direction: column;
   background-color: var(--background);
   color: var(--foreground);
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Root container */
@@ -17,6 +19,7 @@
   flex-direction: column;
   transition: opacity 0.3s ease;
   opacity: 1;
+  visibility: visible;
 }
 
 /* Animation keyframes */
@@ -41,9 +44,6 @@ html, body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-}
-
-body {
   background-color: #f8f8f8;
 }
 
@@ -70,8 +70,9 @@ body {
 
 /* Fix for white screen issue */
 .page-transition {
-  opacity: 1;
+  opacity: 1 !important;
   transition: opacity 0.3s ease;
+  visibility: visible !important;
 }
 
 /* Lovable selection styling */
@@ -84,4 +85,18 @@ body {
 .content-visible {
   opacity: 1 !important;
   visibility: visible !important;
+}
+
+/* Mobile-specific fixes */
+@media (max-width: 768px) {
+  body, html, #root, .app-container {
+    min-height: 100%;
+    height: 100%;
+    overflow-x: hidden;
+  }
+  
+  .app-container {
+    display: flex;
+    flex-direction: column;
+  }
 }

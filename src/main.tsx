@@ -6,9 +6,11 @@ import { logAppInfo } from './utils/versionUtils'
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { registerServiceWorker, setupPeriodicUpdateChecks } from './utils/serviceWorker';
 
-// Initialize the application
+// Initialize the application with improved mobile loading
 const initApp = () => {
   try {
+    console.log("Starting WineCheck initialization...");
+    
     // Add iOS compatible meta tags
     const metaTags = [
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
@@ -39,7 +41,7 @@ const initApp = () => {
     // Log application info
     logAppInfo();
     
-    // Create app
+    // Ensure root element is immediately visible
     const container = document.getElementById("root");
     if (!container) {
       console.error("Root element not found!");
@@ -49,21 +51,34 @@ const initApp = () => {
     
     console.log("Root container found, rendering app");
     
-    const root = createRoot(container);
-    root.render(<App />);
+    // Make container visible immediately 
+    container.style.opacity = '1';
+    container.style.visibility = 'visible';
     
-    // Add a slight delay to ensure smooth transition
-    setTimeout(() => {
-      if (container) {
-        container.style.opacity = '1';
-      }
-    }, 10);
-    
+    // Create app with improved error handling
+    try {
+      const root = createRoot(container);
+      root.render(<App />);
+    } catch (renderError) {
+      console.error("Error rendering app:", renderError);
+      document.body.innerHTML = '<div style="padding: 20px; color: #722F37; font-family: sans-serif;"><h1>WineCheck</h1><p>Error rendering application. Please try again.</p></div>';
+    }
   } catch (e) {
     console.error("Error initializing app:", e);
     document.body.innerHTML = '<div style="padding: 20px; color: #722F37; font-family: sans-serif;"><h1>WineCheck</h1><p>There was an error loading the application. Please try refreshing the page.</p></div>';
   }
 };
 
-// Initialize app immediately
+// Initialize app immediately and add a fallback
 initApp();
+
+// Add a safety fallback to ensure app is visible
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const container = document.getElementById("root");
+    if (container) {
+      container.style.opacity = '1';
+      container.style.visibility = 'visible';
+    }
+  }, 500);
+});
