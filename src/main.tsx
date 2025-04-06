@@ -104,23 +104,26 @@ const initApp = () => {
     
     // Create app with enhanced smooth animation
     const container = document.getElementById("root");
-    if (container) {
-      console.log("Root container found, rendering app");
-      
-      // Add initial loading transition with premium feel
-      container.classList.add('opacity-0');
-      
-      const root = createRoot(container);
-      root.render(<App />);
-      
-      // Enhanced fade-in animation for a more premium experience
-      setTimeout(() => {
-        container.classList.remove('opacity-0');
-        container.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-100');
-      }, 50);
-    } else {
+    if (!container) {
       console.error("Root element not found!");
+      document.body.innerHTML = '<div style="padding: 20px; color: #722F37; font-family: sans-serif;"><h1>WineCheck</h1><p>App container not found. Please refresh the page.</p></div>';
+      return;
     }
+    
+    console.log("Root container found, rendering app");
+    
+    // Add initial loading transition with premium feel
+    container.classList.add('opacity-0');
+    
+    const root = createRoot(container);
+    root.render(<App />);
+    
+    // Enhanced fade-in animation for a more premium experience
+    setTimeout(() => {
+      container.classList.remove('opacity-0');
+      container.classList.add('transition-opacity', 'duration-700', 'ease-out', 'opacity-100');
+    }, 50);
+    
   } catch (e) {
     console.error("Error initializing app:", e);
     document.body.innerHTML = '<div style="padding: 20px; color: #722F37; font-family: sans-serif;"><h1>WineCheck</h1><p>There was an error loading the application. Please try refreshing the page.</p></div>';

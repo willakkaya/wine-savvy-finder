@@ -12,6 +12,7 @@ const Index = () => {
   const { hasSetPreferences } = useUserPreferences();
   const isMobile = useIsMobile();
   const [isPWA, setIsPWA] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Check PWA status
   useEffect(() => {
@@ -21,11 +22,11 @@ const Index = () => {
       console.error("Failed to check PWA status:", e);
       setIsPWA(false);
     }
+    setLoading(false);
   }, []);
   
   // Preload critical resources
   useEffect(() => {
-    // Preload the wine background image for faster hero section display
     try {
       const preloadLink = document.createElement('link');
       preloadLink.rel = 'preload';
@@ -41,9 +42,17 @@ const Index = () => {
     } catch (e) {
       console.error("Failed to preload resources:", e);
     }
-    
-    // The SEO meta tags are now handled in main.tsx for better reliability
   }, []);
+  
+  if (loading) {
+    return (
+      <PageContainer padding={false}>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="animate-pulse text-wine">Loading...</div>
+        </div>
+      </PageContainer>
+    );
+  }
   
   return (
     <PageContainer className={isMobile ? 'px-2 py-2' : ''} padding={false}>
