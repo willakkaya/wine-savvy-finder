@@ -6,6 +6,7 @@ import MobileNavBar from './MobileNavBar';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { isNativePlatform } from '@/utils/versionUtils';
+import { Toaster } from '@/components/ui/toaster';
 
 interface PageContainerProps {
   children: React.ReactNode;
@@ -42,6 +43,18 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   } catch (e) {
     console.error("Error initializing analytics:", e);
   }
+
+  // Add content visibility class to ensure content is shown
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.classList.add('content-visible');
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   // Add safe area classes based on platform
   const safeAreaClasses = isNative ? 
@@ -49,7 +62,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   
   // Add safe area bottom padding for mobile devices
   const mainClasses = [
-    'flex-grow',
+    'flex-grow page-transition',
     padding ? `px-4 py-4 ${isMobile ? 'pb-24' : 'md:py-8'}` : '',
     safeAreaClasses,
     className
@@ -63,6 +76,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
       </main>
       <Footer />
       {isMobile && <MobileNavBar />}
+      <Toaster />
     </div>
   );
 };

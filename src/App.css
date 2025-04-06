@@ -67,3 +67,21 @@ body {
     min-height: -webkit-fill-available;
   }
 }
+
+/* Fix for white screen issue */
+.page-transition {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Lovable selection styling */
+::selection {
+  background-color: rgba(114, 47, 55, 0.2);
+  color: #722F37;
+}
+
+/* Fix for content disappearing */
+.content-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
