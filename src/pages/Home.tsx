@@ -4,8 +4,8 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Search, Wine, Heart } from 'lucide-react';
-import { TestimonialsSection } from '@/components/home/TestimonialsSection';
-import { PreferencesSection } from '@/components/preferences/PreferencesSection';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
+import PreferencesSection from '@/components/preferences/PreferencesSection';
 
 // Home component serves as the landing page
 const Home = () => {
