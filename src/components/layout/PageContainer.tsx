@@ -25,15 +25,23 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   
   // Set document title if provided
   useEffect(() => {
-    if (title) {
-      document.title = `${title} | WineCheck`;
-    } else {
-      document.title = "WineCheck"; // Ensure there's always a title
+    try {
+      if (title) {
+        document.title = `${title} | WineCheck`;
+      } else {
+        document.title = "WineCheck"; // Ensure there's always a title
+      }
+    } catch (e) {
+      console.error("Error setting document title:", e);
     }
   }, [title]);
   
   // Initialize analytics (the hook handles page view tracking)
-  useAnalytics();
+  try {
+    useAnalytics();
+  } catch (e) {
+    console.error("Error initializing analytics:", e);
+  }
   
   // Add safe area classes based on platform
   const safeAreaClasses = isNative ? 

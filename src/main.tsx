@@ -8,66 +8,66 @@ import { registerServiceWorker, setupPeriodicUpdateChecks } from './utils/servic
 
 // Enhanced font preloading for premium typography
 const preloadFonts = () => {
-  // Preload premium fonts - using Playfair Display (serif) and Inter (sans-serif)
-  // for a luxury wine app aesthetic that balances classic and modern
-  const fontLinks = [
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.googleapis.com',
-    },
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.gstatic.com',
-      crossOrigin: 'anonymous',
-    },
-    {
-      rel: 'preload',
-      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap',
-      as: 'style',
-    },
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap',
-    },
-  ];
+  try {
+    // Preload premium fonts - using Playfair Display (serif) and Inter (sans-serif)
+    // for a luxury wine app aesthetic that balances classic and modern
+    const fontLinks = [
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.googleapis.com',
+      },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous',
+      },
+      {
+        rel: 'preload',
+        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap',
+        as: 'style',
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap',
+      },
+    ];
 
-  fontLinks.forEach(({ rel, href, as, crossOrigin }) => {
-    try {
+    fontLinks.forEach(({ rel, href, as, crossOrigin }) => {
       const link = document.createElement('link');
       link.rel = rel;
       link.href = href;
       if (as) link.setAttribute('as', as);
       if (crossOrigin) link.setAttribute('crossorigin', crossOrigin);
       document.head.appendChild(link);
-    } catch (e) {
-      console.error("Error preloading font:", e);
-    }
-  });
+    });
+  } catch (e) {
+    console.error("Error preloading font:", e);
+  }
 };
 
 // Add iOS compatibility meta tags programmatically
 const addIOSMetaTags = () => {
-  const metaTags = [
-    {
-      name: 'apple-mobile-web-app-capable',
-      content: 'yes'
-    },
-    {
-      name: 'apple-mobile-web-app-status-bar-style',
-      content: 'black-translucent'
-    },
-    {
-      name: 'apple-mobile-web-app-title',
-      content: 'WineCheck'
-    },
-    {
-      name: 'viewport',
-      content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
-    }
-  ];
-  
-  metaTags.forEach(({ name, content }) => {
-    try {
+  try {
+    const metaTags = [
+      {
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes'
+      },
+      {
+        name: 'apple-mobile-web-app-status-bar-style',
+        content: 'black-translucent'
+      },
+      {
+        name: 'apple-mobile-web-app-title',
+        content: 'WineCheck'
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
+      }
+    ];
+    
+    metaTags.forEach(({ name, content }) => {
       let meta = document.querySelector(`meta[name="${name}"]`);
       if (!meta) {
         meta = document.createElement('meta');
@@ -75,10 +75,10 @@ const addIOSMetaTags = () => {
         meta.setAttribute('content', content);
         document.head.appendChild(meta);
       }
-    } catch (e) {
-      console.error("Error adding iOS meta tag:", e);
-    }
-  });
+    });
+  } catch (e) {
+    console.error("Error adding iOS meta tag:", e);
+  }
 };
 
 // Function to initialize the application
@@ -112,13 +112,9 @@ const initApp = () => {
     
     console.log("Root container found, rendering app");
     
-    // Add initial loading transition with premium feel
-    container.classList.add('opacity-0');
-    
     const root = createRoot(container);
     root.render(<App />);
     
-    // Enhanced fade-in animation for a more premium experience
     setTimeout(() => {
       container.classList.remove('opacity-0');
       container.classList.add('transition-opacity', 'duration-700', 'ease-out', 'opacity-100');

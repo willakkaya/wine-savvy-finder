@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 
 const Contact = () => {
   return (
-    <PageContainer>
+    <PageContainer title="Contact Us" className="bg-background">
       <div className="container max-w-5xl py-12 px-4">
         <div className="text-center mb-12">
           <h1 className="text-3xl font-serif mb-4">Contact Us</h1>

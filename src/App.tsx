@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import React from "react";
 import Home from "./pages/Home";
@@ -20,6 +20,7 @@ import FAQPage from "./pages/FAQPage";
 import { AppSettingsProvider } from "./hooks/useAppSettings";
 import { UserPreferencesProvider } from "./hooks/useUserPreferences";
 import AppUpdate from "./components/update/AppUpdate";
+import "./App.css"; // Ensure CSS is imported
 
 const App = () => {
   // Initialize QueryClient inside the component with refined settings
