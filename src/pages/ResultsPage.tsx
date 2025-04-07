@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Camera, Info } from 'lucide-react';
+import { ArrowLeft, Camera, Info, WifiOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WineCardLink from '@/components/wine/WineCardLink';
 import { WineInfo } from '@/components/wine/WineCard';
@@ -15,10 +14,41 @@ import { Card } from '@/components/ui/card';
 const ResultsPage: React.FC = () => {
   const [wines, setWines] = useState<WineInfo[]>([]);
   const [expandedWine, setExpandedWine] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [networkError, setNetworkError] = useState(false);
   const navigate = useNavigate();
+  
+  // Check network status
+  useEffect(() => {
+    const handleOnline = () => setNetworkError(false);
+    const handleOffline = () => setNetworkError(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Check initial network status
+    setNetworkError(!navigator.onLine);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   
   // Load results from sessionStorage on component mount
   useEffect(() => {
+    setLoading(true);
+    
+    // Check if we're offline
+    if (!navigator.onLine) {
+      setNetworkError(true);
+      setLoading(false);
+      toast.error('Network connection unavailable', {
+        description: 'Some features may be limited until connection is restored'
+      });
+      return;
+    }
+    
     const resultsData = sessionStorage.getItem('scanResults');
     
     if (resultsData) {
@@ -28,9 +58,11 @@ const ResultsPage: React.FC = () => {
         
         // Store wines in our cache for easy access from detail pages
         storeWineResults(parsedResults);
+        setLoading(false);
       } catch (error) {
         console.error('Error parsing scan results:', error);
         toast.error('Error loading scan results');
+        setLoading(false);
       }
     } else {
       // No results found, show a toast and then navigate back after a delay
@@ -38,6 +70,7 @@ const ResultsPage: React.FC = () => {
         description: 'Please scan a wine list first'
       });
       setTimeout(() => navigate('/scan'), 2000);
+      setLoading(false);
     }
   }, [navigate]);
   
@@ -68,7 +101,23 @@ const ResultsPage: React.FC = () => {
           </div>
         </div>
         
-        {wines.length > 0 ? (
+        {/* Network Error Alert */}
+        {networkError && (
+          <Alert variant="destructive" className="mb-6 animate-pulse">
+            <WifiOff className="h-4 w-4" />
+            <AlertTitle>Network Unavailable</AlertTitle>
+            <AlertDescription>
+              Please check your internet connection. Some features may be limited.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {loading ? (
+          <div className="w-full flex flex-col items-center justify-center p-12 text-center">
+            <div className="animate-spin h-12 w-12 rounded-full border-4 border-wine border-t-transparent mb-4"></div>
+            <h2 className="text-xl font-serif">Loading results...</h2>
+          </div>
+        ) : wines.length > 0 ? (
           <>
             <Alert className="mb-6 bg-wine/5 border-wine/20">
               <Info className="h-4 w-4 text-wine" />

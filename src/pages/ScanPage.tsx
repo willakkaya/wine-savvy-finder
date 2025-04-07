@@ -7,23 +7,42 @@ import ScanProgress from '@/components/scan/ScanProgress';
 import ScanTips from '@/components/scan/ScanTips';
 import ScanResultsPreview from '@/components/scan/ScanResultsPreview';
 import { Button } from '@/components/ui/button';
-import { Camera, Upload, RefreshCw, Sparkles, Check } from 'lucide-react';
+import { Camera, Upload, RefreshCw, Sparkles, Check, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { WineInfo } from '@/components/wine/WineCard';
 import { processWineListImage } from '@/utils/ocrUtils';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const ScanPage = () => {
   // Enhanced scan state management
-  const [scanStage, setScanStage] = useState<'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete'>('idle');
+  const [scanStage, setScanStage] = useState<'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error'>('idle');
   const [scanMessage, setScanMessage] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [foundWines, setFoundWines] = useState<WineInfo[]>([]);
+  const [networkError, setNetworkError] = useState<boolean>(false);
   const isMobile = useIsMobile();
   const { settings } = useAppSettings();
   const navigate = useNavigate();
+  
+  // Network status monitoring
+  useEffect(() => {
+    const handleOnline = () => setNetworkError(false);
+    const handleOffline = () => setNetworkError(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Check initial network status
+    setNetworkError(!navigator.onLine);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   
   // Demo mode - automatically simulate a scan after a delay for demonstration purposes
   useEffect(() => {
@@ -85,6 +104,16 @@ const ScanPage = () => {
       return;
     }
     
+    // Check network connectivity first
+    if (!navigator.onLine) {
+      setScanStage('error');
+      setScanMessage('Network connection unavailable');
+      toast.error('Network connection unavailable', {
+        description: 'Please check your internet connection and try again'
+      });
+      return;
+    }
+    
     // Process the captured image with our OCR and wine database APIs
     setIsProcessing(true);
     setScanStage('processing');
@@ -93,12 +122,21 @@ const ScanPage = () => {
     try {
       // First step - process the image with OCR
       setTimeout(() => {
-        setScanStage('analyzing');
-        setScanMessage('Analyzing wines and matching with database...');
+        if (scanStage === 'processing') {
+          setScanStage('analyzing');
+          setScanMessage('Analyzing wines and matching with database...');
+        }
       }, 1000);
       
-      // Process the image and get wine results
-      const wines = await processWineListImage(imageData);
+      // Process the image and get wine results with timeout
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 60000); // 60 second timeout
+      });
+      
+      const wines = await Promise.race([
+        processWineListImage(imageData),
+        timeoutPromise
+      ]) as WineInfo[];
       
       // Update the state with the results
       setFoundWines(wines);
@@ -110,18 +148,49 @@ const ScanPage = () => {
       });
     } catch (error) {
       console.error('Error processing wine list image:', error);
-      handleScanError("Failed to process the wine list");
+      
+      if (!navigator.onLine || error.message.includes('Network connection')) {
+        handleNetworkError();
+      } else if (error.message.includes('timeout')) {
+        handleTimeoutError();
+      } else {
+        handleScanError(error.message || "Failed to process the wine list");
+      }
     } finally {
       setIsProcessing(false);
     }
   };
   
-  // Handle scan errors
+  // Handle network connectivity errors
+  const handleNetworkError = () => {
+    setIsProcessing(false);
+    setScanStage('error');
+    setScanMessage('Network connection unavailable');
+    setNetworkError(true);
+    
+    toast.error('Network connection unavailable', {
+      description: 'Please check your internet connection and try again'
+    });
+  };
+  
+  // Handle request timeout errors
+  const handleTimeoutError = () => {
+    setIsProcessing(false);
+    setScanStage('error');
+    setScanMessage('Request timed out');
+    
+    toast.error('Request timed out', {
+      description: 'The process took too long. Please try again with a clearer image'
+    });
+  };
+  
+  // Handle general scan errors
   const handleScanError = (message: string) => {
     setIsProcessing(false);
-    setScanStage('idle');
-    setScanMessage('');
-    toast.error(message, {
+    setScanStage('error');
+    setScanMessage(message || 'Failed to process wine list');
+    
+    toast.error(message || 'Failed to process wine list', {
       description: 'Please try again with a clearer image'
     });
   };
@@ -132,6 +201,7 @@ const ScanPage = () => {
     setScanMessage('');
     setIsProcessing(false);
     setFoundWines([]);
+    setNetworkError(false);
   };
   
   // View scan results
@@ -158,6 +228,17 @@ const ScanPage = () => {
             "Point your camera at a wine list to analyze prices and find the best values."}
         </p>
         
+        {/* Network Error Alert */}
+        {networkError && (
+          <Alert variant="destructive" className="mb-4 animate-pulse">
+            <WifiOff className="h-4 w-4" />
+            <AlertTitle>Network Unavailable</AlertTitle>
+            <AlertDescription>
+              Please check your internet connection and try again.
+            </AlertDescription>
+          </Alert>
+        )}
+        
         {/* Camera or Results Container */}
         <div className={cn(
           "w-full overflow-hidden rounded-xl border border-border mb-4",
@@ -167,7 +248,7 @@ const ScanPage = () => {
             <div className="relative">
               <CameraCapture 
                 onImageCapture={handleImageCapture} 
-                disabled={isProcessing}
+                disabled={isProcessing || networkError}
                 className="aspect-[3/4] object-cover w-full"
               />
               
@@ -187,10 +268,22 @@ const ScanPage = () => {
                     onClick={simulateWineScan} 
                     variant="wine" 
                     className="bg-wine/90 hover:bg-wine text-white"
+                    disabled={networkError}
                   >
                     <Camera className="mr-2 h-5 w-5" />
                     Simulate Wine List Scan
                   </Button>
+                </div>
+              )}
+              
+              {/* Network error overlay */}
+              {networkError && !isProcessing && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <div className="text-white text-center p-4">
+                    <WifiOff className="h-8 w-8 mb-2 mx-auto" />
+                    <p className="text-lg font-semibold">Network Unavailable</p>
+                    <p className="mt-2">Please check your connection and try again</p>
+                  </div>
                 </div>
               )}
             </div>

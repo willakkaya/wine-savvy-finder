@@ -27,7 +27,7 @@ export interface ExtractedWineData {
 }
 
 /**
- * Process the image data and extract wine information using real OCR API
+ * Process the wine list image and extract wine information using real OCR API
  */
 export const processWineListImage = async (imageData: string): Promise<WineInfo[]> => {
   console.log('Processing wine list image with real OCR API...');
@@ -36,8 +36,16 @@ export const processWineListImage = async (imageData: string): Promise<WineInfo[
     // Step 1: Extract text blocks from image using OCR
     const ocrResults = await performOCR(imageData);
     
+    if (!ocrResults || ocrResults.length === 0) {
+      throw new Error('No text was detected in the image');
+    }
+    
     // Step 2: Parse the OCR results to identify potential wine entries
     const extractedWineData = WineOcrService.parseOcrResults(ocrResults);
+    
+    if (!extractedWineData || extractedWineData.length === 0) {
+      throw new Error('No wine information could be extracted from the image');
+    }
     
     // Step 3: Search real wine database using the extracted data
     const wineResults = await WineOcrService.enrichWineData(extractedWineData);
@@ -46,10 +54,24 @@ export const processWineListImage = async (imageData: string): Promise<WineInfo[
     return wineResults.sort((a, b) => b.valueScore - a.valueScore);
   } catch (error) {
     console.error('Error processing wine list image:', error);
-    toast.error('Failed to process wine list', {
-      description: 'Please try again or use a clearer image.'
-    });
-    throw new Error('Failed to process wine list. Please try again or use a clearer image.');
+    
+    // More specific error messages based on the error type
+    if (error instanceof TypeError) {
+      toast.error('Network connection error', {
+        description: 'Please check your internet connection and try again.'
+      });
+      throw new Error('Network connection error. Please check your internet connection.');
+    } else if (error.message.includes('API')) {
+      toast.error('OCR service unavailable', {
+        description: 'Our image recognition service is temporarily unavailable.'
+      });
+      throw new Error('OCR service unavailable. Please try again later.');
+    } else {
+      toast.error('Failed to process wine list', {
+        description: error.message || 'Please try again or use a clearer image.'
+      });
+      throw error;
+    }
   }
 };
 
@@ -63,7 +85,10 @@ export const performOCR = async (imageData: string): Promise<OCRResult[]> => {
     // Remove data URL prefix if present to get just the base64 data
     const base64Data = imageData.split(',')[1] || imageData;
     
-    // Call Google Cloud Vision API
+    // Call Google Cloud Vision API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
     const response = await fetch('https://vision.googleapis.com/v1/images:annotate?key=YOUR_GOOGLE_CLOUD_API_KEY', {
       method: 'POST',
       headers: {
@@ -83,13 +108,26 @@ export const performOCR = async (imageData: string): Promise<OCRResult[]> => {
             ]
           }
         ]
-      })
+      }),
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId); // Clear the timeout if the request completed
     
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OCR API error:', errorData);
-      throw new Error(`OCR API error: ${response.status}`);
+      
+      // Handle different HTTP status codes
+      if (response.status === 403) {
+        throw new Error('API key error: Permission denied');
+      } else if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again later');
+      } else if (response.status >= 500) {
+        throw new Error('OCR service is currently unavailable');
+      } else {
+        throw new Error(`OCR API error: ${response.status}`);
+      }
     }
     
     const data = await response.json();
@@ -141,10 +179,24 @@ export const performOCR = async (imageData: string): Promise<OCRResult[]> => {
     return ocrResults;
   } catch (error) {
     console.error('OCR processing error:', error);
-    toast.error('Failed to extract text from image', {
-      description: 'Our OCR service is currently experiencing issues.'
-    });
-    throw new Error('Failed to extract text from image');
+    
+    // Handle specific error types
+    if (error.name === 'AbortError') {
+      toast.error('OCR request timed out', {
+        description: 'The image processing took too long. Please try again with a smaller image.'
+      });
+      throw new Error('OCR request timed out. Please try again with a smaller image.');
+    } else if (error.name === 'TypeError' || error.message.includes('fetch')) {
+      toast.error('Network connection error', {
+        description: 'Please check your internet connection and try again.'
+      });
+      throw new Error('Network connection error. Please check your internet connection.');
+    } else {
+      toast.error('Failed to extract text from image', {
+        description: error.message || 'Our OCR service is currently experiencing issues.'
+      });
+      throw error;
+    }
   }
 };
 
