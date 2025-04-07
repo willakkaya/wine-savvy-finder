@@ -1,0 +1,8 @@
+
+This file should be a 180x180 pixel PNG image with the WineCheck app logo.
+The background should be the brand color (#722F37).
+
+To create this icon:
+1. Design a square logo image with dimensions 180x180 pixels
+2. Use the WineCheck burgundy color (#722F37) as the background
+3. Save it as apple-touch-icon.png in the public directory
