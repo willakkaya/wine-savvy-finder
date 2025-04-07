@@ -12,8 +12,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAppSettings } from '@/hooks/useAppSettings';
-import { searchWines } from '@/utils/wineApi';
 import { WineInfo } from '@/components/wine/WineCard';
+import { processWineListImage } from '@/utils/ocrUtils';
 
 const ScanPage = () => {
   // Enhanced scan state management
@@ -38,7 +38,7 @@ const ScanPage = () => {
     }
   }, [scanStage, settings.demoMode]);
   
-  // Simulate a wine scan process with dummy data
+  // Simulate a wine scan process with dummy data for demo mode only
   const simulateWineScan = () => {
     setIsProcessing(true);
     setScanStage('processing');
@@ -50,9 +50,12 @@ const ScanPage = () => {
       setScanMessage('Analyzing wines and matching with database...');
       
       // Second step - simulate wine matching
-      setTimeout(() => {
-        // Get wines from API (which returns our dummy data)
-        searchWines().then(wines => {
+      setTimeout(async () => {
+        try {
+          // In demo mode, we'll still use the search API but with empty query to get sample data
+          const response = await fetch('/api/demo-wines');
+          const wines = await response.json();
+          
           // Randomly select 6-9 wines to show diversity
           const randomCount = Math.floor(Math.random() * 4) + 6;
           const shuffled = [...wines].sort(() => 0.5 - Math.random());
@@ -66,13 +69,15 @@ const ScanPage = () => {
           toast.success('Wine list processed successfully', {
             description: `We found ${selectedWines.length} wines on the list`
           });
-        });
+        } catch (error) {
+          handleScanError("Failed to process demo wines");
+        }
       }, 2500);
     }, 2000);
   };
   
-  // Handle image capture complete
-  const handleImageCapture = (imageData: string) => {
+  // Handle image capture complete - uses real OCR API processing
+  const handleImageCapture = async (imageData: string) => {
     if (!imageData) {
       toast.error('Failed to capture image', {
         description: 'Please try again'
@@ -80,8 +85,45 @@ const ScanPage = () => {
       return;
     }
     
-    // Simulate processing with our dummy data
-    simulateWineScan();
+    // Process the captured image with our OCR and wine database APIs
+    setIsProcessing(true);
+    setScanStage('processing');
+    setScanMessage('Processing wine list image...');
+    
+    try {
+      // First step - process the image with OCR
+      setTimeout(() => {
+        setScanStage('analyzing');
+        setScanMessage('Analyzing wines and matching with database...');
+      }, 1000);
+      
+      // Process the image and get wine results
+      const wines = await processWineListImage(imageData);
+      
+      // Update the state with the results
+      setFoundWines(wines);
+      setScanStage('complete');
+      setScanMessage(`Analysis complete! Found ${wines.length} wines on the list.`);
+      
+      toast.success('Wine list processed successfully', {
+        description: `We found ${wines.length} wines on the list`
+      });
+    } catch (error) {
+      console.error('Error processing wine list image:', error);
+      handleScanError("Failed to process the wine list");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  // Handle scan errors
+  const handleScanError = (message: string) => {
+    setIsProcessing(false);
+    setScanStage('idle');
+    setScanMessage('');
+    toast.error(message, {
+      description: 'Please try again with a clearer image'
+    });
   };
   
   // Handle retry
@@ -92,9 +134,9 @@ const ScanPage = () => {
     setFoundWines([]);
   };
   
-  // View scan results - now actually navigates
+  // View scan results
   const handleViewResults = () => {
-    // Store the found wines in sessionStorage for demo purposes
+    // Store the found wines in sessionStorage
     sessionStorage.setItem('scanResults', JSON.stringify(foundWines));
     navigate('/results');
     
@@ -103,13 +145,6 @@ const ScanPage = () => {
       toast.info('Demo Mode: Navigating to results', {
         description: 'In a real app, these would be actual wines from the scanned list'
       });
-    }
-  };
-  
-  // For demo purposes, we can add a button to trigger the scan
-  const handleDemoScan = () => {
-    if (!isProcessing) {
-      simulateWineScan();
     }
   };
   
@@ -149,7 +184,7 @@ const ScanPage = () => {
               {settings.demoMode && scanStage === 'idle' && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Button 
-                    onClick={handleDemoScan} 
+                    onClick={simulateWineScan} 
                     variant="wine" 
                     className="bg-wine/90 hover:bg-wine text-white"
                   >

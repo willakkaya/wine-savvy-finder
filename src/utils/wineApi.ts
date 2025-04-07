@@ -1,7 +1,7 @@
 import { WineInfo } from '@/components/wine/WineCard';
 import { config } from '@/lib/config';
 
-// More realistic wine image URLs by type
+// More realistic wine image URLs by type - we'll keep these as fallbacks
 const wineImagesByType = {
   red: [
     "https://images.vivino.com/thumbs/uXOXvx3LSHSEDtyKULBF6Q_pb_600x600.png", // Cabernet Sauvignon
@@ -120,7 +120,7 @@ const categorizeWine = (wine: WineInfo): { wineType: 'red' | 'white' | 'sparklin
   return { wineType, imageUrl };
 };
 
-// Mock database of wines for development
+// Mock database of wines - will be used as fallback if API fails
 const mockWines: WineInfo[] = [
   {
     id: 'wine-001',
@@ -133,8 +133,7 @@ const mockWines: WineInfo[] = [
     marketPrice: 180,
     rating: 96,
     valueScore: 85,
-    // Will be assigned in the searchWines function
-    imageUrl: '' 
+    imageUrl: ''
   },
   {
     id: 'wine-002',
@@ -256,97 +255,229 @@ const mockWines: WineInfo[] = [
 ];
 
 /**
- * Simulates an API call to search for wines
- * In a real app, this would call an external API
+ * Connects to Wine-Searcher API to search for wines
+ * Falls back to mock data if API is not available
  */
 export const searchWines = async (query?: string): Promise<WineInfo[]> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
+  console.log('Searching for wines:', query);
   
-  // If not using real API, return mock data
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  // If real wine API is disabled in config or no API key is available, use mock data
   if (!config.features.enableRealWineApi) {
-    // If query is provided, filter results
-    const wines = query 
-      ? mockWines.filter(wine => {
-          const searchTerm = query.toLowerCase();
-          return (
-            wine.name.toLowerCase().includes(searchTerm) ||
-            wine.winery.toLowerCase().includes(searchTerm) ||
-            wine.region.toLowerCase().includes(searchTerm) ||
-            wine.country.toLowerCase().includes(searchTerm)
-          );
-        })
-      : mockWines;
-    
-    // Assign appropriate wine images and types based on name
-    return wines.map(wine => {
-      const { wineType, imageUrl } = categorizeWine(wine);
-      return {
-        ...wine,
-        wineType,
-        imageUrl: wine.imageUrl || imageUrl
-      };
-    });
+    console.log('Using mock wine data');
+    return processMockWineData(query);
   }
   
-  // In a real implementation, this would call an actual API
+  // Try to call the real Wine-Searcher API
   try {
-    // Here we'd make a fetch call to a real wine API
-    // For demo purposes, we'll just return the mock data
-    return mockWines.map(wine => {
-      const { wineType, imageUrl } = categorizeWine(wine);
-      return {
+    console.log('Calling Wine-Searcher API');
+    const apiKey = 'YOUR_WINE_SEARCHER_API_KEY'; // Replace with your Wine-Searcher API key
+    
+    const response = await fetch('https://api.wine-searcher.com/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': apiKey
+      },
+      body: JSON.stringify({
+        query: query || '',
+        limit: 20,
+        additional_fields: ['rating', 'region', 'country', 'price', 'market_price', 'image_url', 'winery']
+      })
+    });
+    
+    if (!response.ok) {
+      console.error('Wine-Searcher API error:', response.status);
+      // Fall back to mock data on API error
+      return processMockWineData(query);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.wines || !Array.isArray(data.wines)) {
+      console.log('Invalid response from Wine-Searcher API, falling back to mock data');
+      return processMockWineData(query);
+    }
+    
+    // Transform API response to our WineInfo format
+    const wines: WineInfo[] = data.wines.map((wine: any) => {
+      // Calculate value score
+      const price = wine.price || 100;
+      const marketPrice = wine.market_price || price * 1.2;
+      const rating = wine.rating || 90;
+      
+      const priceDifferencePercent = (marketPrice - price) / marketPrice;
+      const valueScore = Math.round(
+        (priceDifferencePercent * 50) + // Price difference component (0-50)
+        ((rating - 85) / 13 * 50)  // Quality component (0-50)
+      );
+      
+      const { wineType, imageUrl: fallbackImage } = categorizeWine({
         ...wine,
+        id: wine.id || `wine-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        name: wine.name || 'Unknown Wine',
+        winery: wine.winery || 'Unknown Producer',
+        year: wine.vintage || new Date().getFullYear() - 3,
+        price,
+        marketPrice,
+        rating,
+        valueScore,
+        imageUrl: wine.image_url
+      });
+      
+      return {
+        id: wine.id || `wine-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        name: wine.name || 'Unknown Wine',
+        winery: wine.winery || 'Unknown Producer',
+        year: wine.vintage || new Date().getFullYear() - 3,
+        region: wine.region || 'Unknown Region',
+        country: wine.country || 'Unknown Country',
+        price,
+        marketPrice,
+        rating,
+        valueScore,
         wineType,
-        imageUrl: wine.imageUrl || imageUrl
+        imageUrl: wine.image_url || fallbackImage
       };
     });
+    
+    console.log(`Found ${wines.length} wines from Wine-Searcher API`);
+    return wines;
   } catch (error) {
-    console.error('Error fetching wines:', error);
-    return [];
+    console.error('Error fetching wines from Wine-Searcher API:', error);
+    // Fall back to mock data on exception
+    return processMockWineData(query);
   }
 };
 
 /**
- * Simulates an API call to get a wine by ID
+ * Process mock wine data when API is unavailable
+ */
+const processMockWineData = (query?: string): WineInfo[] => {
+  // If query is provided, filter results
+  const wines = query 
+    ? mockWines.filter(wine => {
+        const searchTerm = query.toLowerCase();
+        return (
+          wine.name.toLowerCase().includes(searchTerm) ||
+          wine.winery.toLowerCase().includes(searchTerm) ||
+          wine.region.toLowerCase().includes(searchTerm) ||
+          wine.country.toLowerCase().includes(searchTerm)
+        );
+      })
+    : mockWines;
+  
+  // Assign appropriate wine images and types based on name
+  return wines.map(wine => {
+    const { wineType, imageUrl } = categorizeWine(wine);
+    return {
+      ...wine,
+      wineType,
+      imageUrl: wine.imageUrl || imageUrl
+    };
+  });
+};
+
+/**
+ * Get a specific wine by ID from Wine-Searcher API
  */
 export const getWineById = async (id: string): Promise<WineInfo | null> => {
+  console.log('Getting wine by ID:', id);
+  
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
+  await new Promise(resolve => setTimeout(resolve, 200));
   
   if (!config.features.enableRealWineApi) {
-    const wine = mockWines.find(w => w.id === id) || null;
-    
-    if (wine) {
-      const { wineType, imageUrl } = categorizeWine(wine);
-      return {
-        ...wine,
-        wineType,
-        imageUrl: wine.imageUrl || imageUrl
-      };
-    }
-    
-    return null;
+    console.log('Using mock wine data for ID lookup');
+    return getMockWineById(id);
   }
   
-  // In a real implementation, this would call an actual API
   try {
-    // Here we'd make a fetch call to a real wine API
-    // For demo, we'll use mock data
-    const wine = mockWines.find(w => w.id === id) || null;
+    console.log('Calling Wine-Searcher API for wine details');
+    const apiKey = 'YOUR_WINE_SEARCHER_API_KEY'; // Replace with your Wine-Searcher API key
     
-    if (wine) {
-      const { wineType, imageUrl } = categorizeWine(wine);
-      return {
-        ...wine,
-        wineType,
-        imageUrl: wine.imageUrl || imageUrl
-      };
+    const response = await fetch(`https://api.wine-searcher.com/wines/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': apiKey
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Wine-Searcher API error:', response.status);
+      // Fall back to mock data on API error
+      return getMockWineById(id);
     }
     
-    return null;
+    const wine = await response.json();
+    
+    if (!wine || !wine.id) {
+      console.log('Invalid response from Wine-Searcher API, falling back to mock data');
+      return getMockWineById(id);
+    }
+    
+    // Calculate value score
+    const price = wine.price || 100;
+    const marketPrice = wine.market_price || price * 1.2;
+    const rating = wine.rating || 90;
+    
+    const priceDifferencePercent = (marketPrice - price) / marketPrice;
+    const valueScore = Math.round(
+      (priceDifferencePercent * 50) + // Price difference component (0-50)
+      ((rating - 85) / 13 * 50)  // Quality component (0-50)
+    );
+    
+    const { wineType, imageUrl: fallbackImage } = categorizeWine({
+      ...wine,
+      id: wine.id,
+      name: wine.name || 'Unknown Wine',
+      winery: wine.winery || 'Unknown Producer',
+      year: wine.vintage || new Date().getFullYear() - 3,
+      price,
+      marketPrice,
+      rating,
+      valueScore,
+      imageUrl: wine.image_url
+    });
+    
+    return {
+      id: wine.id,
+      name: wine.name || 'Unknown Wine',
+      winery: wine.winery || 'Unknown Producer',
+      year: wine.vintage || new Date().getFullYear() - 3,
+      region: wine.region || 'Unknown Region',
+      country: wine.country || 'Unknown Country',
+      price,
+      marketPrice,
+      rating,
+      valueScore,
+      wineType,
+      imageUrl: wine.image_url || fallbackImage
+    };
   } catch (error) {
-    console.error('Error fetching wine details:', error);
-    return null;
+    console.error('Error fetching wine details from Wine-Searcher API:', error);
+    // Fall back to mock data on exception
+    return getMockWineById(id);
   }
+};
+
+/**
+ * Get mock wine by ID when API is unavailable
+ */
+const getMockWineById = (id: string): WineInfo | null => {
+  const wine = mockWines.find(w => w.id === id) || null;
+  
+  if (wine) {
+    const { wineType, imageUrl } = categorizeWine(wine);
+    return {
+      ...wine,
+      wineType,
+      imageUrl: wine.imageUrl || imageUrl
+    };
+  }
+  
+  return null;
 };

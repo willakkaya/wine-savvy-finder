@@ -2,6 +2,7 @@
 import { WineInfo } from '@/components/wine/WineCard';
 import { searchWinesByQuery } from './wineUtils';
 import { WineOcrService } from './wineOcrService';
+import { toast } from 'sonner';
 
 // Interface for OCR results
 export interface OCRResult {
@@ -26,12 +27,10 @@ export interface ExtractedWineData {
 }
 
 /**
- * Process the image data and extract wine information
- * This implementation simulates a production-ready OCR wine scanner
- * but would integrate with a real OCR service in production
+ * Process the image data and extract wine information using real OCR API
  */
 export const processWineListImage = async (imageData: string): Promise<WineInfo[]> => {
-  console.log('Processing wine list image...');
+  console.log('Processing wine list image with real OCR API...');
   
   try {
     // Step 1: Extract text blocks from image using OCR
@@ -41,104 +40,114 @@ export const processWineListImage = async (imageData: string): Promise<WineInfo[
     const extractedWineData = WineOcrService.parseOcrResults(ocrResults);
     
     // Step 3: Search real wine database using the extracted data
-    // In production, this would connect to a real wine database API
     const wineResults = await WineOcrService.enrichWineData(extractedWineData);
     
     // Step 4: Sort wines by value score (highest to lowest)
     return wineResults.sort((a, b) => b.valueScore - a.valueScore);
   } catch (error) {
     console.error('Error processing wine list image:', error);
+    toast.error('Failed to process wine list', {
+      description: 'Please try again or use a clearer image.'
+    });
     throw new Error('Failed to process wine list. Please try again or use a clearer image.');
   }
 };
 
 /**
- * Extract text blocks from an image using OCR
- * In production, this would call Google Cloud Vision, AWS Textract, or similar
+ * Extract text blocks from an image using Google Cloud Vision API
  */
 export const performOCR = async (imageData: string): Promise<OCRResult[]> => {
-  console.log('Performing OCR on image...');
+  console.log('Performing OCR on image with Vision API...');
   
-  // Simulate processing time for the OCR service
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Analyze the image content to detect text regions
-  // This is simulated, but in production would connect to a real OCR API
   try {
-    // For demo purposes, we'll return a simulated OCR result based on common
-    // wine list formats. In production, this would be the actual OCR output.
+    // Remove data URL prefix if present to get just the base64 data
+    const base64Data = imageData.split(',')[1] || imageData;
     
-    // Randomly decide how many wine entries to "detect" (2-5)
-    const wineCount = Math.floor(Math.random() * 4) + 2;
+    // Call Google Cloud Vision API
+    const response = await fetch('https://vision.googleapis.com/v1/images:annotate?key=YOUR_GOOGLE_CLOUD_API_KEY', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        requests: [
+          {
+            image: {
+              content: base64Data
+            },
+            features: [
+              {
+                type: 'TEXT_DETECTION',
+                maxResults: 50
+              }
+            ]
+          }
+        ]
+      })
+    });
     
-    // Array of common wine producers, regions, and varietals to generate realistic data
-    const wineries = [
-      'Château Margaux', 'Domaine Leroy', 'Opus One', 'Screaming Eagle', 
-      'Penfolds', 'Sassicaia', 'Silver Oak', 'Dom Pérignon', 'Caymus',
-      'Antinori', 'Gaja', 'Louis Latour', 'Au Bon Climat', 'Ridge'
-    ];
-    
-    const regions = [
-      'Bordeaux', 'Burgundy', 'Napa Valley', 'Tuscany', 'Barossa Valley',
-      'Piedmont', 'Rioja', 'Champagne', 'Sonoma', 'Willamette Valley',
-      'Russian River Valley', 'Mosel', 'Mendoza', 'Marlborough'
-    ];
-    
-    const varietals = [
-      'Cabernet Sauvignon', 'Pinot Noir', 'Chardonnay', 'Merlot', 
-      'Syrah', 'Sauvignon Blanc', 'Riesling', 'Malbec', 'Zinfandel',
-      'Grenache', 'Tempranillo', 'Sangiovese', 'Nebbiolo'
-    ];
-    
-    const countries = [
-      'France', 'Italy', 'USA', 'Australia', 'Spain', 
-      'Argentina', 'Germany', 'New Zealand', 'Chile'
-    ];
-    
-    const results: OCRResult[] = [];
-    
-    // Generate OCR results for each simulated wine entry
-    for (let i = 0; i < wineCount; i++) {
-      // Generate a random year between 2010 and 2021
-      const year = Math.floor(Math.random() * 12) + 2010;
-      
-      // Pick random winery, region, and varietal
-      const winery = wineries[Math.floor(Math.random() * wineries.length)];
-      const region = regions[Math.floor(Math.random() * regions.length)];
-      const varietal = varietals[Math.floor(Math.random() * varietals.length)];
-      const country = countries[Math.floor(Math.random() * countries.length)];
-      
-      // Generate a random price between $35 and $250
-      const price = Math.floor(Math.random() * 215) + 35;
-      
-      // Create OCR entries that would typically be found on a wine list
-      results.push({
-        text: `${winery} ${varietal} ${year}`,
-        confidence: 0.85 + (Math.random() * 0.14)
-      });
-      
-      results.push({
-        text: `${region}, ${country}`,
-        confidence: 0.80 + (Math.random() * 0.15)
-      });
-      
-      results.push({
-        text: `$${price}`,
-        confidence: 0.90 + (Math.random() * 0.09)
-      });
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OCR API error:', errorData);
+      throw new Error(`OCR API error: ${response.status}`);
     }
     
-    return results;
+    const data = await response.json();
+    
+    // Check if we have text annotations
+    if (!data.responses?.[0]?.textAnnotations) {
+      console.log('No text detected in image');
+      return [];
+    }
+    
+    // Format results to match our OCRResult interface
+    // Skip the first result which is the entire text
+    const textAnnotations = data.responses[0].textAnnotations.slice(1);
+    
+    const ocrResults: OCRResult[] = textAnnotations.map((annotation: any) => {
+      // Calculate confidence (Vision API doesn't provide per-annotation confidence)
+      // So we use a default high value
+      const confidence = 0.95;
+      
+      // Get bounding box coordinates
+      const vertices = annotation.boundingPoly?.vertices || [];
+      let boundingBox;
+      
+      if (vertices.length === 4) {
+        // Calculate the bounding box from the vertices
+        const xs = vertices.map((v: any) => v.x || 0);
+        const ys = vertices.map((v: any) => v.y || 0);
+        
+        const minX = Math.min(...xs);
+        const minY = Math.min(...ys);
+        const maxX = Math.max(...xs);
+        const maxY = Math.max(...ys);
+        
+        boundingBox = {
+          x: minX,
+          y: minY,
+          width: maxX - minX,
+          height: maxY - minY
+        };
+      }
+      
+      return {
+        text: annotation.description || '',
+        confidence,
+        boundingBox
+      };
+    });
+    
+    return ocrResults;
   } catch (error) {
     console.error('OCR processing error:', error);
+    toast.error('Failed to extract text from image', {
+      description: 'Our OCR service is currently experiencing issues.'
+    });
     throw new Error('Failed to extract text from image');
   }
 };
 
-// Remove these incorrect exports
-// export { parseWineInformation } from './wineOcrService';
-// export { enhanceWineData } from './wineOcrService';
-
-// Instead, export what we need directly from the WineOcrService
+// Export what we need directly from the WineOcrService
 export const parseWineInformation = WineOcrService.parseOcrResults;
 export const enhanceWineData = WineOcrService.enrichWineData;
