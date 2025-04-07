@@ -3,15 +3,20 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Wine, DollarSign, Star } from 'lucide-react';
+import { WineInfo } from '@/components/wine/WineCard';
 
 interface ScanResultsPreviewProps {
   resultsCount: number;
   onViewResults: () => void;
+  topValueWine?: WineInfo;
+  highestRatedWine?: WineInfo;
 }
 
 const ScanResultsPreview: React.FC<ScanResultsPreviewProps> = ({ 
   resultsCount, 
-  onViewResults 
+  onViewResults,
+  topValueWine,
+  highestRatedWine
 }) => {
   return (
     <Card className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-all"
@@ -30,7 +35,9 @@ const ScanResultsPreview: React.FC<ScanResultsPreviewProps> = ({
             <span className="text-muted-foreground">Top Value</span>
             <div className="flex items-center gap-1 text-wine">
               <DollarSign className="h-4 w-4" />
-              <span className="font-medium">Best Malbec 2021</span>
+              <span className="font-medium">
+                {topValueWine ? `${topValueWine.name.substring(0, 20)}${topValueWine.name.length > 20 ? '...' : ''}` : 'Best Malbec 2021'}
+              </span>
             </div>
           </div>
           
@@ -38,7 +45,9 @@ const ScanResultsPreview: React.FC<ScanResultsPreviewProps> = ({
             <span className="text-muted-foreground">Highest Rated</span>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 text-gold fill-gold" />
-              <span className="font-medium">Premium Cabernet 2018</span>
+              <span className="font-medium">
+                {highestRatedWine ? `${highestRatedWine.name.substring(0, 20)}${highestRatedWine.name.length > 20 ? '...' : ''}` : 'Premium Cabernet 2018'}
+              </span>
             </div>
           </div>
           

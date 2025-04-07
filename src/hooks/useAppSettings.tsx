@@ -1,20 +1,17 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AppSettings {
   discreetMode: boolean;
   showRatings: boolean;
   showPrices: boolean;
   showSavings: boolean;
+  demoMode: boolean; // Added demo mode setting
 }
 
 interface AppSettingsContextType {
   settings: AppSettings;
-  toggleDiscreetMode: () => void;
-  toggleShowRatings: () => void; 
-  toggleShowPrices: () => void;
-  toggleShowSavings: () => void;
-  resetSettings: () => void;
+  updateSettings: (newSettings: Partial<AppSettings>) => void;
 }
 
 const defaultSettings: AppSettings = {
@@ -22,85 +19,51 @@ const defaultSettings: AppSettings = {
   showRatings: true,
   showPrices: true,
   showSavings: true,
+  demoMode: true, // Enable demo mode by default
 };
 
 const AppSettingsContext = createContext<AppSettingsContextType | undefined>(undefined);
 
-const SETTINGS_STORAGE_KEY = 'winecheck-settings';
-
-export const AppSettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
-
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    try {
-      const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
-      if (storedSettings) {
-        setSettings(JSON.parse(storedSettings));
+export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
+  children 
+}) => {
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    // Load settings from localStorage if available
+    const savedSettings = localStorage.getItem('appSettings');
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        return {
+          ...defaultSettings,
+          ...parsedSettings,
+          // Always enable demo mode if the app is run in a demo context or iframe
+          demoMode: parsedSettings.demoMode ?? window.location.href.includes('demo') || window !== window.parent
+        };
+      } catch (e) {
+        console.error('Error parsing saved settings:', e);
+        return defaultSettings;
       }
-    } catch (error) {
-      console.error('Error loading settings:', error);
     }
-  }, []);
+    return defaultSettings;
+  });
 
-  // Save settings to localStorage when they change
-  useEffect(() => {
-    try {
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-    } catch (error) {
-      console.error('Error saving settings:', error);
-    }
-  }, [settings]);
-
-  const toggleDiscreetMode = () => {
-    setSettings(prev => ({
-      ...prev,
-      discreetMode: !prev.discreetMode,
-    }));
-  };
-
-  const toggleShowRatings = () => {
-    setSettings(prev => ({
-      ...prev,
-      showRatings: !prev.showRatings,
-    }));
-  };
-
-  const toggleShowPrices = () => {
-    setSettings(prev => ({
-      ...prev,
-      showPrices: !prev.showPrices,
-    }));
-  };
-
-  const toggleShowSavings = () => {
-    setSettings(prev => ({
-      ...prev,
-      showSavings: !prev.showSavings,
-    }));
-  };
-
-  const resetSettings = () => {
-    setSettings(defaultSettings);
+  // Update settings and save to localStorage
+  const updateSettings = (newSettings: Partial<AppSettings>) => {
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem('appSettings', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   return (
-    <AppSettingsContext.Provider
-      value={{
-        settings,
-        toggleDiscreetMode,
-        toggleShowRatings,
-        toggleShowPrices,
-        toggleShowSavings,
-        resetSettings,
-      }}
-    >
+    <AppSettingsContext.Provider value={{ settings, updateSettings }}>
       {children}
     </AppSettingsContext.Provider>
   );
 };
 
-export const useAppSettings = (): AppSettingsContextType => {
+export const useAppSettings = () => {
   const context = useContext(AppSettingsContext);
   if (context === undefined) {
     throw new Error('useAppSettings must be used within an AppSettingsProvider');

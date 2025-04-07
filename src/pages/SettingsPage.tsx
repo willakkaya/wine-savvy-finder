@@ -1,129 +1,252 @@
 
 import React from 'react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import { useAppSettings } from '@/hooks/useAppSettings';
-import { Switch } from "@/components/ui/switch";
+import { PageContainer } from '@/components/layout/PageContainer';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, RotateCcw } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { useAppSettings } from '@/hooks/useAppSettings';
+import { 
+  Eye, 
+  EyeOff, 
+  Star, 
+  DollarSign, 
+  Moon, 
+  Sun,
+  Percent,
+  Trash2,
+  RefreshCw,
+  Sparkles
+} from 'lucide-react';
+import { clearFavorites } from '@/utils/favoritesUtils';
+import { clearWineCache } from '@/utils/wineUtils';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTrigger,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useTheme } from 'next-themes';
 
-const SettingsPage: React.FC = () => {
-  const { 
-    settings, 
-    toggleDiscreetMode, 
-    toggleShowRatings, 
-    toggleShowPrices, 
-    toggleShowSavings,
-    resetSettings 
-  } = useAppSettings();
-  
+const SettingsPage = () => {
   const { toast } = useToast();
-
-  const handleReset = () => {
-    resetSettings();
+  const { settings, updateSettings } = useAppSettings();
+  const { theme, setTheme } = useTheme();
+  
+  // Clear all app data
+  const handleClearData = () => {
+    // Clear favorites
+    clearFavorites();
+    
+    // Clear wine cache
+    clearWineCache();
+    
+    // Show success notification
     toast({
-      title: "Settings reset",
-      description: "All settings have been reset to their default values",
+      title: "Data cleared",
+      description: "All saved wines and preferences have been removed",
     });
   };
-
+  
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-1 flex flex-col items-center px-4 py-8">
-        <div className="w-full max-w-2xl mx-auto">
-          <h1 className="text-3xl font-serif text-center text-wine-dark mb-8">
-            App Settings
-          </h1>
-          
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex flex-col gap-6">
-              <div>
-                <h2 className="text-xl font-medium mb-4 text-wine-dark">Display Preferences</h2>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center">
-                        {settings.discreetMode ? (
-                          <EyeOff className="mr-2 h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
-                        )}
-                        <div className="text-base font-medium">Discreet Mode</div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Hide detailed price information when showing your screen to others
-                      </p>
-                    </div>
-                    <Switch 
-                      checked={settings.discreetMode} 
-                      onCheckedChange={toggleDiscreetMode} 
-                    />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="text-base font-medium">Show Ratings</div>
-                      <p className="text-sm text-muted-foreground">
-                        Display wine critic ratings on cards
-                      </p>
-                    </div>
-                    <Switch 
-                      checked={settings.showRatings} 
-                      onCheckedChange={toggleShowRatings} 
-                      disabled={settings.discreetMode}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="text-base font-medium">Show Prices</div>
-                      <p className="text-sm text-muted-foreground">
-                        Display wine prices on cards
-                      </p>
-                    </div>
-                    <Switch 
-                      checked={settings.showPrices} 
-                      onCheckedChange={toggleShowPrices} 
-                      disabled={settings.discreetMode}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="text-base font-medium">Show Savings</div>
-                      <p className="text-sm text-muted-foreground">
-                        Display savings percentage on cards
-                      </p>
-                    </div>
-                    <Switch 
-                      checked={settings.showSavings} 
-                      onCheckedChange={toggleShowSavings} 
-                      disabled={settings.discreetMode}
-                    />
-                  </div>
-                </div>
+    <PageContainer title="Settings">
+      <div className="max-w-md mx-auto">
+        <h1 className="text-2xl md:text-3xl font-serif mb-6 text-center">Settings</h1>
+        
+        {/* Display Settings */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Display Options</CardTitle>
+            <CardDescription>Customize how wine information is displayed</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="discreet-mode">Discreet Mode</Label>
+                <p className="text-sm text-muted-foreground">
+                  Hide prices when in public
+                </p>
               </div>
-              
-              <div className="flex justify-end">
-                <Button variant="outline" onClick={handleReset} className="flex gap-2">
-                  <RotateCcw size={16} />
-                  Reset to Defaults
-                </Button>
-              </div>
+              <Switch 
+                id="discreet-mode" 
+                checked={settings.discreetMode}
+                onCheckedChange={(checked) => updateSettings({ discreetMode: checked })}
+              />
             </div>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="show-ratings">Show Ratings</Label>
+                  <Star className="h-4 w-4 text-gold" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Display critic ratings for wines
+                </p>
+              </div>
+              <Switch 
+                id="show-ratings" 
+                checked={settings.showRatings}
+                onCheckedChange={(checked) => updateSettings({ showRatings: checked })}
+                disabled={settings.discreetMode}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="show-prices">Show Prices</Label>
+                  <DollarSign className="h-4 w-4 text-wine" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Display restaurant and market prices
+                </p>
+              </div>
+              <Switch 
+                id="show-prices" 
+                checked={settings.showPrices}
+                onCheckedChange={(checked) => updateSettings({ showPrices: checked })}
+                disabled={settings.discreetMode}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="show-savings">Show Savings</Label>
+                  <Percent className="h-4 w-4 text-wine" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Display percentage savings vs. market price
+                </p>
+              </div>
+              <Switch 
+                id="show-savings" 
+                checked={settings.showSavings}
+                onCheckedChange={(checked) => updateSettings({ showSavings: checked })}
+                disabled={settings.discreetMode}
+              />
+            </div>
+            
+            <Separator />
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="demo-mode">Demo Mode</Label>
+                  <Sparkles className="h-4 w-4 text-gold" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Enable demo mode with simulated scans
+                </p>
+              </div>
+              <Switch 
+                id="demo-mode" 
+                checked={settings.demoMode}
+                onCheckedChange={(checked) => updateSettings({ demoMode: checked })}
+              />
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Appearance Settings */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Appearance</CardTitle>
+            <CardDescription>Adjust the visual theme</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                variant={theme === 'light' ? 'default' : 'outline'}
+                className="flex flex-col items-center justify-center py-8"
+                onClick={() => setTheme('light')}
+              >
+                <Sun className="h-6 w-6 mb-2" />
+                Light Mode
+              </Button>
+              
+              <Button
+                variant={theme === 'dark' ? 'default' : 'outline'}
+                className="flex flex-col items-center justify-center py-8"
+                onClick={() => setTheme('dark')}
+              >
+                <Moon className="h-6 w-6 mb-2" />
+                Dark Mode
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Data Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Data Management</CardTitle>
+            <CardDescription>Manage your saved data</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-destructive text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Clear All Data
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete all your saved wines, favorites, and 
+                    preferences. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive hover:bg-destructive/90"
+                    onClick={handleClearData}
+                  >
+                    Delete All Data
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                clearWineCache();
+                toast({
+                  title: "Cache cleared",
+                  description: "Wine data cache has been refreshed"
+                });
+              }}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh Wine Data
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </PageContainer>
   );
 };
 

@@ -1,79 +1,78 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/theme/theme-provider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
-import React from "react";
-import Home from "./pages/Home";
-import ScanPage from "./pages/ScanPage";
-import WineDetailsPage from "./pages/WineDetailsPage";
-import FavoritesPage from "./pages/FavoritesPage";
-import SettingsPage from "./pages/SettingsPage";
-import NotFound from "./pages/NotFound";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import Contact from "./pages/Contact";
-import FAQPage from "./pages/FAQPage";
-import { AppSettingsProvider } from "./hooks/useAppSettings";
-import { UserPreferencesProvider } from "./hooks/useUserPreferences";
-import AppUpdate from "./components/update/AppUpdate";
-import "./App.css"; // Ensure CSS is imported
+import React, { useEffect, lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './App.css';
 
-const App = () => {
-  // Initialize QueryClient inside the component with refined settings
-  const [queryClient] = React.useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        refetchOnWindowFocus: false,
-        retry: 1, // Less aggressive retrying for smoother UX
-      },
-    },
-  }));
+// Theme providers
+import { ThemeProvider } from '@/components/theme/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
+
+// App providers
+import { AppSettingsProvider } from '@/hooks/useAppSettings';
+import { UserPreferencesProvider } from '@/hooks/useUserPreferences';
+
+// Import main layouts and components
+import MobileNavBar from '@/components/layout/MobileNavBar';
+
+// Main pages
+import Home from '@/pages/Home';
+import ScanPage from '@/pages/ScanPage';
+import ResultsPage from '@/pages/ResultsPage'; // New results page
+import NotFound from '@/pages/NotFound';
+
+// Lazily loaded pages
+const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'));
+const WineDetailsPage = lazy(() => import('@/pages/WineDetailsPage'));
+const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
+const FAQPage = lazy(() => import('@/pages/FAQPage'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+const Contact = lazy(() => import('@/pages/Contact'));
+
+// Analytics
+import { logAppInit } from "@/utils/analyticsUtils";
+import { registerServiceWorker } from '@/utils/serviceWorker';
+
+// Update check
+import AppUpdate from '@/components/update/AppUpdate';
+
+function App() {
+  // Initialize app
+  useEffect(() => {
+    logAppInit();
+    registerServiceWorker();
+  }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="wine-whisperer-theme">
-        <AppSettingsProvider>
-          <UserPreferencesProvider>
-            <TooltipProvider>
-              <div className="app-container">
-                <Toaster />
-                <Sonner 
-                  position="top-center"
-                  toastOptions={{
-                    classNames: {
-                      toast: "group font-sans rounded-xl border-border shadow-apple-md",
-                      title: "text-sm font-medium",
-                      description: "text-xs text-muted-foreground",
-                    }
-                  }}
-                />
-                <AppUpdate />
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/scan" element={<ScanPage />} />
-                    <Route path="/wine/:id" element={<WineDetailsPage />} />
-                    <Route path="/favorites" element={<FavoritesPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/privacy" element={<PrivacyPolicy />} />
-                    <Route path="/terms" element={<TermsOfService />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/faq" element={<FAQPage />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </BrowserRouter>
-              </div>
-            </TooltipProvider>
-          </UserPreferencesProvider>
-        </AppSettingsProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="light" storageKey="winecheck-theme">
+      <AppSettingsProvider>
+        <UserPreferencesProvider>
+          <Router>
+            <div className="app-container">
+              <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/scan" element={<ScanPage />} />
+                  <Route path="/results" element={<ResultsPage />} /> {/* New results route */}
+                  <Route path="/favorites" element={<FavoritesPage />} />
+                  <Route path="/wine/:id" element={<WineDetailsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/faq" element={<FAQPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              <MobileNavBar />
+              <Toaster />
+              <AppUpdate />
+            </div>
+          </Router>
+        </UserPreferencesProvider>
+      </AppSettingsProvider>
+    </ThemeProvider>
   );
-};
+}
 
 export default App;

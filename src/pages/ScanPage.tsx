@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import CameraCapture from '@/components/camera/CameraCapture';
 import ScanProgress from '@/components/scan/ScanProgress';
@@ -11,15 +12,64 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAppSettings } from '@/hooks/useAppSettings';
+import { searchWines } from '@/utils/wineApi';
+import { WineInfo } from '@/components/wine/WineCard';
 
 const ScanPage = () => {
   // Enhanced scan state management
   const [scanStage, setScanStage] = useState<'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete'>('idle');
   const [scanMessage, setScanMessage] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [resultsCount, setResultsCount] = useState(0);
+  const [foundWines, setFoundWines] = useState<WineInfo[]>([]);
   const isMobile = useIsMobile();
   const { settings } = useAppSettings();
+  const navigate = useNavigate();
+  
+  // Demo mode - automatically simulate a scan after a delay for demonstration purposes
+  useEffect(() => {
+    if (settings.demoMode) {
+      const timer = setTimeout(() => {
+        if (scanStage === 'idle') {
+          simulateWineScan();
+        }
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [scanStage, settings.demoMode]);
+  
+  // Simulate a wine scan process with dummy data
+  const simulateWineScan = () => {
+    setIsProcessing(true);
+    setScanStage('processing');
+    setScanMessage('Processing wine list image...');
+    
+    // First step - simulate image processing
+    setTimeout(() => {
+      setScanStage('analyzing');
+      setScanMessage('Analyzing wines and matching with database...');
+      
+      // Second step - simulate wine matching
+      setTimeout(() => {
+        // Get wines from API (which returns our dummy data)
+        searchWines().then(wines => {
+          // Randomly select 6-9 wines to show diversity
+          const randomCount = Math.floor(Math.random() * 4) + 6;
+          const shuffled = [...wines].sort(() => 0.5 - Math.random());
+          const selectedWines = shuffled.slice(0, randomCount);
+          
+          setFoundWines(selectedWines);
+          setScanStage('complete');
+          setScanMessage(`Analysis complete! Found ${selectedWines.length} wines on the list.`);
+          setIsProcessing(false);
+          
+          toast.success('Wine list processed successfully', {
+            description: `We found ${selectedWines.length} wines on the list`
+          });
+        });
+      }, 2500);
+    }, 2000);
+  };
   
   // Handle image capture complete
   const handleImageCapture = (imageData: string) => {
@@ -30,28 +80,8 @@ const ScanPage = () => {
       return;
     }
     
-    // Start processing the captured image
-    setScanStage('processing');
-    setScanMessage('Processing wine list image...');
-    setIsProcessing(true);
-    
-    // Simulate processing steps (replace with actual processing)
-    setTimeout(() => {
-      setScanStage('analyzing');
-      setScanMessage('Analyzing wines and matching with database...');
-      
-      setTimeout(() => {
-        const foundWines = Math.floor(Math.random() * 4) + 5; // Simulate 5-8 wines found
-        setResultsCount(foundWines);
-        setScanStage('complete');
-        setScanMessage(`Analysis complete! Found ${foundWines} wines on the list.`);
-        setIsProcessing(false);
-        
-        toast.success('Wine list processed successfully', {
-          description: `We found ${foundWines} wines on the list`
-        });
-      }, 2500);
-    }, 2000);
+    // Simulate processing with our dummy data
+    simulateWineScan();
   };
   
   // Handle retry
@@ -59,13 +89,28 @@ const ScanPage = () => {
     setScanStage('idle');
     setScanMessage('');
     setIsProcessing(false);
+    setFoundWines([]);
   };
   
-  // View scan results
+  // View scan results - now actually navigates
   const handleViewResults = () => {
-    toast.info('View results clicked', {
-      description: 'This would navigate to results page in production'
-    });
+    // Store the found wines in sessionStorage for demo purposes
+    sessionStorage.setItem('scanResults', JSON.stringify(foundWines));
+    navigate('/results');
+    
+    // In demo mode, also show a toast explaining what's happening
+    if (settings.demoMode) {
+      toast.info('Demo Mode: Navigating to results', {
+        description: 'In a real app, these would be actual wines from the scanned list'
+      });
+    }
+  };
+  
+  // For demo purposes, we can add a button to trigger the scan
+  const handleDemoScan = () => {
+    if (!isProcessing) {
+      simulateWineScan();
+    }
   };
   
   return (
@@ -73,7 +118,9 @@ const ScanPage = () => {
       <div className="flex flex-col items-center max-w-md mx-auto pb-6">
         <h1 className="text-2xl md:text-3xl font-serif mb-4 text-center">Scan Wine List</h1>
         <p className="text-muted-foreground text-center mb-6">
-          Point your camera at a wine list to analyze prices and find the best values.
+          {settings.demoMode ? 
+            "DEMO MODE: This will simulate scanning a wine list" : 
+            "Point your camera at a wine list to analyze prices and find the best values."}
         </p>
         
         {/* Camera or Results Container */}
@@ -97,11 +144,27 @@ const ScanPage = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Demo mode quick-scan button */}
+              {settings.demoMode && scanStage === 'idle' && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Button 
+                    onClick={handleDemoScan} 
+                    variant="wine" 
+                    className="bg-wine/90 hover:bg-wine text-white"
+                  >
+                    <Camera className="mr-2 h-5 w-5" />
+                    Simulate Wine List Scan
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <ScanResultsPreview 
-              resultsCount={resultsCount} 
+              resultsCount={foundWines.length} 
               onViewResults={handleViewResults}
+              topValueWine={foundWines.length > 0 ? foundWines[0] : undefined}
+              highestRatedWine={foundWines.length > 1 ? foundWines[1] : undefined}
             />
           )}
         </div>
