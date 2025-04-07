@@ -1,4 +1,3 @@
-
 import { config } from '@/lib/config';
 import { isRunningOffline } from './serviceWorker';
 
@@ -13,7 +12,8 @@ export enum EventType {
   APP_INSTALL = 'app_install',
   APP_UPDATE = 'app_update',
   OFFLINE_MODE_USED = 'offline_mode_used',
-  ERROR_OCCURRED = 'error_occurred'
+  ERROR_OCCURRED = 'error_occurred',
+  APP_INIT = 'app_init'
 }
 
 // Queue to store analytics events when offline
@@ -212,6 +212,17 @@ const sendEventToProviders = (eventType: string, eventParams: Record<string, any
   }
   
   // You would add similar implementations for other analytics providers here
+};
+
+/**
+ * Log app initialization event
+ */
+export const logAppInit = () => {
+  trackEvent(EventType.APP_INIT, {
+    timestamp: Date.now(),
+    userAgent: navigator.userAgent,
+    demoMode: localStorage.getItem('appSettings') ? JSON.parse(localStorage.getItem('appSettings')!).demoMode : false
+  });
 };
 
 // Add to window for TypeScript

@@ -37,7 +37,8 @@ export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           ...defaultSettings,
           ...parsedSettings,
           // Always enable demo mode if the app is run in a demo context or iframe
-          demoMode: parsedSettings.demoMode ?? window.location.href.includes('demo') || window !== window.parent
+          // Fix the operator precedence with parentheses
+          demoMode: (parsedSettings.demoMode ?? true) || window.location.href.includes('demo') || window !== window.parent
         };
       } catch (e) {
         console.error('Error parsing saved settings:', e);
