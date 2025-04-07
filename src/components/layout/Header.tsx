@@ -137,8 +137,8 @@ const Header: React.FC = () => {
       
       {/* Mobile menu, show/hide based on menu state */}
       {isMenuOpen && (
-        <div className="sm:hidden fixed inset-0 z-50 pt-14 bg-cream/95 backdrop-blur-sm overflow-y-auto">
-          <div className="pt-1 pb-2 space-y-0.5">
+        <div className="sm:hidden fixed inset-0 z-50 bg-cream/95 backdrop-blur-sm overflow-y-auto" style={{ top: '56px' }}>
+          <div className="pt-2 pb-3 space-y-1">
             <Link
               to="/"
               className={`block px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
