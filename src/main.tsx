@@ -1,6 +1,6 @@
 
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
+import AppWrapper from './AppWrapper.tsx'
 import './index.css'
 import { logAppInfo } from './utils/versionUtils'
 import { defineCustomElements } from '@ionic/pwa-elements/loader'
@@ -86,7 +86,7 @@ const initApp = () => {
     // Create app with improved error handling
     try {
       const root = createRoot(container)
-      root.render(<App />)
+      root.render(<AppWrapper />)
       
       // Add a class to body when app is fully loaded
       window.addEventListener('load', () => {
