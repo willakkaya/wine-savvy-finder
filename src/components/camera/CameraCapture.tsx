@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -7,6 +6,14 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
+declare global {
+  interface Window {
+    Capacitor?: {
+      isNativePlatform?: () => boolean;
+    };
+  }
+}
 
 interface CameraCaptureProps {
   onImageCapture: (image: string) => void;
@@ -25,7 +32,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
-  // Check if running in a native app or browser
   const isNative = typeof window !== 'undefined' && window?.Capacitor?.isNativePlatform?.() || false;
   
   const startCamera = async () => {
@@ -36,7 +42,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
       setIsCapturing(true);
       
       if (isNative) {
-        // Use native camera directly
         const image = await takePicture();
         if (image) {
           setCapturedImage(image);
@@ -63,7 +68,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   const takePicture = async (): Promise<string | null> => {
     try {
-      // Check and request permissions
       const cameraPermissions = await Camera.checkPermissions();
       
       if (cameraPermissions.camera !== 'granted') {
@@ -78,7 +82,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         }
       }
       
-      // Take picture with device camera
       const photo = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
@@ -102,7 +105,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
     } catch (error) {
       console.error("Error taking picture:", error);
       if ((error as any).message === 'User cancelled photos app') {
-        // User canceled, no need to show an error
         return null;
       }
       
@@ -120,7 +122,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
     if (!file) return;
     
     try {
-      // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "File too large",
@@ -130,7 +131,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         return;
       }
       
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         toast({
           title: "Invalid file type",
@@ -143,7 +143,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
       let imageUrl: string;
       
       if (isNative) {
-        // Save the file to app storage for native platforms
         const fileName = new Date().getTime() + '.jpeg';
         const mimeType = file.type;
         const reader = new FileReader();
@@ -153,7 +152,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             try {
               const base64Data = (event.target?.result as string)?.split(',')[1] || '';
               
-              // Write the file to filesystem
               const savedFile = await Filesystem.writeFile({
                 path: fileName,
                 data: base64Data,
@@ -161,7 +159,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 recursive: true
               });
               
-              // Convert to data URL for displaying
               resolve(`data:${mimeType};base64,${base64Data}`);
             } catch (err) {
               reject(err);
@@ -171,8 +168,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
           reader.readAsDataURL(file);
         });
       } else {
-        // Web implementation - use FileReader
-        imageUrl = await new Promise((resolve, reject) => {
+        const imageUrl = await new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = (event) => {
             if (typeof event.target?.result === 'string') {
@@ -200,7 +196,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         variant: "destructive"
       });
     } finally {
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -216,7 +211,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   
-  // Web camera view - only shown on web when isCapturing is true and no cameraError
   const WebCameraView = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
