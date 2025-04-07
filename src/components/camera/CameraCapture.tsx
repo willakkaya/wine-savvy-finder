@@ -1,8 +1,8 @@
 
 import React, { useState, useRef } from 'react';
-import { Camera as CapacitorCamera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
+import { Camera } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Camera, ImageIcon, X, RefreshCw, CameraIcon } from 'lucide-react';
+import { Camera as CameraIcon, ImageIcon, X, RefreshCw, CameraIcon as LucideCameraIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +26,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
   const { toast } = useToast();
   
   // Check if running in a native app or browser
-  const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
+  const isNative = window?.Capacitor?.isNativePlatform() || false;
   
   const startCamera = async () => {
     if (disabled) return;
@@ -64,10 +64,10 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
   const takePicture = async (): Promise<string | null> => {
     try {
       // Check and request permissions
-      const cameraPermissions = await CapacitorCamera.checkPermissions();
+      const cameraPermissions = await Camera.checkPermissions();
       
       if (cameraPermissions.camera !== 'granted') {
-        const requested = await CapacitorCamera.requestPermissions();
+        const requested = await Camera.requestPermissions();
         if (requested.camera !== 'granted') {
           toast({
             title: "Permission denied",
@@ -79,11 +79,11 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
       }
       
       // Take picture with device camera
-      const photo = await CapacitorCamera.getPhoto({
+      const photo = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Camera,
+        resultType: 'dataUrl',
+        source: 'camera',
         width: 1920,
         height: 1080,
         saveToGallery: false,
