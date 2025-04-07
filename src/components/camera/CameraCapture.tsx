@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Camera } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Camera as CameraIcon, ImageIcon, X, RefreshCw, CameraIcon as LucideCameraIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
   const { toast } = useToast();
   
   // Check if running in a native app or browser
-  const isNative = window?.Capacitor?.isNativePlatform() || false;
+  const isNative = typeof window !== 'undefined' && window?.Capacitor?.isNativePlatform?.() || false;
   
   const startCamera = async () => {
     if (disabled) return;
@@ -82,8 +82,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
       const photo = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
-        resultType: 'dataUrl',
-        source: 'camera',
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
         width: 1920,
         height: 1080,
         saveToGallery: false,
@@ -335,7 +335,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             className="w-full max-w-xs bg-wine hover:bg-wine-dark text-cream gap-2"
             disabled={disabled}
           >
-            <Camera size={18} />
+            <CameraIcon size={18} />
             {isNative ? "Take Photo" : "Open Camera"}
           </Button>
           
