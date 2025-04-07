@@ -16,8 +16,10 @@ import { processWineListImage } from '@/utils/ocrUtils';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { getOfflineWines } from '@/utils/offlineUtils';
 
+type ScanStage = 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
+
 const ScanPage = () => {
-  const [scanStage, setScanStage] = useState<'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error'>('idle');
+  const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [scanMessage, setScanMessage] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [foundWines, setFoundWines] = useState<WineInfo[]>([]);
