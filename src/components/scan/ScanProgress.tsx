@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
-import { Wine, Camera, Search, Database } from 'lucide-react';
+import { Wine, Camera, Search, Database, AlertTriangle } from 'lucide-react';
 
 interface ScanProgressProps {
-  stage: 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete';
+  stage: 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
   message?: string;
 }
 
@@ -16,6 +16,7 @@ const ScanProgress: React.FC<ScanProgressProps> = ({ stage, message }) => {
       case 'processing': return 50;
       case 'analyzing': return 75;
       case 'complete': return 100;
+      case 'error': return 100; // Show full progress bar for error state
       default: return 0;
     }
   };
@@ -26,6 +27,7 @@ const ScanProgress: React.FC<ScanProgressProps> = ({ stage, message }) => {
       case 'processing': return <Wine className="text-wine animate-pulse" />;
       case 'analyzing': return <Search className="text-wine animate-pulse" />;
       case 'complete': return <Database className="text-wine" />;
+      case 'error': return <AlertTriangle className="text-destructive" />;
       default: return <Camera className="text-wine" />;
     }
   };
@@ -37,6 +39,7 @@ const ScanProgress: React.FC<ScanProgressProps> = ({ stage, message }) => {
       case 'processing': return 'Processing wine list...';
       case 'analyzing': return 'Analyzing and matching wines...';
       case 'complete': return 'Analysis complete!';
+      case 'error': return 'Error processing wine list';
       default: return '';
     }
   };
@@ -50,7 +53,10 @@ const ScanProgress: React.FC<ScanProgressProps> = ({ stage, message }) => {
         </div>
         <span className="text-xs text-muted-foreground">{getStagePercentage()}%</span>
       </div>
-      <Progress value={getStagePercentage()} className="h-2" />
+      <Progress 
+        value={getStagePercentage()} 
+        className={`h-2 ${stage === 'error' ? 'bg-destructive/20' : ''}`}
+      />
     </div>
   );
 };
