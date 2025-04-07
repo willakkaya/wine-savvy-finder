@@ -46,6 +46,11 @@ const ScanResultsPreview: React.FC<ScanResultsPreviewProps> = ({
               <div className="text-xs text-muted-foreground bg-muted/40 p-1.5 rounded">
                 {generateWineNote(topValueWine, 'value')}
               </div>
+              
+              {/* Future Wine-Searcher Reviews Integration */}
+              <div className="text-xs italic text-wine-dark/70 mt-1">
+                <span className="font-medium">Expert Review:</span> {getExpertReview(topValueWine, 'value')}
+              </div>
             </div>
           )}
           
@@ -63,6 +68,11 @@ const ScanResultsPreview: React.FC<ScanResultsPreviewProps> = ({
               </div>
               <div className="text-xs text-muted-foreground bg-muted/40 p-1.5 rounded">
                 {generateWineNote(highestRatedWine, 'rating')}
+              </div>
+              
+              {/* Future Wine-Searcher Reviews Integration */}
+              <div className="text-xs italic text-wine-dark/70 mt-1">
+                <span className="font-medium">Expert Review:</span> {getExpertReview(highestRatedWine, 'rating')}
               </div>
             </div>
           )}
@@ -85,6 +95,54 @@ const generateWineNote = (wine: WineInfo, noteType: 'value' | 'rating'): string 
     return `Save $${saving} (${savingPercent}%) compared to retail. ${wine.year} ${wine.region} ${wine.winery.split(' ')[0]} wine with balanced flavors.`;
   } else {
     return `${wine.rating}/100 points. ${wine.region} ${wine.winery.split(' ')[0]} wine with excellent complexity and structure. ${wine.year} vintage.`;
+  }
+};
+
+// Temporary function to simulate expert reviews that would come from Wine-Searcher API in the future
+const getExpertReview = (wine: WineInfo, reviewType: 'value' | 'rating'): string => {
+  // This function would be replaced with actual API calls to Wine-Searcher in the future
+  
+  const reviews = {
+    highValue: [
+      "Outstanding value, displays remarkable quality for the price.",
+      "Punches well above its price point with excellent character.",
+      "Exceptional QPR (Quality-Price Ratio), don't miss this gem."
+    ],
+    mediumValue: [
+      "Good value offering reliable quality at a fair price.",
+      "Solid representation of its region with reasonable pricing.",
+      "Worth considering for its quality-to-price relationship."
+    ],
+    highRated: [
+      "Critics consistently praise its exceptional balance and finesse.",
+      "Standout vintage showcasing the producer's highest standards.",
+      "Impressive depth and concentration with aging potential."
+    ],
+    mediumRated: [
+      "Well-crafted example with characteristic regional expression.",
+      "Shows excellent typicity with good complexity.",
+      "Reliable quality from this respected producer."
+    ]
+  };
+  
+  // Determine which category the wine falls into
+  if (reviewType === 'value') {
+    const valueDifference = wine.marketPrice - wine.price;
+    const valuePercent = (valueDifference / wine.marketPrice) * 100;
+    
+    // Return high value review if the savings are significant, otherwise medium
+    if (valuePercent > 20 || valueDifference > 30) {
+      return reviews.highValue[Math.floor(Math.random() * reviews.highValue.length)];
+    } else {
+      return reviews.mediumValue[Math.floor(Math.random() * reviews.mediumValue.length)];
+    }
+  } else {
+    // Return high rated review if the rating is exceptional, otherwise medium
+    if (wine.rating >= 93) {
+      return reviews.highRated[Math.floor(Math.random() * reviews.highRated.length)];
+    } else {
+      return reviews.mediumRated[Math.floor(Math.random() * reviews.mediumRated.length)];
+    }
   }
 };
 
