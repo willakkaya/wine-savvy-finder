@@ -9,9 +9,12 @@ import { WineInfo } from '@/components/wine/WineCard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { storeWineResults } from '@/utils/wineUtils';
+import WineNotes from '@/components/wine/WineNotes';
+import { Card } from '@/components/ui/card';
 
 const ResultsPage: React.FC = () => {
   const [wines, setWines] = useState<WineInfo[]>([]);
+  const [expandedWine, setExpandedWine] = useState<string | null>(null);
   const navigate = useNavigate();
   
   // Load results from sessionStorage on component mount
@@ -41,6 +44,11 @@ const ResultsPage: React.FC = () => {
   // Sort wines by value score (highest first)
   const sortedWines = [...wines].sort((a, b) => b.valueScore - a.valueScore);
   
+  // Toggle notes expansion
+  const toggleNotes = (wineId: string) => {
+    setExpandedWine(prev => prev === wineId ? null : wineId);
+  };
+  
   return (
     <PageContainer title="Scan Results" className="pb-6">
       <div className="flex flex-col items-center max-w-4xl mx-auto">
@@ -67,18 +75,41 @@ const ResultsPage: React.FC = () => {
               <AlertTitle>Wine Analysis Results</AlertTitle>
               <AlertDescription>
                 We found {wines.length} wines on the list. Wines are sorted by value (best deals first).
+                Tap a wine card to view detailed notes.
               </AlertDescription>
             </Alert>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               {sortedWines.map((wine, index) => (
-                <WineCardLink 
+                <div 
                   key={wine.id} 
-                  wine={wine} 
-                  rank={index + 1} 
-                  className="animate-fadeIn"
+                  className="animate-fadeIn flex flex-col"
                   style={{ animationDelay: `${index * 100}ms` }}
-                />
+                >
+                  <div onClick={() => toggleNotes(wine.id)}>
+                    <WineCardLink 
+                      wine={wine} 
+                      rank={index + 1} 
+                      className=""
+                    />
+                  </div>
+                  
+                  {expandedWine === wine.id && (
+                    <Card className="mt-2 p-3 border-wine/20">
+                      <WineNotes wine={wine} />
+                      <div className="mt-2 flex justify-end">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs" 
+                          onClick={() => navigate(`/wine/${wine.id}`)}
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </Card>
+                  )}
+                </div>
               ))}
             </div>
           </>
