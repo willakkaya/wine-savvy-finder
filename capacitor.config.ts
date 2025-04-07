@@ -82,7 +82,7 @@ const config: CapacitorConfig = {
       camera: "Take photos of wine lists for analysis",
       photos: "Save and upload wine list photos"
     },
-    // Add iOS icon configuration
+    // Add iOS icon configuration - make sure this is set correctly
     iconBackground: "#722F37",
     iconForegroundThickness: "thin"
   },
