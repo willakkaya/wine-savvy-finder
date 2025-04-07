@@ -32,6 +32,16 @@
   }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
@@ -44,7 +54,8 @@ html, body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  background-color: #f8f8f8;
+  background-color: var(--background);
+  touch-action: manipulation; /* Optimize touch behavior */
 }
 
 /* Animation for page transitions */
@@ -66,6 +77,9 @@ html, body {
   .min-h-screen {
     min-height: -webkit-fill-available;
   }
+  html, body {
+    height: -webkit-fill-available;
+  }
 }
 
 /* Fix for white screen issue */
@@ -73,6 +87,7 @@ html, body {
   opacity: 1 !important;
   transition: opacity 0.3s ease;
   visibility: visible !important;
+  will-change: opacity; /* Hint to browser for optimization */
 }
 
 /* Lovable selection styling */
@@ -87,6 +102,77 @@ html, body {
   visibility: visible !important;
 }
 
+/* Loading indicators */
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    var(--background) 0%, 
+    var(--muted) 20%, 
+    var(--background) 40%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.loading-pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Scan page specific styling */
+.camera-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.scan-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid var(--wine, #722F37);
+  border-radius: 12px;
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.scan-corners::before,
+.scan-corners::after,
+.scan-corners > span::before,
+.scan-corners > span::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--wine, #722F37);
+  border-style: solid;
+}
+
+.scan-corners::before {
+  top: 0;
+  left: 0;
+  border-width: 3px 0 0 3px;
+}
+
+.scan-corners::after {
+  top: 0;
+  right: 0;
+  border-width: 3px 3px 0 0;
+}
+
+.scan-corners > span::before {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 3px 3px;
+}
+
+.scan-corners > span::after {
+  bottom: 0;
+  right: 0;
+  border-width: 0 3px 3px 0;
+}
+
 /* Mobile-specific fixes */
 @media (max-width: 768px) {
   body, html, #root, .app-container {
@@ -98,5 +184,26 @@ html, body {
   .app-container {
     display: flex;
     flex-direction: column;
+  }
+  
+  /* Improve tap target sizes */
+  button, 
+  a[role="button"],
+  .interactive {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Reduce animations for better performance */
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Disable hover effects */
+  .mobile-no-hover {
+    transform: none !important;
+    transition: none !important;
   }
 }
