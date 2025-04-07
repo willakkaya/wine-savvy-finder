@@ -81,7 +81,10 @@ const config: CapacitorConfig = {
     permissions: {
       camera: "Take photos of wine lists for analysis",
       photos: "Save and upload wine list photos"
-    }
+    },
+    // Add iOS icon configuration
+    iconBackground: "#722F37",
+    iconForegroundThickness: "thin"
   },
   server: {
     hostname: "app.winecheck.mobile",
