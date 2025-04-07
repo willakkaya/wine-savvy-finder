@@ -1,7 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import CameraCapture from '@/components/camera/CameraCapture';
 import ScanProgress from '@/components/scan/ScanProgress';
+import ScanTips from '@/components/scan/ScanTips';
+import ScanResultsPreview from '@/components/scan/ScanResultsPreview';
 import { Button } from '@/components/ui/button';
 import { Camera, Upload, RefreshCw, Sparkles, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,11 +17,12 @@ const ScanPage = () => {
   const [scanStage, setScanStage] = useState<'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete'>('idle');
   const [scanMessage, setScanMessage] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [resultsCount, setResultsCount] = useState(0);
   const isMobile = useIsMobile();
   const { settings } = useAppSettings();
   
-  // Handle capture complete
-  const handleCaptureComplete = (imageData: string | null) => {
+  // Handle image capture complete
+  const handleImageCapture = (imageData: string) => {
     if (!imageData) {
       toast.error('Failed to capture image', {
         description: 'Please try again'
@@ -37,12 +41,14 @@ const ScanPage = () => {
       setScanMessage('Analyzing wines and matching with database...');
       
       setTimeout(() => {
+        const foundWines = Math.floor(Math.random() * 4) + 5; // Simulate 5-8 wines found
+        setResultsCount(foundWines);
         setScanStage('complete');
-        setScanMessage('Analysis complete! Found 8 wines on the list.');
+        setScanMessage(`Analysis complete! Found ${foundWines} wines on the list.`);
         setIsProcessing(false);
         
         toast.success('Wine list processed successfully', {
-          description: 'We found 8 wines on the list'
+          description: `We found ${foundWines} wines on the list`
         });
       }, 2500);
     }, 2000);
@@ -55,16 +61,16 @@ const ScanPage = () => {
     setIsProcessing(false);
   };
   
-  // Handle upload
-  const handleUpload = () => {
-    toast.info('Upload feature coming soon', {
-      description: 'Photo upload will be available in the next update'
+  // View scan results
+  const handleViewResults = () => {
+    toast.info('View results clicked', {
+      description: 'This would navigate to results page in production'
     });
   };
   
   return (
     <PageContainer title="Scan Wine List" className="relative">
-      <div className="flex flex-col items-center max-w-md mx-auto">
+      <div className="flex flex-col items-center max-w-md mx-auto pb-6">
         <h1 className="text-2xl md:text-3xl font-serif mb-4 text-center">Scan Wine List</h1>
         <p className="text-muted-foreground text-center mb-6">
           Point your camera at a wine list to analyze prices and find the best values.
@@ -78,7 +84,7 @@ const ScanPage = () => {
           {scanStage !== 'complete' ? (
             <div className="relative">
               <CameraCapture 
-                onCaptureComplete={handleCaptureComplete} 
+                onImageCapture={handleImageCapture} 
                 disabled={isProcessing}
                 className="aspect-[3/4] object-cover w-full"
               />
@@ -93,19 +99,10 @@ const ScanPage = () => {
               )}
             </div>
           ) : (
-            <div className="bg-wine/10 p-6 rounded-xl">
-              <div className="flex items-center justify-center mb-4">
-                <Sparkles className="text-wine h-10 w-10" />
-              </div>
-              <h3 className="text-xl font-medium text-center mb-2">Analysis Complete!</h3>
-              <p className="text-center text-muted-foreground mb-4">
-                We found 8 wines on the list and analyzed their value.
-              </p>
-              <Button className="w-full bg-wine hover:bg-wine-dark" size="lg">
-                <Check className="mr-2 h-4 w-4" />
-                View Results
-              </Button>
-            </div>
+            <ScanResultsPreview 
+              resultsCount={resultsCount} 
+              onViewResults={handleViewResults}
+            />
           )}
         </div>
         
@@ -129,21 +126,29 @@ const ScanPage = () => {
             {scanStage !== 'idle' ? 'Rescan' : 'Scan'}
           </Button>
           <Button 
-            onClick={handleUpload}
-            variant="outline" 
+            onClick={handleViewResults}
+            variant={scanStage === 'complete' ? "wine" : "outline"} 
             className="flex-1"
-            disabled={isProcessing}
+            disabled={scanStage !== 'complete' || isProcessing}
           >
-            <Upload className="mr-2 h-4 w-4" />
-            Upload
+            {scanStage === 'complete' ? (
+              <>
+                <Check className="mr-2 h-4 w-4" />
+                View Results
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Results
+              </>
+            )}
           </Button>
         </div>
         
-        {/* Help text */}
-        <p className="text-xs text-muted-foreground mt-6 text-center">
-          For best results, ensure good lighting and hold your device steady.
-          {isMobile ? " Tap to focus on the wine list." : ""}
-        </p>
+        {/* Show tips when not processing */}
+        {!isProcessing && (
+          <ScanTips />
+        )}
       </div>
     </PageContainer>
   );

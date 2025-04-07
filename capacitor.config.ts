@@ -35,6 +35,18 @@ const config: CapacitorConfig = {
       backgroundColor: "#722F37",
       overlaysWebView: false,
       animation: "slide"
+    },
+    // Add Camera configuration
+    Camera: {
+      presentationStyle: "fullscreen",
+      promptLabelHeader: "WineCheck Camera Access",
+      promptLabelCancel: "Cancel",
+      promptLabelPhoto: "From Photos",
+      promptLabelPicture: "Take Picture"
+    },
+    // Add Filesystem configuration
+    Filesystem: {
+      readChunkSize: 1024 * 1024
     }
   },
   android: {
@@ -48,7 +60,14 @@ const config: CapacitorConfig = {
       keystoreAlias: "winecheck",
       minSdkVersion: 22, // Android 5.1 and above
       targetSdkVersion: 33, // Android 13
-    }
+    },
+    // Add required Android permissions
+    permissions: [
+      "android.permission.CAMERA",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.READ_MEDIA_IMAGES"
+    ]
   },
   ios: {
     contentInset: "always",
@@ -57,7 +76,12 @@ const config: CapacitorConfig = {
     backgroundColor: "#722F37",
     preferredContentMode: "mobile",
     scheme: "winecheck",
-    limitsNavigationsToAppBoundDomains: true
+    limitsNavigationsToAppBoundDomains: true,
+    // Configure iOS permissions
+    permissions: {
+      camera: "Take photos of wine lists for analysis",
+      photos: "Save and upload wine list photos"
+    }
   },
   server: {
     hostname: "app.winecheck.mobile",
