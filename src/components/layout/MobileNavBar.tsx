@@ -15,7 +15,8 @@ const MobileNavBar: React.FC = () => {
   if (!isMobile) return null;
   
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return location.pathname === path || 
+           (path !== '/' && location.pathname.startsWith(path));
   };
   
   const navItems = [
@@ -27,38 +28,40 @@ const MobileNavBar: React.FC = () => {
   ];
   
   return (
-    <nav className={cn(
-      "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-2 py-1",
-      isNative ? "safe-area-bottom" : "pb-2"
-    )}>
-      <div className="flex justify-around">
-        {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={cn(
-              "flex flex-col items-center justify-center px-3 py-2 text-xs font-medium rounded-md",
-              "min-w-[68px] min-h-[64px] touch-manipulation",
-              "transition-colors duration-200 active:scale-95",
-              isActive(item.path)
-                ? "text-wine"
-                : "text-gray-500 hover:text-wine-dark active:text-wine"
-            )}
-            aria-current={isActive(item.path) ? "page" : undefined}
-            aria-label={item.label}
-          >
-            <item.icon 
-              size={24} 
+    <div className="sm:hidden fixed inset-x-0 bottom-0 z-50">
+      <nav className={cn(
+        "bg-white border-t border-gray-200 shadow-lg",
+        isNative ? "safe-area-bottom" : "pb-2"
+      )}>
+        <div className="flex justify-around max-w-md mx-auto">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
               className={cn(
-                isActive(item.path) ? "text-wine" : "text-gray-500",
-                "transition-colors"
-              )} 
-            />
-            <span className="mt-1">{item.label}</span>
-          </Link>
-        ))}
-      </div>
-    </nav>
+                "flex flex-col items-center justify-center px-2 py-2 text-xs font-medium",
+                "min-w-[64px] min-h-[60px] touch-manipulation",
+                "transition-colors duration-200 active:scale-95",
+                isActive(item.path)
+                  ? "text-wine"
+                  : "text-gray-500 hover:text-wine-dark active:text-wine"
+              )}
+              aria-current={isActive(item.path) ? "page" : undefined}
+              aria-label={item.label}
+            >
+              <item.icon 
+                size={24} 
+                className={cn(
+                  "mb-1",
+                  isActive(item.path) ? "text-wine" : "text-gray-500"
+                )} 
+              />
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
+    </div>
   );
 };
 

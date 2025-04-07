@@ -60,7 +60,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   const safeAreaClasses = isNative ? 
     'pt-safe-top pb-safe-bottom pl-safe-left pr-safe-right' : '';
   
-  // Add safe area bottom padding for mobile devices
+  // Adjust bottom padding when mobile navigation is present
   const mainClasses = [
     'flex-grow page-transition',
     padding ? `px-4 py-4 ${isMobile ? 'pb-24' : 'md:py-8'}` : '',
@@ -75,7 +75,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
         {children}
       </main>
       <Footer />
-      {isMobile && <MobileNavBar />}
+      <MobileNavBar />
       <Toaster />
     </div>
   );

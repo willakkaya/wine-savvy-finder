@@ -173,6 +173,13 @@ html, body {
   border-width: 0 3px 3px 0;
 }
 
+/* Mobile navigation bar specific styles */
+.mobile-nav-bar {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
 /* Mobile-specific fixes */
 @media (max-width: 768px) {
   body, html, #root, .app-container {
@@ -184,6 +191,11 @@ html, body {
   .app-container {
     display: flex;
     flex-direction: column;
+  }
+  
+  /* Add padding to bottom content to account for fixed navbar */
+  .has-bottom-nav {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   }
   
   /* Improve tap target sizes */
