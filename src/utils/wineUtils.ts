@@ -1,7 +1,7 @@
-
 import { WineInfo } from '@/components/wine/WineCard';
 import { getWineById, searchWines } from './wineApi';
 import { config } from '@/lib/config';
+import { getOfflineWineById } from './offlineUtils';
 
 // In-memory cache for wines with expiration
 interface CachedWine {
@@ -28,6 +28,15 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
   }
   
   try {
+    // If we're offline, try to get from offline storage first
+    if (!navigator.onLine) {
+      const offlineWine = getOfflineWineById(id);
+      if (offlineWine) {
+        return offlineWine;
+      }
+      throw new Error('No network connection and wine not found in offline storage');
+    }
+    
     // Attempt to get wine from API
     const wineData = await getWineById(id);
     
@@ -40,6 +49,12 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
         };
       }
       return wineData;
+    }
+    
+    // If no wine found and ID doesn't look valid, try offline storage
+    const offlineWine = getOfflineWineById(id);
+    if (offlineWine) {
+      return offlineWine;
     }
     
     // If no wine found and ID doesn't look valid, throw error
@@ -73,6 +88,13 @@ export const getWineDetails = async (id: string): Promise<WineInfo> => {
     return genericWine;
   } catch (error) {
     console.error('Error fetching wine details:', error);
+    
+    // Last try from offline storage in case of error
+    const offlineWine = getOfflineWineById(id);
+    if (offlineWine) {
+      return offlineWine;
+    }
+    
     throw new Error('Wine not found');
   }
 };
@@ -149,4 +171,3 @@ export const pruneExpiredCache = (): number => {
 if (typeof window !== 'undefined') {
   setInterval(pruneExpiredCache, 30 * 60 * 1000);
 }
-

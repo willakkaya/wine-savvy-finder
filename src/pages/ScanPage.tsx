@@ -7,7 +7,7 @@ import ScanProgress from '@/components/scan/ScanProgress';
 import ScanTips from '@/components/scan/ScanTips';
 import ScanResultsPreview from '@/components/scan/ScanResultsPreview';
 import { Button } from '@/components/ui/button';
-import { Camera, Upload, RefreshCw, Sparkles, Check, WifiOff } from 'lucide-react';
+import { Camera, Upload, RefreshCw, Sparkles, Check, WifiOff, History } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -15,6 +15,7 @@ import { useAppSettings } from '@/hooks/useAppSettings';
 import { WineInfo } from '@/components/wine/WineCard';
 import { processWineListImage } from '@/utils/ocrUtils';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { getOfflineWines } from '@/utils/offlineUtils';
 
 const ScanPage = () => {
   // Enhanced scan state management
@@ -23,26 +24,48 @@ const ScanPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [foundWines, setFoundWines] = useState<WineInfo[]>([]);
   const [networkError, setNetworkError] = useState<boolean>(false);
+  const [offlineAvailable, setOfflineAvailable] = useState<boolean>(false);
+  const [showOfflineOptions, setShowOfflineOptions] = useState<boolean>(false);
   const isMobile = useIsMobile();
   const { settings } = useAppSettings();
   const navigate = useNavigate();
   
-  // Network status monitoring
+  // Network status monitoring and check offline data
   useEffect(() => {
-    const handleOnline = () => setNetworkError(false);
-    const handleOffline = () => setNetworkError(true);
+    const handleOnline = () => {
+      setNetworkError(false);
+      setShowOfflineOptions(false);
+    };
+    
+    const handleOffline = () => {
+      setNetworkError(true);
+      checkOfflineAvailability();
+    };
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
     // Check initial network status
-    setNetworkError(!navigator.onLine);
+    const isOffline = !navigator.onLine;
+    setNetworkError(isOffline);
+    
+    if (isOffline) {
+      checkOfflineAvailability();
+    }
     
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+  
+  // Check if offline data is available
+  const checkOfflineAvailability = () => {
+    const { wines } = getOfflineWines();
+    const hasData = wines.length > 0;
+    setOfflineAvailable(hasData);
+    setShowOfflineOptions(hasData);
+  };
   
   // Demo mode - automatically simulate a scan after a delay for demonstration purposes
   useEffect(() => {
@@ -108,8 +131,12 @@ const ScanPage = () => {
     if (!navigator.onLine) {
       setScanStage('error');
       setScanMessage('Network connection unavailable');
+      setShowOfflineOptions(offlineAvailable);
+      
       toast.error('Network connection unavailable', {
-        description: 'Please check your internet connection and try again'
+        description: offlineAvailable ? 
+          'You can view your previously scanned wines in offline mode' :
+          'Please check your internet connection and try again'
       });
       return;
     }
@@ -161,15 +188,23 @@ const ScanPage = () => {
     }
   };
   
+  // Handle viewing offline results
+  const handleViewOfflineResults = () => {
+    navigate('/results');
+  };
+  
   // Handle network connectivity errors
   const handleNetworkError = () => {
     setIsProcessing(false);
     setScanStage('error');
     setScanMessage('Network connection unavailable');
     setNetworkError(true);
+    setShowOfflineOptions(offlineAvailable);
     
     toast.error('Network connection unavailable', {
-      description: 'Please check your internet connection and try again'
+      description: offlineAvailable ? 
+        'You can view your previously scanned wines in offline mode' :
+        'Please check your internet connection and try again'
     });
   };
   
@@ -202,6 +237,12 @@ const ScanPage = () => {
     setIsProcessing(false);
     setFoundWines([]);
     setNetworkError(false);
+    setShowOfflineOptions(false);
+    
+    // If we're offline, recheck if offline data is available
+    if (!navigator.onLine) {
+      checkOfflineAvailability();
+    }
   };
   
   // View scan results
@@ -234,7 +275,29 @@ const ScanPage = () => {
             <WifiOff className="h-4 w-4" />
             <AlertTitle>Network Unavailable</AlertTitle>
             <AlertDescription>
-              Please check your internet connection and try again.
+              {offlineAvailable ? 
+                "You can view your previously scanned wines in offline mode." : 
+                "Please check your internet connection and try again."}
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {/* Offline Mode Options */}
+        {showOfflineOptions && (
+          <Alert className="mb-4 bg-amber-50 border-amber-200">
+            <History className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-amber-700">Offline Mode Available</AlertTitle>
+            <AlertDescription className="text-amber-700">
+              <p className="mb-2">You can view your previously scanned wines while offline.</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200"
+                onClick={handleViewOfflineResults}
+              >
+                <History className="mr-2 h-4 w-4" />
+                View Offline Results
+              </Button>
             </AlertDescription>
           </Alert>
         )}
@@ -262,7 +325,7 @@ const ScanPage = () => {
               )}
               
               {/* Demo mode quick-scan button */}
-              {settings.demoMode && scanStage === 'idle' && (
+              {settings.demoMode && scanStage === 'idle' && !networkError && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Button 
                     onClick={simulateWineScan} 
@@ -282,7 +345,21 @@ const ScanPage = () => {
                   <div className="text-white text-center p-4">
                     <WifiOff className="h-8 w-8 mb-2 mx-auto" />
                     <p className="text-lg font-semibold">Network Unavailable</p>
-                    <p className="mt-2">Please check your connection and try again</p>
+                    {offlineAvailable ? (
+                      <div className="mt-4">
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          onClick={handleViewOfflineResults}
+                          className="bg-white/80 text-gray-900 hover:bg-white"
+                        >
+                          <History className="mr-2 h-4 w-4" />
+                          View Offline Results
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="mt-2">Please check your connection and try again</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -316,24 +393,37 @@ const ScanPage = () => {
             <Camera className="mr-2 h-4 w-4" />
             {scanStage !== 'idle' ? 'Rescan' : 'Scan'}
           </Button>
-          <Button 
-            onClick={handleViewResults}
-            variant={scanStage === 'complete' ? "wine" : "outline"} 
-            className="flex-1"
-            disabled={scanStage !== 'complete' || isProcessing}
-          >
-            {scanStage === 'complete' ? (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                View Results
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Results
-              </>
-            )}
-          </Button>
+          
+          {scanStage === 'complete' ? (
+            <Button 
+              onClick={handleViewResults}
+              variant="wine" 
+              className="flex-1"
+              disabled={isProcessing}
+            >
+              <Check className="mr-2 h-4 w-4" />
+              View Results
+            </Button>
+          ) : networkError && offlineAvailable ? (
+            <Button 
+              onClick={handleViewOfflineResults}
+              variant="outline"
+              className="flex-1 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
+            >
+              <History className="mr-2 h-4 w-4" />
+              Offline Results
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleViewResults}
+              variant="outline" 
+              className="flex-1"
+              disabled={scanStage !== 'complete' || isProcessing}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Results
+            </Button>
+          )}
         </div>
         
         {/* Show tips when not processing */}

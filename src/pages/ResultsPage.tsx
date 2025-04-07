@@ -1,13 +1,15 @@
+
 import React, { useEffect, useState } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Camera, Info, WifiOff } from 'lucide-react';
+import { ArrowLeft, Camera, Info, WifiOff, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WineCardLink from '@/components/wine/WineCardLink';
 import { WineInfo } from '@/components/wine/WineCard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { storeWineResults } from '@/utils/wineUtils';
+import { getOfflineWines, storeWinesOffline } from '@/utils/offlineUtils'; 
 import WineNotes from '@/components/wine/WineNotes';
 import { Card } from '@/components/ui/card';
 
@@ -16,6 +18,8 @@ const ResultsPage: React.FC = () => {
   const [expandedWine, setExpandedWine] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [networkError, setNetworkError] = useState(false);
+  const [isOfflineData, setIsOfflineData] = useState(false);
+  const [offlineTimestamp, setOfflineTimestamp] = useState<number | null>(null);
   const navigate = useNavigate();
   
   // Check network status
@@ -40,15 +44,10 @@ const ResultsPage: React.FC = () => {
     setLoading(true);
     
     // Check if we're offline
-    if (!navigator.onLine) {
-      setNetworkError(true);
-      setLoading(false);
-      toast.error('Network connection unavailable', {
-        description: 'Some features may be limited until connection is restored'
-      });
-      return;
-    }
+    const isOffline = !navigator.onLine;
+    setNetworkError(isOffline);
     
+    // Get results from session storage first (most recent scan)
     const resultsData = sessionStorage.getItem('scanResults');
     
     if (resultsData) {
@@ -58,12 +57,21 @@ const ResultsPage: React.FC = () => {
         
         // Store wines in our cache for easy access from detail pages
         storeWineResults(parsedResults);
+        
+        // Also store in offline storage for future use
+        storeWinesOffline(parsedResults);
+        
         setLoading(false);
+        setIsOfflineData(false);
       } catch (error) {
         console.error('Error parsing scan results:', error);
-        toast.error('Error loading scan results');
-        setLoading(false);
+        
+        // If parsing fails, try to get offline data
+        loadOfflineData();
       }
+    } else if (isOffline) {
+      // No session results and we're offline, load from local storage
+      loadOfflineData();
     } else {
       // No results found, show a toast and then navigate back after a delay
       toast.error('No scan results found', {
@@ -74,12 +82,46 @@ const ResultsPage: React.FC = () => {
     }
   }, [navigate]);
   
+  // Load data from offline storage
+  const loadOfflineData = () => {
+    const { wines: offlineWines, timestamp } = getOfflineWines();
+    
+    if (offlineWines.length > 0) {
+      setWines(offlineWines);
+      setIsOfflineData(true);
+      setOfflineTimestamp(timestamp);
+      setLoading(false);
+      
+      toast.info('Showing previously scanned wines', {
+        description: 'You are viewing offline data'
+      });
+    } else {
+      // No offline data available either
+      toast.error('No scan results found', {
+        description: 'Please scan a wine list first'
+      });
+      setTimeout(() => navigate('/scan'), 2000);
+      setLoading(false);
+    }
+  };
+  
   // Sort wines by value score (highest first)
   const sortedWines = [...wines].sort((a, b) => b.valueScore - a.valueScore);
   
   // Toggle notes expansion
   const toggleNotes = (wineId: string) => {
     setExpandedWine(prev => prev === wineId ? null : wineId);
+  };
+  
+  // Format timestamp for display
+  const formatOfflineTimestamp = (timestamp: number | null): string => {
+    if (!timestamp) return '';
+    
+    const date = new Date(timestamp);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
   
   return (
@@ -103,11 +145,22 @@ const ResultsPage: React.FC = () => {
         
         {/* Network Error Alert */}
         {networkError && (
-          <Alert variant="destructive" className="mb-6 animate-pulse">
+          <Alert variant="destructive" className="mb-6">
             <WifiOff className="h-4 w-4" />
             <AlertTitle>Network Unavailable</AlertTitle>
             <AlertDescription>
-              Please check your internet connection. Some features may be limited.
+              Showing {isOfflineData ? 'previously cached' : 'current'} wine data. Some features may be limited.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {/* Offline Data Notice */}
+        {isOfflineData && offlineTimestamp && (
+          <Alert variant="default" className="mb-6 bg-amber-50 border-amber-200">
+            <History className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-amber-700">Offline Data</AlertTitle>
+            <AlertDescription className="text-amber-700">
+              Showing wine data from {formatOfflineTimestamp(offlineTimestamp)}
             </AlertDescription>
           </Alert>
         )}

@@ -1,7 +1,8 @@
-// Service Worker for WineCheck PWA
-// Version: 1.0.2
 
-const CACHE_NAME = 'winecheck-cache-v1.0.2';
+// Service Worker for WineCheck PWA
+// Version: 1.0.3
+
+const CACHE_NAME = 'winecheck-cache-v1.0.3';
 const OFFLINE_PAGE = '/';
 const STATIC_ASSETS = [
   '/',
@@ -16,7 +17,9 @@ const STATIC_ASSETS = [
 
 // Assets that should be cached when they're requested
 const DYNAMIC_ASSETS = /\.(js|css|woff2|jpg|png|svg|webp)$/;
+const API_CACHE_URLS = /\/(api)\//i;
 const ANALYTICS_URLS = /(google-analytics\.com|gtag|analytics)/i;
+const WINE_API_URLS = /(wine-searcher\.com|ocr|vision)/i;
 
 // Cache version header for invalidation
 const CACHE_VERSION_HEADER = 'x-cache-version';
@@ -195,7 +198,9 @@ setInterval(() => {
 // Fetch event - Cache-first for static assets, Network-first for API requests
 self.addEventListener('fetch', (event) => {
   // Skip cross-origin requests to avoid CORS issues
-  if (!event.request.url.startsWith(self.location.origin) && !ANALYTICS_URLS.test(event.request.url)) {
+  if (!event.request.url.startsWith(self.location.origin) && 
+      !ANALYTICS_URLS.test(event.request.url) &&
+      !WINE_API_URLS.test(event.request.url)) {
     return;
   }
   
@@ -226,6 +231,35 @@ self.addEventListener('fetch', (event) => {
   
   // Skip API requests and only use cache for GET requests
   if (event.request.url.includes('/api/') || event.request.method !== 'GET') {
+    return;
+  }
+
+  // Handle wine API requests - cache successful responses
+  if (WINE_API_URLS.test(event.request.url)) {
+    event.respondWith(
+      fetch(event.request.clone())
+        .then(response => {
+          // Only cache successful responses
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+          }
+          return response;
+        })
+        .catch(err => {
+          console.log('[Service Worker] Trying cached wine API response');
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+  
+  // Skip other API requests and only use cache for GET requests
+  if ((event.request.url.includes('/api/') && !API_CACHE_URLS.test(event.request.url)) 
+      || event.request.method !== 'GET') {
     return;
   }
 
@@ -278,6 +312,26 @@ self.addEventListener('fetch', (event) => {
           });
         });
       })
+    );
+  } else if (API_CACHE_URLS.test(event.request.url)) {
+    // For API requests that should be cached, use network-first with cache fallback
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Only cache successful responses
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // If network fails, try to return from cache
+          console.log('[Service Worker] Returning cached API response for:', event.request.url);
+          return caches.match(event.request);
+        })
     );
   } else {
     // For HTML and other documents, use network-first strategy
