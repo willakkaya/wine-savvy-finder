@@ -3,7 +3,7 @@
   "name": "WineCheck - Wine List Analyzer",
   "short_name": "WineCheck",
   "description": "Find the best value wines on restaurant wine lists with AI-powered analysis",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "start_url": "/?source=pwa",
   "display": "standalone",
   "background_color": "#722F37",
