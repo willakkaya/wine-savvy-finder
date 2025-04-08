@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, Check, Sparkles, History } from 'lucide-react';
-import { ScanStage } from '@/hooks/useScanProcess';
+import { ScanStage } from '@/types/scanTypes';
 
 interface ScanActionsProps {
   scanStage: ScanStage;

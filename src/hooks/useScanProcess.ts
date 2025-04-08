@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { WineInfo } from '@/components/wine/WineCard';
-import { processWineListImage } from '@/utils/ocrUtils';
-import { getOfflineWines } from '@/utils/offlineUtils';
 
-// Explicitly define ScanStage to include 'complete'
-export type ScanStage = 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
+import { useState, useEffect } from 'react';
+import { WineInfo } from '@/components/wine/WineCard';
+import { ScanStage } from '@/types/scanTypes';
+import { checkOfflineAvailability, getOfflineStatus } from '@/utils/scanOfflineUtils';
+import { handleImageCapture } from '@/utils/scanProcessUtils';
+import { simulateWineScan } from '@/utils/scanDemoUtils';
+
+export { ScanStage };
 
 export const useScanProcess = (demoMode: boolean) => {
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
@@ -24,18 +25,19 @@ export const useScanProcess = (demoMode: boolean) => {
     
     const handleOffline = () => {
       setNetworkError(true);
-      checkOfflineAvailability();
+      const hasOfflineData = checkOfflineAvailability();
+      setOfflineAvailable(hasOfflineData);
+      setShowOfflineOptions(hasOfflineData);
     };
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    const isOffline = !navigator.onLine;
+    // Check initial network status
+    const { networkError: isOffline, offlineAvailable: hasData } = getOfflineStatus();
     setNetworkError(isOffline);
-    
-    if (isOffline) {
-      checkOfflineAvailability();
-    }
+    setOfflineAvailable(hasData);
+    setShowOfflineOptions(isOffline && hasData);
     
     return () => {
       window.removeEventListener('online', handleOnline);
@@ -43,18 +45,16 @@ export const useScanProcess = (demoMode: boolean) => {
     };
   }, []);
   
-  const checkOfflineAvailability = () => {
-    const { wines } = getOfflineWines();
-    const hasData = wines.length > 0;
-    setOfflineAvailable(hasData);
-    setShowOfflineOptions(hasData);
-  };
-  
   useEffect(() => {
     if (demoMode) {
       const timer = setTimeout(() => {
         if (scanStage === 'idle') {
-          simulateWineScan();
+          simulateWineScan({
+            setIsProcessing,
+            setScanStage,
+            setScanMessage,
+            setFoundWines
+          });
         }
       }, 2000);
       
@@ -62,137 +62,6 @@ export const useScanProcess = (demoMode: boolean) => {
     }
   }, [scanStage, demoMode]);
   
-  const simulateWineScan = async () => {
-    setIsProcessing(true);
-    setScanStage('processing');
-    setScanMessage('Processing wine list image...');
-    
-    setTimeout(() => {
-      setScanStage('analyzing');
-      setScanMessage('Analyzing wines and matching with database...');
-      
-      setTimeout(async () => {
-        try {
-          const response = await fetch('/api/demo-wines');
-          const wines = await response.json();
-          
-          const randomCount = Math.floor(Math.random() * 4) + 6;
-          const shuffled = [...wines].sort(() => 0.5 - Math.random());
-          const selectedWines = shuffled.slice(0, randomCount);
-          
-          setFoundWines(selectedWines);
-          setScanStage('complete');
-          setScanMessage(`Analysis complete! Found ${selectedWines.length} wines on the list.`);
-          setIsProcessing(false);
-          
-          toast.success('Wine list processed successfully', {
-            description: `We found ${selectedWines.length} wines on the list`
-          });
-        } catch (error) {
-          handleScanError("Failed to process demo wines");
-        }
-      }, 2500);
-    }, 2000);
-  };
-  
-  const handleImageCapture = async (imageData: string) => {
-    if (!imageData) {
-      toast.error('Failed to capture image', {
-        description: 'Please try again'
-      });
-      return;
-    }
-    
-    if (!navigator.onLine) {
-      setScanStage('error');
-      setScanMessage('Network connection unavailable');
-      setShowOfflineOptions(offlineAvailable);
-      
-      toast.error('Network connection unavailable', {
-        description: offlineAvailable ? 
-          'You can view your previously scanned wines in offline mode' :
-          'Please check your internet connection and try again'
-      });
-      return;
-    }
-    
-    setIsProcessing(true);
-    setScanStage('processing');
-    setScanMessage('Processing wine list image...');
-    
-    try {
-      setTimeout(() => {
-        if (scanStage === 'processing' || scanStage === 'analyzing') {
-          setScanStage('analyzing');
-          setScanMessage('Analyzing wines and matching with database...');
-        }
-      }, 1000);
-      
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 60000);
-      });
-      
-      const wines = await Promise.race([
-        processWineListImage(imageData),
-        timeoutPromise
-      ]) as WineInfo[];
-      
-      setFoundWines(wines);
-      setScanStage('complete');
-      setScanMessage(`Analysis complete! Found ${wines.length} wines on the list.`);
-      
-      toast.success('Wine list processed successfully', {
-        description: `We found ${wines.length} wines on the list`
-      });
-    } catch (error) {
-      console.error('Error processing wine list image:', error);
-      
-      if (!navigator.onLine || error.message?.includes('Network connection')) {
-        handleNetworkError();
-      } else if (error.message?.includes('timeout')) {
-        handleTimeoutError();
-      } else {
-        handleScanError(error.message || "Failed to process the wine list");
-      }
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
-  const handleNetworkError = () => {
-    setIsProcessing(false);
-    setScanStage('error');
-    setScanMessage('Network connection unavailable');
-    setNetworkError(true);
-    setShowOfflineOptions(offlineAvailable);
-    
-    toast.error('Network connection unavailable', {
-      description: offlineAvailable ? 
-        'You can view your previously scanned wines in offline mode' :
-        'Please check your internet connection and try again'
-    });
-  };
-  
-  const handleTimeoutError = () => {
-    setIsProcessing(false);
-    setScanStage('error');
-    setScanMessage('Request timed out');
-    
-    toast.error('Request timed out', {
-      description: 'The process took too long. Please try again with a clearer image'
-    });
-  };
-  
-  const handleScanError = (message: string) => {
-    setIsProcessing(false);
-    setScanStage('error');
-    setScanMessage(message || 'Failed to process wine list');
-    
-    toast.error(message || 'Failed to process wine list', {
-      description: 'Please try again with a clearer image'
-    });
-  };
-
   const handleRetry = () => {
     setScanStage('idle');
     setScanMessage('');
@@ -202,8 +71,32 @@ export const useScanProcess = (demoMode: boolean) => {
     setShowOfflineOptions(false);
     
     if (!navigator.onLine) {
-      checkOfflineAvailability();
+      const hasOfflineData = checkOfflineAvailability();
+      setOfflineAvailable(hasOfflineData);
+      setShowOfflineOptions(hasOfflineData);
     }
+  };
+  
+  // Wrapped image capture handler
+  const processImageCapture = async (imageData: string) => {
+    await handleImageCapture(imageData, offlineAvailable, {
+      setIsProcessing,
+      setScanStage,
+      setScanMessage,
+      setFoundWines,
+      setNetworkError,
+      setShowOfflineOptions
+    });
+  };
+
+  // Wrapped simulation handler
+  const processSimulation = async () => {
+    await simulateWineScan({
+      setIsProcessing,
+      setScanStage,
+      setScanMessage,
+      setFoundWines
+    });
   };
 
   return {
@@ -214,8 +107,8 @@ export const useScanProcess = (demoMode: boolean) => {
     networkError,
     offlineAvailable,
     showOfflineOptions,
-    handleImageCapture,
-    simulateWineScan,
+    handleImageCapture: processImageCapture,
+    simulateWineScan: processSimulation,
     handleRetry,
     setShowOfflineOptions
   };
