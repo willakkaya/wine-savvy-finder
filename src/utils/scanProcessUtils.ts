@@ -54,9 +54,12 @@ export const handleImageCapture = async (
   setScanMessage('Processing wine list image...');
   
   try {
+    let currentScanStage = 'processing';
+    
     setTimeout(() => {
-      if (setScanStage && (scanStage === 'processing' || scanStage === 'analyzing')) {
+      if (currentScanStage === 'processing' || currentScanStage === 'analyzing') {
         setScanStage('analyzing');
+        currentScanStage = 'analyzing';
         setScanMessage('Analyzing wines and matching with database...');
       }
     }, 1000);
@@ -105,6 +108,3 @@ export const handleImageCapture = async (
     setIsProcessing(false);
   }
 };
-
-// Reference to scan stage needed for conditional timeout
-let scanStage: ScanStage = 'idle';

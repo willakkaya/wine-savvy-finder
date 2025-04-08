@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { WineInfo } from '@/components/wine/WineCard';
 import { ScanStage } from '@/types/scanTypes';
@@ -6,7 +5,7 @@ import { checkOfflineAvailability, getOfflineStatus } from '@/utils/scanOfflineU
 import { handleImageCapture } from '@/utils/scanProcessUtils';
 import { simulateWineScan } from '@/utils/scanDemoUtils';
 
-export { ScanStage };
+export type { ScanStage };
 
 export const useScanProcess = (demoMode: boolean) => {
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
