@@ -4,11 +4,12 @@ import { cn } from '@/lib/utils';
 import CameraCapture from '@/components/camera/CameraCapture';
 import { Button } from '@/components/ui/button';
 import { Camera, RefreshCw, WifiOff, History } from 'lucide-react';
+import { ScanStage } from '@/types/scanTypes';
 
 interface CameraViewProps {
   isProcessing: boolean;
   networkError: boolean;
-  scanStage: 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
+  scanStage: ScanStage;
   scanMessage: string;
   settings: { demoMode: boolean; [key: string]: any };
   offlineAvailable: boolean;

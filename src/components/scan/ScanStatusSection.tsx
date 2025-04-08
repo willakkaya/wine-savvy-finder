@@ -4,7 +4,7 @@ import NetworkErrorAlert from '@/components/scan/NetworkErrorAlert';
 import OfflineOptionsAlert from '@/components/scan/OfflineOptionsAlert';
 import ScanProgress from '@/components/scan/ScanProgress';
 import ScanActions from '@/components/scan/ScanActions';
-import { ScanStage } from '@/hooks/useScanProcess';
+import { ScanStage } from '@/types/scanTypes';
 
 interface ScanStatusSectionProps {
   networkError: boolean;

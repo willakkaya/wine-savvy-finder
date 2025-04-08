@@ -5,8 +5,6 @@ import { checkOfflineAvailability, getOfflineStatus } from '@/utils/scanOfflineU
 import { handleImageCapture } from '@/utils/scanProcessUtils';
 import { simulateWineScan } from '@/utils/scanDemoUtils';
 
-export type { ScanStage };
-
 export const useScanProcess = (demoMode: boolean) => {
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [scanMessage, setScanMessage] = useState<string>('');
@@ -76,7 +74,6 @@ export const useScanProcess = (demoMode: boolean) => {
     }
   };
   
-  // Wrapped image capture handler
   const processImageCapture = async (imageData: string) => {
     await handleImageCapture(imageData, offlineAvailable, {
       setIsProcessing,
@@ -88,7 +85,6 @@ export const useScanProcess = (demoMode: boolean) => {
     });
   };
 
-  // Wrapped simulation handler
   const processSimulation = async () => {
     await simulateWineScan({
       setIsProcessing,

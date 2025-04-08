@@ -1,5 +1,6 @@
 
 import { toast } from 'sonner';
+import { ScanStage } from '@/types/scanTypes';
 
 /**
  * Handles error when network is unavailable
@@ -8,7 +9,7 @@ export const handleNetworkError = (
   offlineAvailable: boolean,
   callbacks: {
     setIsProcessing: (value: boolean) => void;
-    setScanStage: (stage: 'error') => void;
+    setScanStage: (stage: ScanStage) => void;
     setScanMessage: (message: string) => void;
     setNetworkError: (value: boolean) => void;
     setShowOfflineOptions: (value: boolean) => void;
@@ -35,7 +36,7 @@ export const handleNetworkError = (
 export const handleTimeoutError = (
   callbacks: {
     setIsProcessing: (value: boolean) => void;
-    setScanStage: (stage: 'error') => void;
+    setScanStage: (stage: ScanStage) => void;
     setScanMessage: (message: string) => void;
   }
 ) => {
@@ -57,7 +58,7 @@ export const handleScanError = (
   message: string,
   callbacks: {
     setIsProcessing: (value: boolean) => void;
-    setScanStage: (stage: 'error') => void;
+    setScanStage: (stage: ScanStage) => void;
     setScanMessage: (message: string) => void;
   }
 ) => {
