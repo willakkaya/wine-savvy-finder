@@ -3,7 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import CameraView from '@/components/scan/CameraView';
 import ScanResultsPreview from '@/components/scan/ScanResultsPreview';
-import { ScanStage } from '@/hooks/useScanProcess';
+import { ScanStage } from '@/types/scanTypes';
 import { WineInfo } from '@/components/wine/WineCard';
 
 interface ScanContainerProps {
