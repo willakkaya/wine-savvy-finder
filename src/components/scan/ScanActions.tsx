@@ -58,7 +58,7 @@ const ScanActions: React.FC<ScanActionsProps> = ({
           onClick={onViewResults}
           variant="outline" 
           className="flex-1"
-          disabled={scanStage !== 'complete'}
+          disabled={scanStage !== 'complete' || isProcessing}
         >
           <Sparkles className="mr-2 h-4 w-4" />
           Results
