@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -136,7 +135,6 @@ const ScanPage = () => {
     setScanMessage('Processing wine list image...');
     
     try {
-      // Fix the type comparison issue by explicitly checking against 'complete' as a ScanStage type
       setTimeout(() => {
         const currentStage = scanStage;
         if (currentStage !== 'complete' && currentStage !== 'error' && currentStage !== 'idle') {
