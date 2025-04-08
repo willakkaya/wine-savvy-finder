@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { WineInfo } from '@/components/wine/WineCard';
 import { processWineListImage } from '@/utils/ocrUtils';
 import { getOfflineWines } from '@/utils/offlineUtils';
 
+// Explicitly define ScanStage to include 'complete'
 export type ScanStage = 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
 
 export const useScanProcess = (demoMode: boolean) => {
@@ -192,7 +192,7 @@ export const useScanProcess = (demoMode: boolean) => {
       description: 'Please try again with a clearer image'
     });
   };
-  
+
   const handleRetry = () => {
     setScanStage('idle');
     setScanMessage('');
