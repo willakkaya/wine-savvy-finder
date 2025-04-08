@@ -1,19 +1,20 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
-import CameraCapture from '@/components/camera/CameraCapture';
 import ScanProgress from '@/components/scan/ScanProgress';
 import ScanTips from '@/components/scan/ScanTips';
 import ScanResultsPreview from '@/components/scan/ScanResultsPreview';
-import { Button } from '@/components/ui/button';
-import { Camera, Upload, RefreshCw, Sparkles, Check, WifiOff, History } from 'lucide-react';
+import NetworkErrorAlert from '@/components/scan/NetworkErrorAlert';
+import OfflineOptionsAlert from '@/components/scan/OfflineOptionsAlert';
+import CameraView from '@/components/scan/CameraView';
+import ScanActions from '@/components/scan/ScanActions';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { WineInfo } from '@/components/wine/WineCard';
 import { processWineListImage } from '@/utils/ocrUtils';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { getOfflineWines } from '@/utils/offlineUtils';
 
 type ScanStage = 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
@@ -161,9 +162,9 @@ const ScanPage = () => {
     } catch (error) {
       console.error('Error processing wine list image:', error);
       
-      if (!navigator.onLine || error.message.includes('Network connection')) {
+      if (!navigator.onLine || error.message?.includes('Network connection')) {
         handleNetworkError();
-      } else if (error.message.includes('timeout')) {
+      } else if (error.message?.includes('timeout')) {
         handleTimeoutError();
       } else {
         handleScanError(error.message || "Failed to process the wine list");
@@ -246,34 +247,11 @@ const ScanPage = () => {
         </p>
         
         {networkError && (
-          <Alert variant="destructive" className="mb-4 animate-pulse">
-            <WifiOff className="h-4 w-4" />
-            <AlertTitle>Network Unavailable</AlertTitle>
-            <AlertDescription>
-              {offlineAvailable ? 
-                "You can view your previously scanned wines in offline mode." : 
-                "Please check your internet connection and try again."}
-            </AlertDescription>
-          </Alert>
+          <NetworkErrorAlert offlineAvailable={offlineAvailable} />
         )}
         
         {showOfflineOptions && (
-          <Alert className="mb-4 bg-amber-50 border-amber-200">
-            <History className="h-4 w-4 text-amber-600" />
-            <AlertTitle className="text-amber-700">Offline Mode Available</AlertTitle>
-            <AlertDescription className="text-amber-700">
-              <p className="mb-2">You can view your previously scanned wines while offline.</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200"
-                onClick={handleViewOfflineResults}
-              >
-                <History className="mr-2 h-4 w-4" />
-                View Offline Results
-              </Button>
-            </AlertDescription>
-          </Alert>
+          <OfflineOptionsAlert onViewOfflineResults={handleViewOfflineResults} />
         )}
         
         <div className={cn(
@@ -281,60 +259,17 @@ const ScanPage = () => {
           isProcessing ? "bg-secondary/50" : "bg-card"
         )}>
           {scanStage !== 'complete' ? (
-            <div className="relative">
-              <CameraCapture 
-                onImageCapture={handleImageCapture} 
-                disabled={isProcessing || networkError}
-                className="aspect-[3/4] object-cover w-full"
-              />
-              
-              {isProcessing && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                  <div className="text-white text-center p-4">
-                    <RefreshCw className="animate-spin h-8 w-8 mb-2 mx-auto" />
-                    <p>{scanMessage}</p>
-                  </div>
-                </div>
-              )}
-              
-              {settings.demoMode && scanStage === 'idle' && !networkError && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Button 
-                    onClick={simulateWineScan} 
-                    variant="wine" 
-                    className="bg-wine/90 hover:bg-wine text-white"
-                    disabled={networkError}
-                  >
-                    <Camera className="mr-2 h-5 w-5" />
-                    Simulate Wine List Scan
-                  </Button>
-                </div>
-              )}
-              
-              {networkError && !isProcessing && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                  <div className="text-white text-center p-4">
-                    <WifiOff className="h-8 w-8 mb-2 mx-auto" />
-                    <p className="text-lg font-semibold">Network Unavailable</p>
-                    {offlineAvailable ? (
-                      <div className="mt-4">
-                        <Button 
-                          variant="secondary" 
-                          size="sm" 
-                          onClick={handleViewOfflineResults}
-                          className="bg-white/80 text-gray-900 hover:bg-white"
-                        >
-                          <History className="mr-2 h-4 w-4" />
-                          View Offline Results
-                        </Button>
-                      </div>
-                    ) : (
-                      <p className="mt-2">Please check your connection and try again</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+            <CameraView 
+              isProcessing={isProcessing}
+              networkError={networkError}
+              scanStage={scanStage}
+              scanMessage={scanMessage}
+              settings={settings}
+              offlineAvailable={offlineAvailable}
+              onImageCapture={handleImageCapture}
+              onSimulateScan={simulateWineScan}
+              onViewOfflineResults={handleViewOfflineResults}
+            />
           ) : (
             <ScanResultsPreview 
               resultsCount={foundWines.length} 
@@ -352,48 +287,15 @@ const ScanPage = () => {
           />
         </div>
         
-        <div className="flex gap-4 w-full">
-          <Button 
-            onClick={handleRetry}
-            variant="outline" 
-            className="flex-1"
-            disabled={isProcessing}
-          >
-            <Camera className="mr-2 h-4 w-4" />
-            {scanStage !== 'idle' ? 'Rescan' : 'Scan'}
-          </Button>
-          
-          {scanStage === 'complete' ? (
-            <Button 
-              onClick={handleViewResults}
-              variant="wine" 
-              className="flex-1"
-              disabled={isProcessing}
-            >
-              <Check className="mr-2 h-4 w-4" />
-              View Results
-            </Button>
-          ) : networkError && offlineAvailable ? (
-            <Button 
-              onClick={handleViewOfflineResults}
-              variant="outline"
-              className="flex-1 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
-            >
-              <History className="mr-2 h-4 w-4" />
-              Offline Results
-            </Button>
-          ) : (
-            <Button 
-              onClick={handleViewResults}
-              variant="outline" 
-              className="flex-1"
-              disabled={scanStage !== 'complete' || isProcessing}
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Results
-            </Button>
-          )}
-        </div>
+        <ScanActions 
+          scanStage={scanStage}
+          isProcessing={isProcessing}
+          networkError={networkError}
+          offlineAvailable={offlineAvailable}
+          onRetry={handleRetry}
+          onViewResults={handleViewResults}
+          onViewOfflineResults={handleViewOfflineResults}
+        />
         
         {!isProcessing && (
           <ScanTips />
