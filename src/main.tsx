@@ -6,22 +6,19 @@ import { logAppInfo } from './utils/versionUtils'
 import { defineCustomElements } from '@ionic/pwa-elements/loader'
 import { registerServiceWorker, setupPeriodicUpdateChecks } from './utils/serviceWorker'
 
-// Initialize the application with improved mobile loading
+// Function to update viewport height for mobile browsers
+const updateVh = () => {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--vh', `${vh}px`)
+}
+
+// Initialize application
 const initApp = () => {
   try {
     console.log("Starting WineCheck initialization...")
     
-    // Function to update viewport height for mobile browsers
-    const updateVh = () => {
-      // Set the --vh custom property to the actual viewport height
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
-    }
-    
-    // Run once on initialization
+    // Setup viewport height
     updateVh()
-    
-    // Update on resize and orientation change
     window.addEventListener('resize', updateVh)
     window.addEventListener('orientationchange', updateVh)
     
@@ -42,34 +39,25 @@ const initApp = () => {
         meta.setAttribute('content', content)
         document.head.appendChild(meta)
       } else {
-        // Update content if it exists
         meta.setAttribute('content', content)
       }
     })
     
-    // Add class to body for iOS detection
+    // Add device detection classes
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
       document.body.classList.add('ios-device')
     }
-    
-    // Add class for Android detection
     if (/Android/.test(navigator.userAgent)) {
       document.body.classList.add('android-device')
     }
     
-    // Initialize Capacitor PWA elements
+    // Initialize services
     defineCustomElements(window)
-    
-    // Register service worker
     registerServiceWorker()
-    
-    // Set up periodic update checks 
     setupPeriodicUpdateChecks()
-    
-    // Log application info
     logAppInfo()
     
-    // Ensure root element is immediately visible
+    // Render the app
     const container = document.getElementById("root")
     if (!container) {
       console.error("Root element not found!")
@@ -78,32 +66,23 @@ const initApp = () => {
     }
     
     console.log("Root container found, rendering app")
-    
-    // Make container visible immediately 
     container.style.opacity = '1'
     container.style.visibility = 'visible'
     
-    // Create app with improved error handling
-    try {
-      const root = createRoot(container)
-      root.render(<AppWrapper />)
-      
-      // Add a class to body when app is fully loaded
-      window.addEventListener('load', () => {
-        document.body.classList.add('app-loaded')
-        console.log("App fully loaded")
-      })
-    } catch (renderError) {
-      console.error("Error rendering app:", renderError)
-      document.body.innerHTML = '<div style="padding: 20px; color: #722F37; font-family: sans-serif;"><h1>WineCheck</h1><p>Error rendering application. Please try again.</p></div>'
-    }
-  } catch (e) {
-    console.error("Error initializing app:", e)
+    const root = createRoot(container)
+    root.render(<AppWrapper />)
+    
+    window.addEventListener('load', () => {
+      document.body.classList.add('app-loaded')
+      console.log("App fully loaded")
+    })
+  } catch (error) {
+    console.error("Error initializing app:", error)
     document.body.innerHTML = '<div style="padding: 20px; color: #722F37; font-family: sans-serif;"><h1>WineCheck</h1><p>There was an error loading the application. Please try refreshing the page.</p></div>'
   }
 }
 
-// Initialize app immediately and add a fallback
+// Initialize app
 initApp()
 
 // Add a safety fallback to ensure app is visible

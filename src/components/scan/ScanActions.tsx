@@ -2,9 +2,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, Check, Sparkles, History } from 'lucide-react';
+import { ScanStage } from '@/hooks/useScanProcess';
 
 interface ScanActionsProps {
-  scanStage: 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
+  scanStage: ScanStage;
   isProcessing: boolean;
   networkError: boolean;
   offlineAvailable: boolean;

@@ -1,4 +1,6 @@
 
+import { isMobile, prefersReducedMotion } from '@/utils/deviceUtils';
+
 /**
  * Configuration settings for the WineCheck app
  */
@@ -67,7 +69,7 @@ export const config = {
     useRichTransitions: true,
     useHighQualityRendering: !isMobile(), // Reduce rendering quality on mobile
     useSmoothScrolling: true,
-    reducedMotion: checkReducedMotion(),
+    reducedMotion: prefersReducedMotion(),
     useHighContrastMode: false,
     fontScaling: 1.0,
   },
@@ -100,16 +102,3 @@ export const config = {
     contactUrl: '/contact',
   }
 };
-
-// Helper function to check if user prefers reduced motion
-function checkReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Helper function to check if device is mobile
-function isMobile(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768 || 
-         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}

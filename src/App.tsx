@@ -1,6 +1,6 @@
 
 import React, { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Theme providers
@@ -13,14 +13,21 @@ import { UserPreferencesProvider } from '@/hooks/useUserPreferences';
 
 // Import main layouts and components
 import MobileNavBar from '@/components/layout/MobileNavBar';
+import LoadingFallback from '@/components/common/LoadingFallback';
 
-// Main pages
+// Analytics and performance
+import { logAppInit } from "@/utils/analyticsUtils";
+import { registerServiceWorker } from '@/utils/serviceWorker';
+
+// Update check component
+import AppUpdate from '@/components/update/AppUpdate';
+
+// Eagerly loaded important pages
 import Home from '@/pages/Home';
-import ScanPage from '@/pages/ScanPage';
-import ResultsPage from '@/pages/ResultsPage'; // New results page
-import NotFound from '@/pages/NotFound';
 
-// Lazily loaded pages
+// Lazily loaded pages for better performance
+const ScanPage = lazy(() => import('@/pages/ScanPage'));
+const ResultsPage = lazy(() => import('@/pages/ResultsPage'));
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'));
 const WineDetailsPage = lazy(() => import('@/pages/WineDetailsPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
@@ -28,13 +35,7 @@ const FAQPage = lazy(() => import('@/pages/FAQPage'));
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const Contact = lazy(() => import('@/pages/Contact'));
-
-// Analytics
-import { logAppInit } from "@/utils/analyticsUtils";
-import { registerServiceWorker } from '@/utils/serviceWorker';
-
-// Update check
-import AppUpdate from '@/components/update/AppUpdate';
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 function App() {
   // Initialize app
@@ -49,11 +50,11 @@ function App() {
         <UserPreferencesProvider>
           <Router>
             <div className="app-container">
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/scan" element={<ScanPage />} />
-                  <Route path="/results" element={<ResultsPage />} /> {/* New results route */}
+                  <Route path="/results" element={<ResultsPage />} />
                   <Route path="/favorites" element={<FavoritesPage />} />
                   <Route path="/wine/:id" element={<WineDetailsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
