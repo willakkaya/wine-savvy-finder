@@ -136,8 +136,7 @@ const ScanPage = () => {
     
     try {
       setTimeout(() => {
-        const currentStage = scanStage;
-        if (currentStage !== 'complete' && currentStage !== 'error' && currentStage !== 'idle') {
+        if (scanStage === 'processing' || scanStage === 'analyzing') {
           setScanStage('analyzing');
           setScanMessage('Analyzing wines and matching with database...');
         }
