@@ -2,9 +2,10 @@
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Wine, Camera, Search, Database, AlertTriangle } from 'lucide-react';
+import { ScanStage } from '@/types/scanTypes';
 
 interface ScanProgressProps {
-  stage: 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
+  stage: ScanStage;
   message?: string;
 }
 
