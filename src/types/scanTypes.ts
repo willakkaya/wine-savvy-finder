@@ -1,7 +1,7 @@
 
 import { WineInfo } from "@/components/wine/WineCard";
 
-// Explicitly define ScanStage to include all stages
+// Updated ScanStage to explicitly include all stages
 export type ScanStage = 'idle' | 'capturing' | 'processing' | 'analyzing' | 'complete' | 'error';
 
 export interface ScanState {
