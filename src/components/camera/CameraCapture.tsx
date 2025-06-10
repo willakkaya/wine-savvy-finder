@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -119,9 +120,15 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
+    
+    console.log("Processing file:", file.name, "Size:", file.size, "Type:", file.type);
     
     try {
+      // Validate file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "File too large",
@@ -131,6 +138,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         return;
       }
       
+      // Validate file type
       if (!file.type.startsWith('image/')) {
         toast({
           title: "Invalid file type",
@@ -140,66 +148,81 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         return;
       }
       
-      let imageUrl: string;
+      // Process the file
+      const imageUrl = await processFile(file);
       
-      if (isNative) {
-        const fileName = new Date().getTime() + '.jpeg';
-        const mimeType = file.type;
-        const reader = new FileReader();
-        
-        imageUrl = await new Promise((resolve, reject) => {
-          reader.onload = async (event) => {
+      if (imageUrl) {
+        console.log("File processed successfully, image URL length:", imageUrl.length);
+        setCapturedImage(imageUrl);
+        onImageCapture(imageUrl);
+        toast({
+          title: "Image uploaded",
+          description: "Processing your wine list...",
+        });
+      } else {
+        throw new Error("Failed to process file - no image URL returned");
+      }
+    } catch (err) {
+      console.error("Error uploading file:", err);
+      toast({
+        title: "Upload failed",
+        description: err instanceof Error ? err.message : "There was a problem processing the image. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const processFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = async (event) => {
+        try {
+          const result = event.target?.result;
+          
+          if (typeof result !== 'string') {
+            reject(new Error("Failed to read file as data URL"));
+            return;
+          }
+          
+          // For native platforms, also save to filesystem
+          if (isNative) {
             try {
-              const base64Data = (event.target?.result as string)?.split(',')[1] || '';
+              const base64Data = result.split(',')[1] || '';
+              const fileName = `wine_list_${Date.now()}.jpeg`;
               
-              const savedFile = await Filesystem.writeFile({
+              await Filesystem.writeFile({
                 path: fileName,
                 data: base64Data,
                 directory: Directory.Cache,
                 recursive: true
               });
               
-              resolve(`data:${mimeType};base64,${base64Data}`);
-            } catch (err) {
-              reject(err);
+              console.log("File saved to native filesystem:", fileName);
+            } catch (fsError) {
+              console.warn("Failed to save file to native filesystem:", fsError);
+              // Don't reject, continue with web functionality
             }
-          };
-          reader.onerror = () => reject(new Error("Failed to read file"));
-          reader.readAsDataURL(file);
-        });
-      } else {
-        const imageUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            if (typeof event.target?.result === 'string') {
-              resolve(event.target.result);
-            } else {
-              reject(new Error("Failed to read file"));
-            }
-          };
-          reader.onerror = () => reject(new Error("Failed to read file"));
-          reader.readAsDataURL(file);
-        });
-      }
+          }
+          
+          resolve(result);
+        } catch (err) {
+          reject(new Error(`Failed to process file: ${err instanceof Error ? err.message : 'Unknown error'}`));
+        }
+      };
       
-      setCapturedImage(imageUrl);
-      onImageCapture(imageUrl);
-      toast({
-        title: "Image uploaded",
-        description: "Processing your wine list...",
-      });
-    } catch (err) {
-      console.error("Error uploading file:", err);
-      toast({
-        title: "Upload failed",
-        description: "There was a problem processing the image. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
+      reader.onerror = () => {
+        reject(new Error("Failed to read file"));
+      };
+      
+      // Start reading the file
+      reader.readAsDataURL(file);
+    });
   };
 
   const resetCapture = () => {
