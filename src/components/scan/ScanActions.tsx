@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, Check, Sparkles, History } from 'lucide-react';
 import { ScanStage } from '@/types/scanTypes';
@@ -14,7 +14,7 @@ interface ScanActionsProps {
   onViewOfflineResults: () => void;
 }
 
-const ScanActions: React.FC<ScanActionsProps> = ({
+const ScanActions: React.FC<ScanActionsProps> = memo(({
   scanStage,
   isProcessing,
   networkError,
@@ -23,6 +23,10 @@ const ScanActions: React.FC<ScanActionsProps> = ({
   onViewResults,
   onViewOfflineResults
 }) => {
+  const isIdle = scanStage === 'idle';
+  const isComplete = scanStage === 'complete';
+  const showOfflineButton = networkError && offlineAvailable;
+  
   return (
     <div className="flex gap-4 w-full">
       <Button 
@@ -32,10 +36,10 @@ const ScanActions: React.FC<ScanActionsProps> = ({
         disabled={isProcessing}
       >
         <Camera className="mr-2 h-4 w-4" />
-        {scanStage !== 'idle' ? 'Rescan' : 'Scan'}
+        {isIdle ? 'Scan' : 'Rescan'}
       </Button>
       
-      {scanStage === 'complete' ? (
+      {isComplete ? (
         <Button 
           onClick={onViewResults}
           variant="wine" 
@@ -45,7 +49,7 @@ const ScanActions: React.FC<ScanActionsProps> = ({
           <Check className="mr-2 h-4 w-4" />
           View Results
         </Button>
-      ) : networkError && offlineAvailable ? (
+      ) : showOfflineButton ? (
         <Button 
           onClick={onViewOfflineResults}
           variant="outline"
@@ -59,7 +63,7 @@ const ScanActions: React.FC<ScanActionsProps> = ({
           onClick={onViewResults}
           variant="outline" 
           className="flex-1"
-          disabled={scanStage !== 'complete' || isProcessing}
+          disabled={!isComplete || isProcessing}
         >
           <Sparkles className="mr-2 h-4 w-4" />
           Results
@@ -67,6 +71,8 @@ const ScanActions: React.FC<ScanActionsProps> = ({
       )}
     </div>
   );
-};
+});
+
+ScanActions.displayName = 'ScanActions';
 
 export default ScanActions;

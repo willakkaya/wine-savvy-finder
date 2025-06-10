@@ -1,8 +1,105 @@
+
 import { toast } from 'sonner';
 import { WineInfo } from '@/components/wine/WineCard';
 import { processWineListImage } from '@/utils/ocrUtils';
 import { handleNetworkError, handleTimeoutError, handleScanError } from '@/utils/scanErrorUtils';
 import { ScanStage } from '@/types/scanTypes';
+
+interface ScanCallbacks {
+  setIsProcessing: (value: boolean) => void;
+  setScanStage: (stage: ScanStage) => void;
+  setScanMessage: (message: string) => void;
+  setFoundWines: (wines: WineInfo[]) => void;
+  setNetworkError: (value: boolean) => void;
+  setShowOfflineOptions: (value: boolean) => void;
+}
+
+const TIMEOUT_DURATION = 60000; // 60 seconds
+const ANALYZING_DELAY = 1000; // 1 second
+
+/**
+ * Validates image data and network connectivity
+ */
+const validateScanPrerequisites = (imageData: string, offlineAvailable: boolean, callbacks: ScanCallbacks): boolean => {
+  if (!imageData) {
+    toast.error('Failed to capture image', { description: 'Please try again' });
+    return false;
+  }
+  
+  if (!navigator.onLine) {
+    callbacks.setScanStage('error');
+    callbacks.setScanMessage('Network connection unavailable');
+    callbacks.setShowOfflineOptions(offlineAvailable);
+    
+    toast.error('Network connection unavailable', {
+      description: offlineAvailable ? 
+        'You can view your previously scanned wines in offline mode' :
+        'Please check your internet connection and try again'
+    });
+    return false;
+  }
+  
+  return true;
+};
+
+/**
+ * Sets up the analyzing stage transition
+ */
+const setupAnalyzingTransition = (callbacks: ScanCallbacks): (() => void) => {
+  let currentStage = 'processing';
+  
+  const timeout = setTimeout(() => {
+    if (currentStage === 'processing' || currentStage === 'analyzing') {
+      callbacks.setScanStage('analyzing');
+      currentStage = 'analyzing';
+      callbacks.setScanMessage('Analyzing wines and matching with database...');
+    }
+  }, ANALYZING_DELAY);
+  
+  return () => clearTimeout(timeout);
+};
+
+/**
+ * Processes the wine image with timeout handling
+ */
+const processImageWithTimeout = async (imageData: string): Promise<WineInfo[]> => {
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_DURATION);
+  });
+  
+  return Promise.race([
+    processWineListImage(imageData),
+    timeoutPromise
+  ]);
+};
+
+/**
+ * Handles successful scan completion
+ */
+const handleScanSuccess = (wines: WineInfo[], callbacks: ScanCallbacks): void => {
+  callbacks.setFoundWines(wines);
+  callbacks.setScanStage('complete');
+  callbacks.setScanMessage(`Analysis complete! Found ${wines.length} wines on the list.`);
+  
+  toast.success('Wine list processed successfully', {
+    description: `We found ${wines.length} wines on the list`
+  });
+};
+
+/**
+ * Handles scan errors with appropriate error handling
+ */
+const handleScanFailure = (error: any, offlineAvailable: boolean, callbacks: ScanCallbacks): void => {
+  console.error('Error processing wine list image:', error);
+  
+  if (!navigator.onLine || error.message?.includes('Network connection')) {
+    handleNetworkError(offlineAvailable, callbacks);
+  } else if (error.message?.includes('timeout')) {
+    handleTimeoutError(callbacks);
+  } else {
+    handleScanError(error.message || "Failed to process the wine list", callbacks);
+  }
+};
 
 /**
  * Handles the image capture and processing workflow
@@ -10,100 +107,33 @@ import { ScanStage } from '@/types/scanTypes';
 export const handleImageCapture = async (
   imageData: string,
   offlineAvailable: boolean,
-  callbacks: {
-    setIsProcessing: (value: boolean) => void;
-    setScanStage: (stage: ScanStage) => void;
-    setScanMessage: (message: string) => void;
-    setFoundWines: (wines: WineInfo[]) => void;
-    setNetworkError: (value: boolean) => void;
-    setShowOfflineOptions: (value: boolean) => void;
-  }
-) => {
-  const { 
-    setIsProcessing, 
-    setScanStage, 
-    setScanMessage, 
-    setFoundWines,
-    setNetworkError,
-    setShowOfflineOptions
-  } = callbacks;
-
-  if (!imageData) {
-    toast.error('Failed to capture image', {
-      description: 'Please try again'
-    });
+  callbacks: ScanCallbacks
+): Promise<void> => {
+  // Validate prerequisites
+  if (!validateScanPrerequisites(imageData, offlineAvailable, callbacks)) {
     return;
   }
   
-  if (!navigator.onLine) {
-    setScanStage('error');
-    setScanMessage('Network connection unavailable');
-    setShowOfflineOptions(offlineAvailable);
-    
-    toast.error('Network connection unavailable', {
-      description: offlineAvailable ? 
-        'You can view your previously scanned wines in offline mode' :
-        'Please check your internet connection and try again'
-    });
-    return;
-  }
+  // Initialize processing state
+  callbacks.setIsProcessing(true);
+  callbacks.setScanStage('processing');
+  callbacks.setScanMessage('Processing wine list image...');
   
-  setIsProcessing(true);
-  setScanStage('processing');
-  setScanMessage('Processing wine list image...');
+  // Setup analyzing transition
+  const cleanupTransition = setupAnalyzingTransition(callbacks);
   
   try {
-    let currentScanStage = 'processing';
+    // Process the image
+    const wines = await processImageWithTimeout(imageData);
     
-    setTimeout(() => {
-      if (currentScanStage === 'processing' || currentScanStage === 'analyzing') {
-        setScanStage('analyzing');
-        currentScanStage = 'analyzing';
-        setScanMessage('Analyzing wines and matching with database...');
-      }
-    }, 1000);
-    
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), 60000);
-    });
-    
-    const wines = await Promise.race([
-      processWineListImage(imageData),
-      timeoutPromise
-    ]) as WineInfo[];
-    
-    setFoundWines(wines);
-    setScanStage('complete');
-    setScanMessage(`Analysis complete! Found ${wines.length} wines on the list.`);
-    
-    toast.success('Wine list processed successfully', {
-      description: `We found ${wines.length} wines on the list`
-    });
+    // Handle success
+    handleScanSuccess(wines, callbacks);
   } catch (error) {
-    console.error('Error processing wine list image:', error);
-    
-    if (!navigator.onLine || error.message?.includes('Network connection')) {
-      handleNetworkError(offlineAvailable, {
-        setIsProcessing,
-        setScanStage,
-        setScanMessage,
-        setNetworkError,
-        setShowOfflineOptions
-      });
-    } else if (error.message?.includes('timeout')) {
-      handleTimeoutError({
-        setIsProcessing,
-        setScanStage,
-        setScanMessage
-      });
-    } else {
-      handleScanError(error.message || "Failed to process the wine list", {
-        setIsProcessing,
-        setScanStage,
-        setScanMessage
-      });
-    }
+    // Handle failure
+    handleScanFailure(error, offlineAvailable, callbacks);
   } finally {
-    setIsProcessing(false);
+    // Cleanup
+    cleanupTransition();
+    callbacks.setIsProcessing(false);
   }
 };

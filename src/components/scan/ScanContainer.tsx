@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { cn } from '@/lib/utils';
 import CameraView from '@/components/scan/CameraView';
 import ScanResultsPreview from '@/components/scan/ScanResultsPreview';
@@ -20,7 +20,7 @@ interface ScanContainerProps {
   onViewResults: () => void;
 }
 
-const ScanContainer: React.FC<ScanContainerProps> = ({
+const ScanContainer: React.FC<ScanContainerProps> = memo(({
   scanStage,
   isProcessing,
   networkError,
@@ -33,12 +33,23 @@ const ScanContainer: React.FC<ScanContainerProps> = ({
   onViewOfflineResults,
   onViewResults
 }) => {
+  const isComplete = scanStage === 'complete';
+  const topWine = foundWines[0];
+  const highestRatedWine = foundWines[1];
+  
   return (
     <div className={cn(
-      "w-full overflow-hidden rounded-xl border border-border mb-4",
+      "w-full overflow-hidden rounded-xl border border-border mb-4 transition-colors duration-200",
       isProcessing ? "bg-secondary/50" : "bg-card"
     )}>
-      {scanStage !== 'complete' ? (
+      {isComplete ? (
+        <ScanResultsPreview 
+          resultsCount={foundWines.length} 
+          onViewResults={onViewResults}
+          topValueWine={topWine}
+          highestRatedWine={highestRatedWine}
+        />
+      ) : (
         <CameraView 
           isProcessing={isProcessing}
           networkError={networkError}
@@ -50,16 +61,11 @@ const ScanContainer: React.FC<ScanContainerProps> = ({
           onSimulateScan={onSimulateScan}
           onViewOfflineResults={onViewOfflineResults}
         />
-      ) : (
-        <ScanResultsPreview 
-          resultsCount={foundWines.length} 
-          onViewResults={onViewResults}
-          topValueWine={foundWines.length > 0 ? foundWines[0] : undefined}
-          highestRatedWine={foundWines.length > 1 ? foundWines[1] : undefined}
-        />
       )}
     </div>
   );
-};
+});
+
+ScanContainer.displayName = 'ScanContainer';
 
 export default ScanContainer;

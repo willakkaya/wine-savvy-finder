@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { WineInfo } from '@/components/wine/WineCard';
 import { ScanStage } from '@/types/scanTypes';
 import { checkOfflineAvailability, getOfflineStatus } from '@/utils/scanOfflineUtils';
@@ -14,19 +15,31 @@ export const useScanProcess = (demoMode: boolean) => {
   const [offlineAvailable, setOfflineAvailable] = useState<boolean>(false);
   const [showOfflineOptions, setShowOfflineOptions] = useState<boolean>(false);
   
+  // Memoized callbacks for better performance
+  const callbacks = {
+    setIsProcessing,
+    setScanStage,
+    setScanMessage,
+    setFoundWines,
+    setNetworkError,
+    setShowOfflineOptions
+  };
+  
+  // Network status handlers
+  const handleOnline = useCallback(() => {
+    setNetworkError(false);
+    setShowOfflineOptions(false);
+  }, []);
+  
+  const handleOffline = useCallback(() => {
+    setNetworkError(true);
+    const hasOfflineData = checkOfflineAvailability();
+    setOfflineAvailable(hasOfflineData);
+    setShowOfflineOptions(hasOfflineData);
+  }, []);
+  
+  // Network status effect
   useEffect(() => {
-    const handleOnline = () => {
-      setNetworkError(false);
-      setShowOfflineOptions(false);
-    };
-    
-    const handleOffline = () => {
-      setNetworkError(true);
-      const hasOfflineData = checkOfflineAvailability();
-      setOfflineAvailable(hasOfflineData);
-      setShowOfflineOptions(hasOfflineData);
-    };
-    
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
@@ -40,26 +53,21 @@ export const useScanProcess = (demoMode: boolean) => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [handleOnline, handleOffline]);
   
+  // Demo mode auto-simulation
   useEffect(() => {
-    if (demoMode) {
-      const timer = setTimeout(() => {
-        if (scanStage === 'idle') {
-          simulateWineScan({
-            setIsProcessing,
-            setScanStage,
-            setScanMessage,
-            setFoundWines
-          });
-        }
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
+    if (!demoMode || scanStage !== 'idle') return;
+    
+    const timer = setTimeout(() => {
+      simulateWineScan(callbacks);
+    }, 2000);
+    
+    return () => clearTimeout(timer);
   }, [scanStage, demoMode]);
   
-  const handleRetry = () => {
+  // Reset scan state
+  const handleRetry = useCallback(() => {
     setScanStage('idle');
     setScanMessage('');
     setIsProcessing(false);
@@ -72,27 +80,17 @@ export const useScanProcess = (demoMode: boolean) => {
       setOfflineAvailable(hasOfflineData);
       setShowOfflineOptions(hasOfflineData);
     }
-  };
+  }, []);
   
-  const processImageCapture = async (imageData: string) => {
-    await handleImageCapture(imageData, offlineAvailable, {
-      setIsProcessing,
-      setScanStage,
-      setScanMessage,
-      setFoundWines,
-      setNetworkError,
-      setShowOfflineOptions
-    });
-  };
+  // Process image capture
+  const processImageCapture = useCallback(async (imageData: string) => {
+    await handleImageCapture(imageData, offlineAvailable, callbacks);
+  }, [offlineAvailable]);
 
-  const processSimulation = async () => {
-    await simulateWineScan({
-      setIsProcessing,
-      setScanStage,
-      setScanMessage,
-      setFoundWines
-    });
-  };
+  // Process simulation
+  const processSimulation = useCallback(async () => {
+    await simulateWineScan(callbacks);
+  }, []);
 
   return {
     scanStage,
