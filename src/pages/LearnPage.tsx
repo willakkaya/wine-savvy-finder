@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 
 const LearnPage: React.FC = () => {
@@ -48,26 +48,71 @@ const LearnPage: React.FC = () => {
     };
   }, []);
 
+  // Scrollspy and smooth jump
+  const sections = [
+    { id: 'varieties', label: 'Varieties' },
+    { id: 'tasting', label: 'Tasting' },
+    { id: 'pairing', label: 'Pairing' },
+    { id: 'regions', label: 'Regions' },
+    { id: 'serving', label: 'Serving' },
+    { id: 'glossary', label: 'Glossary' },
+  ];
+  const [activeId, setActiveId] = useState<string>('varieties');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveId(entry.target.id);
+        });
+      },
+      { rootMargin: '0px 0px -60% 0px', threshold: [0.2, 0.6] }
+    );
+    sections.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const handleJump = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <PageContainer title="Learn About Wine" className="max-w-4xl mx-auto">
       <header className="mb-6 text-center">
         <h1 className="text-3xl md:text-4xl font-serif text-foreground mb-2">Learn About Wine</h1>
       </header>
 
-      <nav aria-label="On this page" className="mb-8">
+      <nav aria-label="On this page" className="mb-8 sticky top-16 z-20 bg-background/80 backdrop-blur border border-border/60 rounded-xl px-4 py-3 shadow-apple">
         <ul className="flex flex-wrap gap-2 justify-center">
-          <li><a href="#varieties" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Varieties</a></li>
-          <li><a href="#tasting" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Tasting</a></li>
-          <li><a href="#pairing" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Pairing</a></li>
-          <li><a href="#regions" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Regions</a></li>
-          <li><a href="#serving" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Serving</a></li>
-          <li><a href="#glossary" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Glossary</a></li>
+          {sections.map((s) => {
+            const active = activeId === s.id;
+            return (
+              <li key={s.id}>
+                <a
+                  href={`#${s.id}`}
+                  onClick={(e) => handleJump(e, s.id)}
+                  aria-current={active ? 'location' : undefined}
+                  className={`inline-flex items-center px-3 py-1.5 rounded-full transition ring-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+                    active
+                      ? 'bg-primary/10 text-primary ring-primary/20'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80 ring-transparent'
+                  }`}
+                >
+                  {s.label}
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
-      <main className="space-y-8 text-base md:text-lg leading-relaxed">
-        <section id="varieties" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">1) Grape Varieties & Styles</h2>
+      <main className="space-y-8 text-[17px] md:text-[18px] leading-8">
+        <section id="varieties" className="rounded-xl border border-border border-t-2 border-primary/20 bg-card p-6 md:p-8 shadow-apple animate-fade-in scroll-mt-24">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 tracking-tight">1) Grape Varieties & Styles</h2>
           <p className="text-foreground/90 mb-4">Grape variety shapes aroma, texture, and structure. Start with these benchmarks:</p>
           <ul className="list-disc pl-5 space-y-2 text-foreground/90 marker:text-primary leading-relaxed">
             <li><strong>Cabernet Sauvignon</strong>: blackcurrant, cedar, firm tannin; great with grilled meats.</li>
@@ -81,8 +126,8 @@ const LearnPage: React.FC = () => {
           </ul>
         </section>
 
-        <section id="tasting" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">2) How to Taste Like a Pro</h2>
+        <section id="tasting" className="rounded-xl border border-border border-t-2 border-primary/20 bg-card p-6 md:p-8 shadow-apple animate-fade-in scroll-mt-24">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 tracking-tight">2) How to Taste Like a Pro</h2>
           <article className="space-y-3 text-foreground/90">
             <p><strong>Look</strong>: assess color and intensity—age deepens whites (golden) and fades reds (brick rim).</p>
             <p><strong>Smell</strong>: swirl to release aromas; note fruit, floral, herbal, spice, oak, and earth tones.</p>
@@ -91,8 +136,8 @@ const LearnPage: React.FC = () => {
           </article>
         </section>
 
-        <section id="pairing" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">3) Food Pairing Fundamentals</h2>
+        <section id="pairing" className="rounded-xl border border-border border-t-2 border-primary/20 bg-card p-6 md:p-8 shadow-apple animate-fade-in scroll-mt-24">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 tracking-tight">3) Food Pairing Fundamentals</h2>
           <div className="space-y-3 text-foreground/90">
             <p><strong>Match intensity</strong>: delicate wines with delicate dishes; bold with bold.</p>
             <p><strong>Acid loves fat</strong>: crisp whites and high-acid reds cut through rich, creamy foods.</p>
@@ -102,8 +147,8 @@ const LearnPage: React.FC = () => {
           </div>
         </section>
 
-        <section id="regions" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">4) Regions to Know</h2>
+        <section id="regions" className="rounded-xl border border-border border-t-2 border-primary/20 bg-card p-6 md:p-8 shadow-apple animate-fade-in scroll-mt-24">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 tracking-tight">4) Regions to Know</h2>
           <div className="grid md:grid-cols-2 gap-6 text-foreground/90">
             <article>
               <h3 className="font-semibold mb-1">Old World</h3>
@@ -126,8 +171,8 @@ const LearnPage: React.FC = () => {
           </div>
         </section>
 
-        <section id="serving" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">5) Serving & Cellaring</h2>
+        <section id="serving" className="rounded-xl border border-border border-t-2 border-primary/20 bg-card p-6 md:p-8 shadow-apple animate-fade-in scroll-mt-24">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 tracking-tight">5) Serving & Cellaring</h2>
           <ul className="list-disc pl-5 space-y-2 text-foreground/90 marker:text-primary leading-relaxed">
             <li><strong>Temperature</strong>: Sparkling 42–50°F; Whites 45–55°F; Light Reds 55–60°F; Full Reds 60–65°F.</li>
             <li><strong>Glassware</strong>: larger bowls for reds, tulip shapes for whites and sparkling.</li>
@@ -136,8 +181,8 @@ const LearnPage: React.FC = () => {
           </ul>
         </section>
 
-        <section id="glossary" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
-          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">Quick Glossary</h2>
+        <section id="glossary" className="rounded-xl border border-border border-t-2 border-primary/20 bg-card p-6 md:p-8 shadow-apple animate-fade-in scroll-mt-24">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4 tracking-tight">Quick Glossary</h2>
           <div className="grid md:grid-cols-2 gap-6 text-foreground/90">
             <dl className="space-y-2">
               <dt className="font-semibold">Acidity</dt>
