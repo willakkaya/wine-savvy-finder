@@ -26,6 +26,7 @@ import AppUpdate from '@/components/update/AppUpdate';
 import Home from '@/pages/Home';
 
 // Lazily loaded pages for better performance
+const LearnPage = lazy(() => import('@/pages/LearnPage'));
 const ScanPage = lazy(() => import('@/pages/ScanPage'));
 const ResultsPage = lazy(() => import('@/pages/ResultsPage'));
 const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'));
@@ -58,6 +59,7 @@ function App() {
                   <Route path="/favorites" element={<FavoritesPage />} />
                   <Route path="/wine/:id" element={<WineDetailsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/learn" element={<LearnPage />} />
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />

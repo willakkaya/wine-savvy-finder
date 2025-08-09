@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wine, Menu, X, Heart, Settings, HelpCircle } from 'lucide-react';
+import { Wine, Menu, X, Heart, Settings, HelpCircle, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -106,6 +106,16 @@ const Header: React.FC = () => {
                 Favorites
               </Link>
               <Link
+                to="/learn"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive('/learn') 
+                    ? 'text-wine bg-wine/5' 
+                    : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
+                }`}
+              >
+                Learn
+              </Link>
+              <Link
                 to="/settings"
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/settings') 
@@ -184,6 +194,18 @@ const Header: React.FC = () => {
             >
               <Settings className="mr-2 h-4 w-4" />
               Settings
+            </Link>
+            <Link
+              to="/faq"
+              className={`flex items-center px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
+                isActive('/learn') 
+                  ? 'text-wine bg-wine/5' 
+                  : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <BookOpen className="mr-2 h-4 w-4" />
+              Learn
             </Link>
             <Link
               to="/faq"
