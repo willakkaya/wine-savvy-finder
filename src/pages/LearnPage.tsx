@@ -50,13 +50,23 @@ const LearnPage: React.FC = () => {
 
   return (
     <PageContainer title="Learn About Wine" className="max-w-4xl mx-auto">
-      <header className="mb-8 text-center">
-        <h1 className="text-3xl md:text-4xl font-serif text-foreground mb-3">Learn About Wine</h1>
-        <p className="text-muted-foreground">A concise, practical guide—master sommelier tone, Wine Folly clarity.</p>
+      <header className="mb-6 text-center">
+        <h1 className="text-3xl md:text-4xl font-serif text-foreground mb-2">Learn About Wine</h1>
       </header>
 
+      <nav aria-label="On this page" className="mb-8">
+        <ul className="flex flex-wrap gap-2 justify-center">
+          <li><a href="#varieties" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Varieties</a></li>
+          <li><a href="#tasting" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Tasting</a></li>
+          <li><a href="#pairing" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Pairing</a></li>
+          <li><a href="#regions" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Regions</a></li>
+          <li><a href="#serving" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Serving</a></li>
+          <li><a href="#glossary" className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition">Glossary</a></li>
+        </ul>
+      </nav>
+
       <main className="space-y-8 text-base md:text-lg leading-relaxed">
-        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+        <section id="varieties" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
           <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">1) Grape Varieties & Styles</h2>
           <p className="text-foreground/90 mb-4">Grape variety shapes aroma, texture, and structure. Start with these benchmarks:</p>
           <ul className="list-disc pl-5 space-y-2 text-foreground/90 marker:text-primary leading-relaxed">
@@ -71,7 +81,7 @@ const LearnPage: React.FC = () => {
           </ul>
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+        <section id="tasting" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
           <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">2) How to Taste Like a Pro</h2>
           <article className="space-y-3 text-foreground/90">
             <p><strong>Look</strong>: assess color and intensity—age deepens whites (golden) and fades reds (brick rim).</p>
@@ -81,7 +91,7 @@ const LearnPage: React.FC = () => {
           </article>
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+        <section id="pairing" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
           <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">3) Food Pairing Fundamentals</h2>
           <div className="space-y-3 text-foreground/90">
             <p><strong>Match intensity</strong>: delicate wines with delicate dishes; bold with bold.</p>
@@ -92,7 +102,7 @@ const LearnPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+        <section id="regions" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
           <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">4) Regions to Know</h2>
           <div className="grid md:grid-cols-2 gap-6 text-foreground/90">
             <article>
@@ -116,7 +126,7 @@ const LearnPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+        <section id="serving" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
           <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">5) Serving & Cellaring</h2>
           <ul className="list-disc pl-5 space-y-2 text-foreground/90 marker:text-primary leading-relaxed">
             <li><strong>Temperature</strong>: Sparkling 42–50°F; Whites 45–55°F; Light Reds 55–60°F; Full Reds 60–65°F.</li>
@@ -126,7 +136,7 @@ const LearnPage: React.FC = () => {
           </ul>
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+        <section id="glossary" className="rounded-xl border border-border border-t-4 border-primary/30 bg-card p-6 md:p-8 shadow-apple">
           <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">Quick Glossary</h2>
           <div className="grid md:grid-cols-2 gap-6 text-foreground/90">
             <dl className="space-y-2">
