@@ -51,15 +51,15 @@ const LearnPage: React.FC = () => {
   return (
     <PageContainer title="Learn About Wine" className="max-w-4xl mx-auto">
       <header className="mb-8 text-center">
-        <h1 className="text-3xl md:text-4xl font-serif text-wine-dark mb-3">Learn About Wine</h1>
+        <h1 className="text-3xl md:text-4xl font-serif text-foreground mb-3">Learn About Wine</h1>
         <p className="text-muted-foreground">A concise, practical guide—master sommelier tone, Wine Folly clarity.</p>
       </header>
 
-      <main className="space-y-10">
-        <section>
-          <h2 className="text-xl md:text-2xl font-semibold text-wine mb-2">1) Grape Varieties & Styles</h2>
+      <main className="space-y-8 text-base md:text-lg leading-relaxed">
+        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">1) Grape Varieties & Styles</h2>
           <p className="text-foreground/90 mb-4">Grape variety shapes aroma, texture, and structure. Start with these benchmarks:</p>
-          <ul className="list-disc pl-5 space-y-2 text-foreground/90">
+          <ul className="list-disc pl-5 space-y-2 text-foreground/90 marker:text-primary leading-relaxed">
             <li><strong>Cabernet Sauvignon</strong>: blackcurrant, cedar, firm tannin; great with grilled meats.</li>
             <li><strong>Pinot Noir</strong>: cherry, mushroom, silky tannin; versatile with poultry and salmon.</li>
             <li><strong>Syrah/Shiraz</strong>: blackberry, pepper, bold texture; excels with barbecue and stews.</li>
@@ -71,8 +71,8 @@ const LearnPage: React.FC = () => {
           </ul>
         </section>
 
-        <section>
-          <h2 className="text-xl md:text-2xl font-semibold text-wine mb-2">2) How to Taste Like a Pro</h2>
+        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">2) How to Taste Like a Pro</h2>
           <article className="space-y-3 text-foreground/90">
             <p><strong>Look</strong>: assess color and intensity—age deepens whites (golden) and fades reds (brick rim).</p>
             <p><strong>Smell</strong>: swirl to release aromas; note fruit, floral, herbal, spice, oak, and earth tones.</p>
@@ -81,8 +81,8 @@ const LearnPage: React.FC = () => {
           </article>
         </section>
 
-        <section>
-          <h2 className="text-xl md:text-2xl font-semibold text-wine mb-2">3) Food Pairing Fundamentals</h2>
+        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">3) Food Pairing Fundamentals</h2>
           <div className="space-y-3 text-foreground/90">
             <p><strong>Match intensity</strong>: delicate wines with delicate dishes; bold with bold.</p>
             <p><strong>Acid loves fat</strong>: crisp whites and high-acid reds cut through rich, creamy foods.</p>
@@ -92,12 +92,12 @@ const LearnPage: React.FC = () => {
           </div>
         </section>
 
-        <section>
-          <h2 className="text-xl md:text-2xl font-semibold text-wine mb-2">4) Regions to Know</h2>
+        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">4) Regions to Know</h2>
           <div className="grid md:grid-cols-2 gap-6 text-foreground/90">
             <article>
               <h3 className="font-semibold mb-1">Old World</h3>
-              <ul className="list-disc pl-5 space-y-1">
+              <ul className="list-disc pl-5 space-y-1 marker:text-primary leading-relaxed">
                 <li><strong>Bordeaux</strong>: Cabernet/Merlot blends; cedar, cassis, structure.</li>
                 <li><strong>Burgundy</strong>: Pinot Noir and Chardonnay; purity, elegance, terroir.</li>
                 <li><strong>Champagne</strong>: benchmark sparkling; finesse, complexity.</li>
@@ -106,7 +106,7 @@ const LearnPage: React.FC = () => {
             </article>
             <article>
               <h3 className="font-semibold mb-1">New World</h3>
-              <ul className="list-disc pl-5 space-y-1">
+              <ul className="list-disc pl-5 space-y-1 marker:text-primary leading-relaxed">
                 <li><strong>Napa Valley</strong>: powerful Cabernet; ripe fruit, new oak.</li>
                 <li><strong>Sonoma</strong>: diverse styles; Pinot, Chardonnay, Zinfandel.</li>
                 <li><strong>Marlborough</strong>: zesty Sauvignon Blanc; citrus, passionfruit.</li>
@@ -116,9 +116,9 @@ const LearnPage: React.FC = () => {
           </div>
         </section>
 
-        <section>
-          <h2 className="text-xl md:text-2xl font-semibold text-wine mb-2">5) Serving & Cellaring</h2>
-          <ul className="list-disc pl-5 space-y-2 text-foreground/90">
+        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">5) Serving & Cellaring</h2>
+          <ul className="list-disc pl-5 space-y-2 text-foreground/90 marker:text-primary leading-relaxed">
             <li><strong>Temperature</strong>: Sparkling 42–50°F; Whites 45–55°F; Light Reds 55–60°F; Full Reds 60–65°F.</li>
             <li><strong>Glassware</strong>: larger bowls for reds, tulip shapes for whites and sparkling.</li>
             <li><strong>Decanting</strong>: soften tannins and blow off reduction; essential for young, structured reds.</li>
@@ -126,8 +126,8 @@ const LearnPage: React.FC = () => {
           </ul>
         </section>
 
-        <section>
-          <h2 className="text-xl md:text-2xl font-semibold text-wine mb-2">Quick Glossary</h2>
+        <section className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-apple">
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-4">Quick Glossary</h2>
           <div className="grid md:grid-cols-2 gap-6 text-foreground/90">
             <dl className="space-y-2">
               <dt className="font-semibold">Acidity</dt>
@@ -148,7 +148,7 @@ const LearnPage: React.FC = () => {
           </div>
         </section>
 
-        <aside className="bg-cream border border-wine/10 rounded-lg p-4">
+        <aside className="bg-card border border-border rounded-lg p-4 shadow-apple">
           <p className="text-sm text-foreground/90"><strong>Pro tip:</strong> Keep notes on what you taste—variety, region, producer, vintage, and why you liked it. Patterns emerge quickly.</p>
         </aside>
       </main>
