@@ -22,13 +22,8 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
-      external: (id) => {
-        // Externalize Capacitor dependencies in web builds
-        if (id.includes('@capacitor/')) {
-          return true;
-        }
-        return false;
-      },
+      // Do not externalize Capacitor packages so they bundle correctly in web builds
+      external: () => false,
     },
   },
   define: {
