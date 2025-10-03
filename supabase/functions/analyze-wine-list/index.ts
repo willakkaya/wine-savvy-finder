@@ -24,13 +24,13 @@ function inferWineType(wineName: string, region?: string): 'red' | 'white' | 'sp
   // Check for sparkling indicators
   if (name.includes('champagne') || name.includes('prosecco') || name.includes('cava') || 
       name.includes('sparkling') || reg.includes('champagne') || name.includes('dom perignon') ||
-      name.includes('veuve clicquot') || name.includes('moët')) {
+      name.includes('veuve clicquot') || name.includes('moët') || name.includes('blanc de blanc')) {
     return 'sparkling';
   }
   
   // Check for rosé indicators
   if (name.includes('rosé') || name.includes('rose') || name.includes('pink') ||
-      reg.includes('provence') || name.includes('whispering angel')) {
+      reg.includes('provence') || name.includes('whispering angel') || name.includes('cremant') && name.includes('rose')) {
     return 'rose';
   }
   
@@ -45,20 +45,25 @@ function inferWineType(wineName: string, region?: string): 'red' | 'white' | 'sp
   if (name.includes('chardonnay') || name.includes('sauvignon blanc') || name.includes('pinot grigio') ||
       name.includes('pinot gris') || name.includes('riesling') || name.includes('albariño') ||
       name.includes('viognier') || name.includes('white') || name.includes('blanc') ||
-      reg.includes('chablis') || reg.includes('sancerre')) {
+      name.includes('bourgogne blanc') || reg.includes('chablis') || reg.includes('sancerre')) {
     return 'white';
   }
   
-  // Check for red wine indicators
+  // Check for red wine indicators (expanded list)
   if (name.includes('cabernet') || name.includes('merlot') || name.includes('pinot noir') ||
       name.includes('syrah') || name.includes('shiraz') || name.includes('malbec') ||
       name.includes('zinfandel') || name.includes('red') || name.includes('bordeaux') ||
-      name.includes('burgundy') || name.includes('barolo') || name.includes('chianti') ||
-      name.includes('rioja') || reg.includes('bordeaux') || reg.includes('napa')) {
+      name.includes('burgundy') || name.includes('barolo') || name.includes('barbaresco') ||
+      name.includes('barbera') || name.includes('chianti') || name.includes('brunello') ||
+      name.includes('rioja') || name.includes('tempranillo') || name.includes('sangiovese') ||
+      name.includes('nebbiolo') || name.includes('grenache') || name.includes('nero') ||
+      name.includes('bourgogne rouge') || name.includes('margaux') || name.includes('pauillac') ||
+      reg.includes('bordeaux') || reg.includes('napa') || reg.includes('piedmont') ||
+      reg.includes('tuscany') || reg.includes('rioja')) {
     return 'red';
   }
   
-  // Default to red if no clear indicators
+  // Default to red if no clear indicators (most wine lists are predominantly red)
   return 'red';
 }
 
@@ -104,16 +109,19 @@ serve(async (req) => {
 - priceBottle (if available): By-the-bottle price in dollars (just the number)
 - type (VERY IMPORTANT): Must be one of: red, white, sparkling, rose, or dessert
   * Look at the wine name, grape variety, and region to determine the type
-  * Cabernet, Merlot, Pinot Noir, Syrah = red
+  * Cabernet, Merlot, Pinot Noir, Syrah, Barolo, Chianti = red
   * Chardonnay, Sauvignon Blanc, Pinot Grigio, Riesling = white
   * Champagne, Prosecco, Cava = sparkling
   * Rosé, Provence wines = rose
   * Sauternes, Port, Ice Wine = dessert
 - region (if visible): Wine region/appellation
 
-IMPORTANT: Many wine lists show both by-the-glass (BTG) and by-the-bottle (BTB) prices. Look carefully for both and include whichever you find. At least one price must be present.
-
-CRITICAL: ALWAYS include the "type" field based on the wine name or grape variety. This is essential for filtering.
+CRITICAL INSTRUCTIONS:
+1. BOTTLE PRICES ARE MOST IMPORTANT: Look carefully for bottle prices (BTB). They are usually the larger price number.
+2. GLASS PRICES: Look for by-the-glass prices (BTG). These are usually smaller and may have "glass" or "BTG" label.
+3. If you see TWO prices for a wine, the LARGER one is almost always the bottle price, the smaller is the glass price.
+4. NEVER miss bottle prices - they're critical for value comparison.
+5. ALWAYS include the "type" field based on the wine name or grape variety.
 
 Return ONLY a valid JSON array with no additional text or markdown. Example format:
 [{"name":"Château Margaux","winery":"Château Margaux","year":2018,"priceBottle":450,"type":"red","region":"Margaux"},{"name":"Dom Pérignon","year":2012,"priceGlass":22,"priceBottle":180,"type":"sparkling","region":"Champagne"}]
@@ -255,6 +263,8 @@ If you cannot see any wines clearly, return an empty array: []`
         const wineType = (detectedType && validTypes.includes(detectedType))
           ? detectedType as 'red' | 'white' | 'sparkling' | 'rose' | 'dessert'
           : inferWineType(wine.name, wine.region);
+        
+        console.log(`Wine ${index + 1}: ${wine.name} - Type detected: ${wine.type} -> Final: ${wineType}`);
         
         return {
           id: `scanned-${Date.now()}-${index}`,

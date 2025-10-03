@@ -40,15 +40,27 @@ const ScanPage = () => {
   };
   
   const handleViewResults = () => {
+    console.log('Wine preference selected:', winePreference);
+    console.log('Total wines found:', foundWines.length);
+    console.log('Wine types in results:', foundWines.map(w => `${w.name}: ${w.wineType}`));
+    
     // Filter wines based on preference and price range
     let filteredWines = winePreference === 'all' 
       ? foundWines 
-      : foundWines.filter(wine => wine.wineType === winePreference);
+      : foundWines.filter(wine => {
+          const matches = wine.wineType === winePreference;
+          console.log(`${wine.name} (${wine.wineType}) matches ${winePreference}? ${matches}`);
+          return matches;
+        });
+    
+    console.log('After type filter:', filteredWines.length);
     
     // Filter by price range
     filteredWines = filteredWines.filter(wine => 
       wine.price >= priceRange.min && wine.price <= priceRange.max
     );
+    
+    console.log('After price filter:', filteredWines.length);
     
     if (filteredWines.length === 0) {
       toast.info('No wines match your filters', {
