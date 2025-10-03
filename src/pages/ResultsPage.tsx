@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Camera, Info, WifiOff, History } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import WineCardLink from '@/components/wine/WineCardLink';
 import { WineInfo } from '@/components/wine/WineCard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -30,6 +30,7 @@ const ResultsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Check network status
   useEffect(() => {
@@ -48,7 +49,7 @@ const ResultsPage: React.FC = () => {
     };
   }, []);
   
-  // Load results from sessionStorage on component mount
+  // Load results from navigation state or sessionStorage on component mount
   useEffect(() => {
     setLoading(true);
     
@@ -56,30 +57,22 @@ const ResultsPage: React.FC = () => {
     const isOffline = !navigator.onLine;
     setNetworkError(isOffline);
     
-    // Get results from session storage first (most recent scan)
-    const resultsData = sessionStorage.getItem('scanResults');
+    // First, check if wines were passed via navigation state (from scan page)
+    const stateWines = location.state?.wines;
     
-    if (resultsData) {
-      try {
-        const parsedResults = JSON.parse(resultsData);
-        setWines(parsedResults);
-        
-        // Store wines in our cache for easy access from detail pages
-        storeWineResults(parsedResults);
-        
-        // Also store in offline storage for future use
-        storeWinesOffline(parsedResults);
-        
-        setLoading(false);
-        setIsOfflineData(false);
-      } catch (error) {
-        console.error('Error parsing scan results:', error);
-        
-        // If parsing fails, try to get offline data
-        loadOfflineData();
-      }
+    if (stateWines && Array.isArray(stateWines) && stateWines.length > 0) {
+      setWines(stateWines);
+      
+      // Store wines in our cache for easy access from detail pages
+      storeWineResults(stateWines);
+      
+      // Also store in offline storage for future use
+      storeWinesOffline(stateWines);
+      
+      setLoading(false);
+      setIsOfflineData(false);
     } else if (isOffline) {
-      // No session results and we're offline, load from local storage
+      // No navigation state and we're offline, load from local storage
       loadOfflineData();
     } else {
       // No results found, show a toast and then navigate back after a delay
@@ -89,7 +82,7 @@ const ResultsPage: React.FC = () => {
       setTimeout(() => navigate('/scan'), 2000);
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, location.state]);
   
   // Load data from offline storage
   const loadOfflineData = () => {

@@ -31,13 +31,8 @@ const ScanPage = () => {
   };
   
   const handleViewResults = () => {
-    // Strip base64 images to avoid QuotaExceededError (they're too large for sessionStorage)
-    const winesWithoutImages = foundWines.map(wine => ({
-      ...wine,
-      imageUrl: wine.imageUrl?.startsWith('data:') ? undefined : wine.imageUrl
-    }));
-    sessionStorage.setItem('scanResults', JSON.stringify(winesWithoutImages));
-    navigate('/results');
+    // Pass wines with full image data via navigation state (avoids sessionStorage quota limits)
+    navigate('/results', { state: { wines: foundWines } });
   };
   
   return (
