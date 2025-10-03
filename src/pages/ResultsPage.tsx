@@ -79,13 +79,20 @@ const ResultsPage: React.FC = () => {
     
     if (stateWines && Array.isArray(stateWines) && stateWines.length > 0) {
       console.log('ResultsPage - Setting wines to:', stateWines.length, 'wines');
-      setWines(stateWines);
       
-      // Store wines in our cache for easy access from detail pages
-      storeWineResults(stateWines);
+      // IMPORTANT: Completely clear old state first to prevent mixing data
+      localStorage.removeItem('offlineScannedWines');
+      localStorage.removeItem('offlineWinesTimestamp');
+      setWines([]);
       
-      // Also store in offline storage for future use
-      storeWinesOffline(stateWines);
+      // Now set the new filtered wines
+      setTimeout(() => {
+        setWines(stateWines);
+        // Store wines in our cache
+        storeWineResults(stateWines);
+        // Store in offline storage (replaces old data)
+        storeWinesOffline(stateWines);
+      }, 0);
       
       setLoading(false);
       setIsOfflineData(false);
