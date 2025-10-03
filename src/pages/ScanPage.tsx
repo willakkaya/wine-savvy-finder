@@ -93,7 +93,7 @@ const ScanPage = () => {
   
   return (
     <PageContainer title="Scan Wine List" className="relative">
-      <div className="flex flex-col items-center max-w-md mx-auto pb-6 space-y-6">
+      <div className="flex flex-col items-center max-w-5xl mx-auto pb-6 space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl md:text-3xl font-serif">Scan Wine List</h1>
           <p className="text-muted-foreground text-sm">
@@ -103,7 +103,7 @@ const ScanPage = () => {
         
         {/* Preferences - Always show before and during scan */}
         {scanStage !== 'complete' && (
-          <div className="w-full space-y-4">
+          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
             <ScenarioPreferences
               selectedScenario={scenarioPreference}
               onSelectScenario={handleScenarioChange}
