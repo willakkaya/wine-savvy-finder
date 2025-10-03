@@ -38,8 +38,9 @@ serve(async (req) => {
 
     console.log(`Generating sommelier recommendations for ${wines.length} wines...`);
 
-    // Build wine list summary for the AI
-    const wineList = wines.map((w: Wine, i: number) => 
+    // Build wine list summary for the AI (limit to top 10 wines for faster processing)
+    const topWines = wines.slice(0, 10);
+    const wineList = topWines.map((w: Wine, i: number) => 
       `${i + 1}. ${w.name} - ${w.winery} ${w.year}
          Region: ${w.region}, ${w.country}
          Type: ${w.wineType}
@@ -47,8 +48,13 @@ serve(async (req) => {
          Rating: ${w.rating}/100 | Value Score: ${w.valueScore}/100`
     ).join('\n\n');
 
-    // Call Lovable AI for sommelier recommendations
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Create timeout promise
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout - AI taking too long')), 25000); // 25 second timeout
+    });
+
+    // Call Lovable AI for sommelier recommendations with timeout
+    const aiPromise = fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
@@ -59,27 +65,27 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a Master Sommelier with decades of experience. Provide sophisticated wine recommendations with the expertise, vocabulary, and insight of a true wine professional. Be specific about flavor profiles, food pairings, and why each wine is exceptional. Use evocative language that brings the wine to life.`
+            content: `You are a Master Sommelier. Provide sophisticated, concise wine recommendations.`
           },
           {
             role: 'user',
-            content: `Analyze this wine list and recommend the TOP 3 wines I should order. For each recommendation, explain:
-
-1. Why it's exceptional (terroir, winemaking, vintage)
-2. Specific tasting notes and characteristics
-3. Perfect food pairings
-4. Value consideration (if it's a good deal, mention it elegantly)
+            content: `Recommend the TOP 3 wines from this list. For each, briefly explain:
+1. Why it's exceptional
+2. Key tasting notes
+3. Perfect pairings
 
 Wine List:
 ${wineList}
 
-Provide 3 detailed recommendations in a conversational, sophisticated tone. Each recommendation should be 3-4 sentences.`
+Keep each recommendation to 2-3 sentences. Be sophisticated yet concise.`
           }
         ],
-        max_tokens: 2000,
-        temperature: 0.8,
+        max_tokens: 800,
+        temperature: 0.7,
       }),
     });
+    
+    const response = await Promise.race([aiPromise, timeoutPromise]) as Response;
 
     if (!response.ok) {
       const errorText = await response.text();
