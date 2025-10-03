@@ -9,6 +9,7 @@ import ScanActions from '@/components/scan/ScanActions';
 import NetworkErrorAlert from '@/components/scan/NetworkErrorAlert';
 import OfflineOptionsAlert from '@/components/scan/OfflineOptionsAlert';
 import { WinePreferences, WineType } from '@/components/scan/WinePreferences';
+import { ScenarioPreferences, ScenarioType } from '@/components/scan/ScenarioPreferences';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { useScanProcess } from '@/hooks/useScanProcess';
 import { toast } from 'sonner';
@@ -17,6 +18,7 @@ const ScanPage = () => {
   const { settings } = useAppSettings();
   const navigate = useNavigate();
   const [winePreference, setWinePreference] = useState<WineType>('all');
+  const [scenarioPreference, setScenarioPreference] = useState<ScenarioType>('casual');
   
   const {
     scanStage,
@@ -45,9 +47,9 @@ const ScanPage = () => {
       toast.info(`No ${winePreference} wines found`, {
         description: 'Showing all wines instead'
       });
-      navigate('/results', { state: { wines: foundWines } });
+      navigate('/results', { state: { wines: foundWines, scenario: scenarioPreference } });
     } else {
-      navigate('/results', { state: { wines: filteredWines } });
+      navigate('/results', { state: { wines: filteredWines, scenario: scenarioPreference } });
     }
   };
   
@@ -61,12 +63,18 @@ const ScanPage = () => {
           </p>
         </div>
         
-        {/* Wine Preferences - Always show before and during scan */}
+        {/* Preferences - Always show before and during scan */}
         {scanStage !== 'complete' && (
-          <WinePreferences
-            selectedType={winePreference}
-            onSelectType={setWinePreference}
-          />
+          <div className="w-full space-y-4">
+            <ScenarioPreferences
+              selectedScenario={scenarioPreference}
+              onSelectScenario={setScenarioPreference}
+            />
+            <WinePreferences
+              selectedType={winePreference}
+              onSelectType={setWinePreference}
+            />
+          </div>
         )}
         
         {/* Network/Offline Alerts */}
