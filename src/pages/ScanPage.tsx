@@ -59,6 +59,9 @@ const ScanPage = () => {
   };
   
   const handleViewResults = () => {
+    console.log('=== FILTERING DEBUG ===');
+    console.log('Scenario:', scenarioPreference);
+    console.log('Price Range:', priceRange);
     console.log('Wine preference selected:', winePreference);
     console.log('Total wines found:', foundWines.length);
     console.log('Wine types in results:', foundWines.map(w => `${w.name}: ${w.wineType}`));
@@ -73,13 +76,17 @@ const ScanPage = () => {
         });
     
     console.log('After type filter:', filteredWines.length);
+    console.log('Wines after type filter:', filteredWines.map(w => `${w.name}: $${w.price}`));
     
     // Filter by price range
-    filteredWines = filteredWines.filter(wine => 
-      wine.price >= priceRange.min && wine.price <= priceRange.max
-    );
+    filteredWines = filteredWines.filter(wine => {
+      const inRange = wine.price >= priceRange.min && wine.price <= priceRange.max;
+      console.log(`${wine.name} ($${wine.price}) in range $${priceRange.min}-$${priceRange.max}? ${inRange}`);
+      return inRange;
+    });
     
     console.log('After price filter:', filteredWines.length);
+    console.log('Final wines:', filteredWines.map(w => `${w.name}: $${w.price}`));
     
     if (filteredWines.length === 0) {
       toast.info('No wines match your filters', {
