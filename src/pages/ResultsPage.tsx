@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Camera, Info, WifiOff, History } from 'lucide-react';
@@ -12,6 +12,8 @@ import { storeWineResults } from '@/utils/wineUtils';
 import { getOfflineWines, storeWinesOffline } from '@/utils/offlineUtils'; 
 import WineNotes from '@/components/wine/WineNotes';
 import { Card } from '@/components/ui/card';
+import ResultsFilters from '@/components/results/ResultsFilters';
+import ResultsStats from '@/components/results/ResultsStats';
 
 const ResultsPage: React.FC = () => {
   const [wines, setWines] = useState<WineInfo[]>([]);
@@ -20,6 +22,12 @@ const ResultsPage: React.FC = () => {
   const [networkError, setNetworkError] = useState(false);
   const [isOfflineData, setIsOfflineData] = useState(false);
   const [offlineTimestamp, setOfflineTimestamp] = useState<number | null>(null);
+  
+  // Filter and sort states
+  const [sortBy, setSortBy] = useState<string>('value');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  
   const navigate = useNavigate();
   
   // Check network status
@@ -105,8 +113,59 @@ const ResultsPage: React.FC = () => {
     }
   };
   
-  // Sort wines by value score (highest first)
-  const sortedWines = [...wines].sort((a, b) => b.valueScore - a.valueScore);
+  // Get unique wine types
+  const wineTypes = useMemo(() => {
+    const types = [...new Set(wines.map(w => w.wineType).filter(Boolean))];
+    return types as string[];
+  }, [wines]);
+
+  // Filter and sort wines
+  const filteredAndSortedWines = useMemo(() => {
+    let result = [...wines];
+
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(wine => 
+        wine.name.toLowerCase().includes(query) ||
+        wine.winery.toLowerCase().includes(query) ||
+        wine.region.toLowerCase().includes(query) ||
+        wine.country.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply type filter
+    if (filterType !== 'all') {
+      result = result.filter(wine => wine.wineType === filterType);
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'value':
+          return b.valueScore - a.valueScore;
+        case 'price-low':
+          return a.price - b.price;
+        case 'price-high':
+          return b.price - a.price;
+        case 'rating':
+          return b.rating - a.rating;
+        case 'savings':
+          return (b.marketPrice - b.price) - (a.marketPrice - a.price);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [wines, searchQuery, filterType, sortBy]);
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setFilterType('all');
+    setSortBy('value');
+  };
   
   // Toggle notes expansion
   const toggleNotes = (wineId: string) => {
@@ -172,17 +231,39 @@ const ResultsPage: React.FC = () => {
           </div>
         ) : wines.length > 0 ? (
           <>
+            {/* Stats Cards */}
+            <ResultsStats wines={wines} />
+
+            {/* Filters */}
+            <ResultsFilters
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              filterType={filterType}
+              onFilterTypeChange={setFilterType}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              wineTypes={wineTypes}
+              onReset={handleResetFilters}
+            />
+
+            {/* Results Info */}
             <Alert className="mb-6 bg-wine/5 border-wine/20">
               <Info className="h-4 w-4 text-wine" />
-              <AlertTitle>Wine Analysis Results</AlertTitle>
+              <AlertTitle>
+                {filteredAndSortedWines.length === wines.length 
+                  ? `Showing all ${wines.length} wines`
+                  : `Showing ${filteredAndSortedWines.length} of ${wines.length} wines`
+                }
+              </AlertTitle>
               <AlertDescription>
-                We found {wines.length} wines on the list. Wines are sorted by value (best deals first).
-                Tap a wine card to view detailed notes.
+                Tap a wine card to view detailed notes and food pairings.
               </AlertDescription>
             </Alert>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-              {sortedWines.map((wine, index) => (
+            {/* Wine Grid */}
+            {filteredAndSortedWines.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                {filteredAndSortedWines.map((wine, index) => (
                 <div 
                   key={wine.id} 
                   className="animate-fadeIn flex flex-col"
@@ -211,9 +292,17 @@ const ResultsPage: React.FC = () => {
                       </div>
                     </Card>
                   )}
-                </div>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground mb-4">No wines match your filters</p>
+                <Button variant="outline" onClick={handleResetFilters}>
+                  Clear Filters
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <div className="w-full flex flex-col items-center justify-center p-12 text-center">
