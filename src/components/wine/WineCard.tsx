@@ -37,11 +37,16 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
   const { settings } = useAppSettings();
   const isMobile = useIsMobile();
   
-  const savings = ((wine.marketPrice - wine.price) / wine.marketPrice * 100).toFixed(0);
-  const valueLabel = 
-    wine.valueScore > 80 ? 'Exceptional Value' :
-    wine.valueScore > 60 ? 'Great Value' :
-    wine.valueScore > 40 ? 'Good Value' : 'Fair Value';
+  // Handle missing price data
+  const hasPriceData = wine.price && wine.marketPrice;
+  const savings = hasPriceData ? ((wine.marketPrice - wine.price) / wine.marketPrice * 100).toFixed(0) : null;
+  
+  const valueLabel = hasPriceData
+    ? wine.valueScore > 80 ? 'Exceptional Value' :
+      wine.valueScore > 60 ? 'Great Value' :
+      wine.valueScore > 40 ? 'Good Value' : 'Fair Value'
+    : wine.rating > 85 ? 'Highly Rated' :
+      wine.rating > 75 ? 'Well Rated' : 'Good Rating';
 
   // Get appropriate wine type based background gradient
   const getWineTypeGradient = () => {
@@ -112,8 +117,11 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
             <Badge className="bg-wine text-white hover:bg-wine-dark text-xs">
               {valueLabel}
             </Badge>
-            {settings.showSavings && !settings.discreetMode && (
+            {settings.showSavings && !settings.discreetMode && hasPriceData && (
               <span className="text-xs md:text-sm text-wine-dark font-medium">Save {savings}%</span>
+            )}
+            {!hasPriceData && (
+              <span className="text-xs text-muted-foreground">No price data available</span>
             )}
           </div>
           
@@ -127,7 +135,7 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
           )}
           
           {/* Price Information (conditional on settings) */}
-          {(!settings.discreetMode && settings.showPrices) && (
+          {(!settings.discreetMode && settings.showPrices && hasPriceData) && (
             <div className="grid grid-cols-2 gap-1 md:gap-2 text-xs md:text-sm">
               <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
                 <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
@@ -138,6 +146,17 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
                 <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
                 <span className="font-medium">${wine.marketPrice}</span>
                 <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">retail</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Show market price only if available but no restaurant price */}
+          {(!settings.discreetMode && settings.showPrices && !wine.price && wine.marketPrice) && (
+            <div className="bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary text-center">
+              <div className="flex items-center justify-center gap-1">
+                <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
+                <span className="font-medium">${wine.marketPrice}</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">est. retail</span>
               </div>
             </div>
           )}

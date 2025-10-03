@@ -146,20 +146,25 @@ If you cannot see any wines clearly, return an empty array: []`
           }
         }
         
-        // Use extracted price or fallback
-        const restaurantPrice = wine.price || 50;
+        // Use extracted price only if detected (don't make up prices)
+        const restaurantPrice = wine.price;
         
-        // Calculate market price from Vivino or estimate
+        // Calculate market price from Vivino only
         const marketPrice = vivinoData?.price?.amount 
           ? Math.round(vivinoData.price.amount * 1.2) 
-          : Math.round(restaurantPrice * 1.3);
+          : null;
         
         // Get rating from Vivino (convert 1-5 to 1-100 scale)
         const vivinoRating = vivinoData?.statistics?.ratings_average || null;
         const rating = vivinoRating ? Math.round(vivinoRating * 20) : Math.round(75 + Math.random() * 15);
         
-        // Calculate value score (1-100)
-        const calculateValueScore = (price: number, market: number, rating: number): number => {
+        // Calculate value score (1-100) only if both prices exist
+        const calculateValueScore = (price: number | null, market: number | null, rating: number): number => {
+          if (!price || !market) {
+            // No value comparison possible, score based on rating only
+            return Math.round((rating / 100) * 100);
+          }
+          
           const savings = market - price;
           const savingsPercent = (savings / market) * 100;
           
