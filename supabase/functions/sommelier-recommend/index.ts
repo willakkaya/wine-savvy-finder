@@ -38,36 +38,57 @@ serve(async (req) => {
 
     console.log(`Generating sommelier recommendations for ${wines.length} wines (${scenario} scenario)...`);
 
-    // Scenario-specific guidance
+    // Professional Master Sommelier evaluation framework
     const scenarioContext = {
       impress: {
-        focus: 'prestigious wines that will impress',
-        criteria: 'highest-rated, acclaimed producers, prestigious regions, and wines with compelling stories',
-        tone: 'sophisticated and confident'
+        focus: 'selections that demonstrate sophistication and wine knowledge',
+        methodology: `MASTER SOMMELIER EVALUATION CRITERIA:
+1. PROVENANCE & PEDIGREE: First-growth estates, benchmark producers, historic vintages
+2. TERROIR EXPRESSION: Authentic regional character, site-specific qualities
+3. CRITICAL ACCLAIM: Ratings, awards, vintage conditions, aging potential
+4. NARRATIVE VALUE: Compelling stories about winemaker, estate history, or unique production
+5. PRESTIGE SIGNALING: Wines that demonstrate refined taste and wine knowledge
+6. FOOD PAIRING: Versatility with fine dining, proper service considerations`,
+        tone: 'authoritative yet approachable, use professional terminology'
       },
       casual: {
-        focus: 'approachable, easy-drinking wines',
-        criteria: 'balanced, food-friendly wines that are enjoyable without pretension',
-        tone: 'relaxed and friendly'
+        focus: 'approachable wines that are immediately enjoyable and conversation-friendly',
+        methodology: `MASTER SOMMELIER EVALUATION CRITERIA:
+1. APPROACHABILITY: Balanced structure, immediate drinkability, no demanding characteristics
+2. FLAVOR PROFILE: Clean fruit expression, integrated oak (if any), pleasant finish
+3. FOOD VERSATILITY: Pairs well across cuisines, good acidity, moderate alcohol
+4. VALUE PERCEPTION: Quality-to-price ratio, authentic varietal/regional character
+5. ACCESSIBILITY: Recognizable style, not intimidating, conversation-starter potential
+6. BY-THE-GLASS APPEAL: Would work well for casual dining or aperitif`,
+        tone: 'warm and educational, demystify wine without condescension'
       },
       savings: {
-        focus: 'best value wines with highest savings',
-        criteria: 'wines with the biggest discount from market price and strong value scores',
-        tone: 'savvy and practical'
+        focus: 'exceptional value wines offering the best quality-to-price ratios',
+        methodology: `MASTER SOMMELIER EVALUATION CRITERIA:
+1. MARKUP ANALYSIS: Calculate savings percentage, compare to typical restaurant markups
+2. MARKET INTELLIGENCE: Reference current retail/market prices, availability
+3. HIDDEN GEMS: Lesser-known regions, emerging producers, undervalued vintages
+4. QUALITY BENCHMARKING: Compare to prestigious wines at higher price points
+5. VALUE STORYTELLING: Explain WHY this wine is priced favorably
+6. OPPORTUNITY RECOGNITION: Wines normally inaccessible at this price point`,
+        tone: 'savvy and insider-knowledge, celebrate smart wine choices'
       }
     };
 
     const context = scenarioContext[scenario as keyof typeof scenarioContext] || scenarioContext.casual;
 
-    // Build wine list summary for the AI (limit to top 8 wines for faster processing)
+    // Build comprehensive wine data for professional analysis
     const topWines = wines.slice(0, 8);
-    const wineList = topWines.map((w: Wine, i: number) => 
-      `${i + 1}. ${w.name} - ${w.winery} ${w.year}
-         Region: ${w.region}, ${w.country}
-         Type: ${w.wineType}
-         Restaurant: $${w.price} | Market: $${w.marketPrice || 'N/A'}
-         Rating: ${w.rating}/100 | Value Score: ${w.valueScore}/100`
-    ).join('\n\n');
+    const wineList = topWines.map((w: Wine, i: number) => {
+      const savings = w.marketPrice && w.price ? Math.round(((w.marketPrice - w.price) / w.marketPrice) * 100) : 0;
+      const savingsDisplay = savings > 0 ? ` → ${savings}% below market` : '';
+      return `${i + 1}. ${w.name} ${w.year}
+   Producer: ${w.winery}
+   Origin: ${w.region}, ${w.country}
+   Category: ${w.wineType}
+   Restaurant Price: $${w.price}${w.marketPrice ? ` | Market Value: $${w.marketPrice}${savingsDisplay}` : ''}
+   Professional Rating: ${w.rating}/100 | Value Score: ${w.valueScore}/100`;
+    }).join('\n\n');
 
     // Create timeout promise
     const timeoutPromise = new Promise((_, reject) => {
@@ -86,26 +107,49 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a Master Sommelier providing ${context.tone} recommendations. Focus on ${context.focus}.`
+            content: `You are a certified Master Sommelier with Court of Master Sommeliers credentials. You have:
+- Decades of experience evaluating wines through blind tastings
+- Deep knowledge of viticulture, winemaking, and wine regions worldwide  
+- Expertise in wine and food pairing, service, and cellar management
+- The ability to identify terroir characteristics and production methods
+- Professional wine evaluation skills using deductive tasting methodology
+
+Your recommendations should reflect this expertise through:
+- Proper use of professional tasting terminology (structure, tannins, acidity, finish, etc.)
+- Recognition of vintage conditions and aging potential
+- Understanding of regional typicity and producer reputation
+- Practical food pairing suggestions based on the wine's characteristics
+- Value assessment considering typical restaurant markups (usually 2-3x retail)
+
+Tone: ${context.tone}`
           },
           {
             role: 'user',
-            content: `The guest wants to ${context.focus}. Recommend the TOP 3 wines that best match this goal.
+            content: `The guest is dining out and wants to ${context.focus}.
 
-Selection Criteria: Prioritize ${context.criteria}.
+EVALUATION FRAMEWORK:
+${context.methodology}
 
-For each wine, briefly explain:
-1. Why it's perfect for this occasion
-2. Key characteristics
-3. What makes it stand out
+From the wine list below, recommend exactly 3 wines that best serve this goal.
 
-Wine List:
+STRUCTURE YOUR RECOMMENDATIONS AS A MASTER SOMMELIER WOULD:
+
+For each wine, provide:
+1. **Selection Rationale** (1 sentence): Why this wine specifically for this occasion
+2. **Professional Tasting Notes** (1-2 sentences): Key aromatic/flavor profiles, structure, finish
+3. **Pairing & Service** (1 sentence): Food pairing suggestions OR service notes
+
+Use professional wine terminology naturally. Reference specific characteristics like vintage, terroir, or production methods when relevant.
+
+Keep each wine recommendation to 3-4 sentences maximum. Be ${context.tone}.
+
+WINE LIST:
 ${wineList}
 
-Keep each recommendation to 2-3 sentences total. Be ${context.tone}.`
+Format your response with clear wine names as headers, then your recommendation beneath each.`
           }
         ],
-        max_tokens: 800,
+        max_tokens: 1200,
         temperature: 0.7,
       }),
     });
