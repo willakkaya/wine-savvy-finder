@@ -8,9 +8,10 @@ import { WineInfo } from '@/components/wine/WineCard';
 
 interface SommelierRecommendationsProps {
   wines: WineInfo[];
+  scenario?: 'impress' | 'casual' | 'savings';
 }
 
-export const SommelierRecommendations = ({ wines }: SommelierRecommendationsProps) => {
+export const SommelierRecommendations = ({ wines, scenario = 'casual' }: SommelierRecommendationsProps) => {
   const [recommendation, setRecommendation] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,7 +19,7 @@ export const SommelierRecommendations = ({ wines }: SommelierRecommendationsProp
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('sommelier-recommend', {
-        body: { wines }
+        body: { wines, scenario }
       });
 
       if (error) throw error;

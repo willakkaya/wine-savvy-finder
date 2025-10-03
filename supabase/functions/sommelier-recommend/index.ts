@@ -25,7 +25,7 @@ serve(async (req) => {
   }
 
   try {
-    const { wines } = await req.json();
+    const { wines, scenario = 'casual' } = await req.json();
     
     if (!wines || wines.length === 0) {
       throw new Error('No wines provided');
@@ -36,10 +36,31 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log(`Generating sommelier recommendations for ${wines.length} wines...`);
+    console.log(`Generating sommelier recommendations for ${wines.length} wines (${scenario} scenario)...`);
 
-    // Build wine list summary for the AI (limit to top 10 wines for faster processing)
-    const topWines = wines.slice(0, 10);
+    // Scenario-specific guidance
+    const scenarioContext = {
+      impress: {
+        focus: 'prestigious wines that will impress',
+        criteria: 'highest-rated, acclaimed producers, prestigious regions, and wines with compelling stories',
+        tone: 'sophisticated and confident'
+      },
+      casual: {
+        focus: 'approachable, easy-drinking wines',
+        criteria: 'balanced, food-friendly wines that are enjoyable without pretension',
+        tone: 'relaxed and friendly'
+      },
+      savings: {
+        focus: 'best value wines with highest savings',
+        criteria: 'wines with the biggest discount from market price and strong value scores',
+        tone: 'savvy and practical'
+      }
+    };
+
+    const context = scenarioContext[scenario as keyof typeof scenarioContext] || scenarioContext.casual;
+
+    // Build wine list summary for the AI (limit to top 8 wines for faster processing)
+    const topWines = wines.slice(0, 8);
     const wineList = topWines.map((w: Wine, i: number) => 
       `${i + 1}. ${w.name} - ${w.winery} ${w.year}
          Region: ${w.region}, ${w.country}
@@ -65,19 +86,23 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a Master Sommelier. Provide sophisticated, concise wine recommendations.`
+            content: `You are a Master Sommelier providing ${context.tone} recommendations. Focus on ${context.focus}.`
           },
           {
             role: 'user',
-            content: `Recommend the TOP 3 wines from this list. For each, briefly explain:
-1. Why it's exceptional
-2. Key tasting notes
-3. Perfect pairings
+            content: `The guest wants to ${context.focus}. Recommend the TOP 3 wines that best match this goal.
+
+Selection Criteria: Prioritize ${context.criteria}.
+
+For each wine, briefly explain:
+1. Why it's perfect for this occasion
+2. Key characteristics
+3. What makes it stand out
 
 Wine List:
 ${wineList}
 
-Keep each recommendation to 2-3 sentences. Be sophisticated yet concise.`
+Keep each recommendation to 2-3 sentences total. Be ${context.tone}.`
           }
         ],
         max_tokens: 800,

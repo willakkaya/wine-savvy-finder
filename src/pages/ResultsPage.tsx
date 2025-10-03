@@ -31,6 +31,7 @@ const ResultsPage: React.FC = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
+  const scenario = location.state?.scenario || 'casual';
   
   // Check network status
   useEffect(() => {
@@ -230,7 +231,7 @@ const ResultsPage: React.FC = () => {
 
             {/* Sommelier Recommendations */}
             <div className="w-full mb-6">
-              <SommelierRecommendations wines={wines} />
+              <SommelierRecommendations wines={wines} scenario={scenario} />
             </div>
 
             {/* Filters */}
