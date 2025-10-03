@@ -1,4 +1,16 @@
 import { WineInfo } from '@/components/wine/WineCard';
+import chateauMargauxImg from '@/assets/wine-chateau-margaux.jpg';
+import caymusImg from '@/assets/wine-caymus.jpg';
+import cloudyBayImg from '@/assets/wine-cloudy-bay.jpg';
+import opusOneImg from '@/assets/wine-opus-one.jpg';
+import domPerignonImg from '@/assets/wine-dom-perignon.jpg';
+import yquemImg from '@/assets/wine-yquem.jpg';
+import penfoldsImg from '@/assets/wine-penfolds-grange.jpg';
+import tignanelloImg from '@/assets/wine-tignanello.jpg';
+import sassicaiaImg from '@/assets/wine-sassicaia.jpg';
+import silverOakImg from '@/assets/wine-silver-oak.jpg';
+import whisperingAngelImg from '@/assets/wine-whispering-angel.jpg';
+import stagsLeapImg from '@/assets/wine-stags-leap.jpg';
 
 export const demoWines: WineInfo[] = [
   {
@@ -13,7 +25,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.8,
     valueScore: 92,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: chateauMargauxImg
   },
   {
     id: '2',
@@ -27,7 +39,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.5,
     valueScore: 88,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: caymusImg
   },
   {
     id: '3',
@@ -41,7 +53,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.3,
     valueScore: 85,
     wineType: 'white',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: cloudyBayImg
   },
   {
     id: '4',
@@ -55,7 +67,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.7,
     valueScore: 90,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: opusOneImg
   },
   {
     id: '5',
@@ -69,7 +81,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.9,
     valueScore: 94,
     wineType: 'sparkling',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: domPerignonImg
   },
   {
     id: '6',
@@ -83,7 +95,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.8,
     valueScore: 91,
     wineType: 'dessert',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: yquemImg
   },
   {
     id: '7',
@@ -97,7 +109,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.7,
     valueScore: 89,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: penfoldsImg
   },
   {
     id: '8',
@@ -111,7 +123,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.6,
     valueScore: 87,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: tignanelloImg
   },
   {
     id: '9',
@@ -125,7 +137,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.8,
     valueScore: 93,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: sassicaiaImg
   },
   {
     id: '10',
@@ -139,7 +151,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.4,
     valueScore: 86,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: silverOakImg
   },
   {
     id: '11',
@@ -153,7 +165,7 @@ export const demoWines: WineInfo[] = [
     rating: 4.2,
     valueScore: 84,
     wineType: 'rose',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: whisperingAngelImg
   },
   {
     id: '12',
@@ -167,6 +179,6 @@ export const demoWines: WineInfo[] = [
     rating: 4.3,
     valueScore: 85,
     wineType: 'red',
-    imageUrl: '/wine-background.jpg'
+    imageUrl: stagsLeapImg
   }
 ];
