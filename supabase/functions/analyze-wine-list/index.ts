@@ -115,20 +115,79 @@ If you cannot see any wines clearly, return an empty array: []`
 
     console.log(`Successfully extracted ${wines.length} wines`);
 
-    // Enrich wines with IDs and additional data
-    const enrichedWines = wines.map((wine, index) => ({
-      id: `scanned-${Date.now()}-${index}`,
-      name: wine.name,
-      winery: wine.winery || 'Unknown',
-      year: wine.year || new Date().getFullYear(),
-      region: wine.region || 'Unknown',
-      country: 'Unknown', // Could enhance with region lookup
-      price: wine.price,
-      marketPrice: Math.round(wine.price * 1.3), // Estimate 30% markup
-      rating: 4.0 + Math.random(), // Mock rating for now
-      valueScore: Math.round(70 + Math.random() * 25), // Mock value score
-      wineType: wine.type || 'red',
-    }));
+    // Enrich wines with Vivino data
+    const enrichedWines = await Promise.all(
+      wines.map(async (wine, index) => {
+        const searchQuery = `${wine.winery || ''} ${wine.name || ''} ${wine.year || ''}`.trim();
+        
+        // Try to fetch from Vivino
+        let vivinoData = null;
+        if (searchQuery) {
+          try {
+            console.log(`Searching Vivino for: ${searchQuery}`);
+            const vivinoResponse = await fetch(
+              `https://www.vivino.com/api/wines?q=${encodeURIComponent(searchQuery)}&per_page=1`,
+              {
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                },
+              }
+            );
+            
+            if (vivinoResponse.ok) {
+              const data = await vivinoResponse.json();
+              if (data.wines && data.wines.length > 0) {
+                vivinoData = data.wines[0];
+                console.log(`Found Vivino data for: ${wine.name}`);
+              }
+            }
+          } catch (error) {
+            console.error(`Vivino search failed for ${wine.name}:`, error);
+          }
+        }
+        
+        // Use extracted price or fallback
+        const restaurantPrice = wine.price || 50;
+        
+        // Calculate market price from Vivino or estimate
+        const marketPrice = vivinoData?.price?.amount 
+          ? Math.round(vivinoData.price.amount * 1.2) 
+          : Math.round(restaurantPrice * 1.3);
+        
+        // Get rating from Vivino (convert 1-5 to 1-100 scale)
+        const vivinoRating = vivinoData?.statistics?.ratings_average || null;
+        const rating = vivinoRating ? Math.round(vivinoRating * 20) : Math.round(75 + Math.random() * 15);
+        
+        // Calculate value score (1-100)
+        const calculateValueScore = (price: number, market: number, rating: number): number => {
+          const savings = market - price;
+          const savingsPercent = (savings / market) * 100;
+          
+          // Base score on savings percentage (0-80 points)
+          let score = Math.min(80, Math.max(0, savingsPercent * 2));
+          
+          // Bonus points for high ratings (0-20 points)
+          score += (rating / 100) * 20;
+          
+          return Math.round(score);
+        };
+        
+        return {
+          id: `scanned-${Date.now()}-${index}`,
+          name: wine.name,
+          winery: wine.winery || vivinoData?.winery?.name || 'Unknown',
+          year: wine.year || vivinoData?.vintage?.year || new Date().getFullYear(),
+          region: wine.region || vivinoData?.region?.name || 'Unknown',
+          country: vivinoData?.region?.country?.name || 'Unknown',
+          price: restaurantPrice,
+          marketPrice,
+          rating,
+          valueScore: calculateValueScore(restaurantPrice, marketPrice, rating),
+          wineType: wine.type || 'red',
+          imageUrl: vivinoData?.image?.location || undefined,
+        };
+      })
+    );
 
     return new Response(
       JSON.stringify({ wines: enrichedWines }),
