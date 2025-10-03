@@ -138,8 +138,12 @@ If you cannot see any wines clearly, return an empty array: []`
               const data = await vivinoResponse.json();
               if (data.wines && data.wines.length > 0) {
                 vivinoData = data.wines[0];
-                console.log(`Found Vivino data for: ${wine.name}`);
+                console.log(`Found Vivino data for: ${wine.name}`, JSON.stringify(vivinoData, null, 2));
+              } else {
+                console.log(`No Vivino results for: ${wine.name}`);
               }
+            } else {
+              console.log(`Vivino API error: ${vivinoResponse.status} for ${wine.name}`);
             }
           } catch (error) {
             console.error(`Vivino search failed for ${wine.name}:`, error);
@@ -187,10 +191,16 @@ If you cannot see any wines clearly, return an empty array: []`
         // Use extracted price only if detected (don't make up prices)
         const restaurantPrice = wine.price;
         
-        // Calculate market price from Vivino only
-        const marketPrice = vivinoData?.price?.amount 
-          ? Math.round(vivinoData.price.amount * 1.2) 
-          : null;
+        // Calculate market price from Vivino or estimate
+        let marketPrice = null;
+        if (vivinoData?.price?.amount) {
+          marketPrice = Math.round(vivinoData.price.amount);
+          console.log(`Vivino price for ${wine.name}: $${marketPrice}`);
+        } else if (restaurantPrice) {
+          // Estimate market price as 70% of restaurant price (typical markup is 1.5-2x)
+          marketPrice = Math.round(restaurantPrice * 0.7);
+          console.log(`Estimated market price for ${wine.name}: $${marketPrice} (from restaurant price $${restaurantPrice})`);
+        }
         
         // Get rating from Vivino (convert 1-5 to 1-100 scale)
         const vivinoRating = vivinoData?.statistics?.ratings_average || null;
