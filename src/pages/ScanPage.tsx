@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import ScanTips from '@/components/scan/ScanTips';
 import ScanContainer from '@/components/scan/ScanContainer';
 import ScanStatusSection from '@/components/scan/ScanStatusSection';
+import { WinePreferences, WineType } from '@/components/scan/WinePreferences';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { useScanProcess } from '@/hooks/useScanProcess';
 import { toast } from 'sonner';
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 const ScanPage = () => {
   const { settings } = useAppSettings();
   const navigate = useNavigate();
+  const [winePreference, setWinePreference] = useState<WineType>('all');
   
   const {
     scanStage,
@@ -31,8 +33,19 @@ const ScanPage = () => {
   };
   
   const handleViewResults = () => {
-    // Pass wines with full image data via navigation state (avoids sessionStorage quota limits)
-    navigate('/results', { state: { wines: foundWines } });
+    // Filter wines based on preference before passing to results
+    const filteredWines = winePreference === 'all' 
+      ? foundWines 
+      : foundWines.filter(wine => wine.wineType === winePreference);
+    
+    if (filteredWines.length === 0 && winePreference !== 'all') {
+      toast.info(`No ${winePreference} wines found`, {
+        description: 'Showing all wines instead'
+      });
+      navigate('/results', { state: { wines: foundWines } });
+    } else {
+      navigate('/results', { state: { wines: filteredWines } });
+    }
   };
   
   return (
@@ -43,7 +56,15 @@ const ScanPage = () => {
           Point your camera at a wine list to analyze prices and find the best values using AI.
         </p>
         
-        <ScanStatusSection 
+        {/* Wine Preferences - Only show when not processing */}
+        {!isProcessing && scanStage === 'idle' && (
+          <WinePreferences
+            selectedType={winePreference}
+            onSelectType={setWinePreference}
+          />
+        )}
+        
+        <ScanStatusSection
           networkError={networkError}
           offlineAvailable={offlineAvailable}
           showOfflineOptions={showOfflineOptions}
