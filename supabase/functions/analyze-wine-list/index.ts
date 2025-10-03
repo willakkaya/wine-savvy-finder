@@ -124,12 +124,11 @@ If you cannot see any wines clearly, return an empty array: []`
       wines.map(async (wine, index) => {
         const searchQuery = `${wine.winery || ''} ${wine.name || ''} ${wine.year || ''}`.trim();
         
-        // Try to fetch from Vivino
+        // Try to fetch from Vivino (with timeout for faster scans)
         let vivinoData = null;
         if (searchQuery) {
           try {
-            console.log(`Searching Vivino for: ${searchQuery}`);
-            const vivinoResponse = await fetch(
+            const vivinoPromise = fetch(
               `https://www.vivino.com/api/wines?q=${encodeURIComponent(searchQuery)}&per_page=1`,
               {
                 headers: {
@@ -138,59 +137,26 @@ If you cannot see any wines clearly, return an empty array: []`
               }
             );
             
+            // Add 3 second timeout for Vivino
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Vivino timeout')), 3000)
+            );
+            
+            const vivinoResponse = await Promise.race([vivinoPromise, timeoutPromise]) as Response;
+            
             if (vivinoResponse.ok) {
               const data = await vivinoResponse.json();
               if (data.wines && data.wines.length > 0) {
                 vivinoData = data.wines[0];
-                console.log(`Found Vivino data for: ${wine.name}`, JSON.stringify(vivinoData, null, 2));
-              } else {
-                console.log(`No Vivino results for: ${wine.name}`);
               }
-            } else {
-              console.log(`Vivino API error: ${vivinoResponse.status} for ${wine.name}`);
             }
           } catch (error) {
-            console.error(`Vivino search failed for ${wine.name}:`, error);
+            // Skip Vivino if it times out or fails
           }
         }
         
-        // Generate wine bottle image if Vivino doesn't have one
-        let imageUrl = vivinoData?.image?.location;
-        if (!imageUrl) {
-          try {
-            console.log(`Generating image for: ${wine.name}`);
-            const imagePrompt = `Professional product photography of a ${wine.type || 'red'} wine bottle labeled "${wine.name}" by ${wine.winery || 'winery'}, elegant lighting, white background, high quality, commercial photography style`;
-            
-            const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                model: 'google/gemini-2.5-flash-image-preview',
-                messages: [
-                  {
-                    role: 'user',
-                    content: imagePrompt
-                  }
-                ],
-                modalities: ['image', 'text']
-              }),
-            });
-            
-            if (imageResponse.ok) {
-              const imageData = await imageResponse.json();
-              const generatedImage = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-              if (generatedImage) {
-                imageUrl = generatedImage;
-                console.log(`Generated image for: ${wine.name}`);
-              }
-            }
-          } catch (error) {
-            console.error(`Image generation failed for ${wine.name}:`, error);
-          }
-        }
+        // Use Vivino image if available, otherwise leave undefined
+        const imageUrl = vivinoData?.image?.location;
         
         // Use bottle price for value calculations (more relevant for comparison)
         const restaurantPrice = wine.priceBottle || wine.priceGlass || null;
@@ -201,11 +167,9 @@ If you cannot see any wines clearly, return an empty array: []`
         let marketPrice = null;
         if (vivinoData?.price?.amount) {
           marketPrice = Math.round(vivinoData.price.amount);
-          console.log(`Vivino price for ${wine.name}: $${marketPrice}`);
         } else if (restaurantPrice) {
           // Estimate market price as 70% of restaurant price (typical markup is 1.5-2x)
           marketPrice = Math.round(restaurantPrice * 0.7);
-          console.log(`Estimated market price for ${wine.name}: $${marketPrice} (from restaurant price $${restaurantPrice})`);
         }
         
         // Get rating from Vivino (convert 1-5 to 1-100 scale)

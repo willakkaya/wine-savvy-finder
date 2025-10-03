@@ -246,18 +246,20 @@ const ResultsPage: React.FC = () => {
             />
 
             {/* Results Info */}
-            <Alert className="mb-6 bg-wine/5 border-wine/20">
-              <Info className="h-4 w-4 text-wine" />
-              <AlertTitle>
-                {filteredAndSortedWines.length === wines.length 
-                  ? `Showing all ${wines.length} wines`
-                  : `Showing ${filteredAndSortedWines.length} of ${wines.length} wines`
-                }
-              </AlertTitle>
-              <AlertDescription>
-                Tap a wine card to view detailed notes and food pairings.
-              </AlertDescription>
-            </Alert>
+            <div className="mb-6">
+              <Alert className="bg-wine/5 border-wine/20">
+                <Info className="h-4 w-4 text-wine" />
+                <AlertTitle>
+                  {filteredAndSortedWines.length === wines.length 
+                    ? `Showing all ${wines.length} wines`
+                    : `Showing ${filteredAndSortedWines.length} of ${wines.length} wines`
+                  }
+                </AlertTitle>
+                <AlertDescription>
+                  Tap a wine card to view detailed notes and food pairings.
+                </AlertDescription>
+              </Alert>
+            </div>
             
             {/* Wine Grid */}
             {filteredAndSortedWines.length > 0 ? (
