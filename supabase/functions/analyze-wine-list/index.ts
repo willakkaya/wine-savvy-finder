@@ -115,7 +115,7 @@ If you cannot see any wines clearly, return an empty array: []`
 
     console.log(`Successfully extracted ${wines.length} wines`);
 
-    // Enrich wines with Vivino data
+    // Enrich wines with Vivino data and generate images
     const enrichedWines = await Promise.all(
       wines.map(async (wine, index) => {
         const searchQuery = `${wine.winery || ''} ${wine.name || ''} ${wine.year || ''}`.trim();
@@ -143,6 +143,44 @@ If you cannot see any wines clearly, return an empty array: []`
             }
           } catch (error) {
             console.error(`Vivino search failed for ${wine.name}:`, error);
+          }
+        }
+        
+        // Generate wine bottle image if Vivino doesn't have one
+        let imageUrl = vivinoData?.image?.location;
+        if (!imageUrl) {
+          try {
+            console.log(`Generating image for: ${wine.name}`);
+            const imagePrompt = `Professional product photography of a ${wine.type || 'red'} wine bottle labeled "${wine.name}" by ${wine.winery || 'winery'}, elegant lighting, white background, high quality, commercial photography style`;
+            
+            const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'google/gemini-2.5-flash-image-preview',
+                messages: [
+                  {
+                    role: 'user',
+                    content: imagePrompt
+                  }
+                ],
+                modalities: ['image', 'text']
+              }),
+            });
+            
+            if (imageResponse.ok) {
+              const imageData = await imageResponse.json();
+              const generatedImage = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+              if (generatedImage) {
+                imageUrl = generatedImage;
+                console.log(`Generated image for: ${wine.name}`);
+              }
+            }
+          } catch (error) {
+            console.error(`Image generation failed for ${wine.name}:`, error);
           }
         }
         
@@ -189,7 +227,7 @@ If you cannot see any wines clearly, return an empty array: []`
           rating,
           valueScore: calculateValueScore(restaurantPrice, marketPrice, rating),
           wineType: wine.type || 'red',
-          imageUrl: vivinoData?.image?.location || undefined,
+          imageUrl: imageUrl || undefined,
         };
       })
     );
