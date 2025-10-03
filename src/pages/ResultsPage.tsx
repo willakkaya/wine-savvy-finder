@@ -14,6 +14,7 @@ import WineNotes from '@/components/wine/WineNotes';
 import { Card } from '@/components/ui/card';
 import ResultsFilters from '@/components/results/ResultsFilters';
 import ResultsStats from '@/components/results/ResultsStats';
+import { SommelierRecommendations } from '@/components/results/SommelierRecommendations';
 
 const ResultsPage: React.FC = () => {
   const [wines, setWines] = useState<WineInfo[]>([]);
@@ -233,6 +234,11 @@ const ResultsPage: React.FC = () => {
           <>
             {/* Stats Cards */}
             <ResultsStats wines={wines} />
+
+            {/* Sommelier Recommendations */}
+            <div className="w-full mb-6">
+              <SommelierRecommendations wines={wines} />
+            </div>
 
             {/* Filters */}
             <ResultsFilters
