@@ -74,7 +74,11 @@ const ResultsPage: React.FC = () => {
     // First, check if wines were passed via navigation state (from scan page)
     const stateWines = location.state?.wines;
     
+    console.log('ResultsPage - Received wines from navigation:', stateWines?.length);
+    console.log('ResultsPage - Wine types received:', stateWines?.map(w => `${w.name}: ${w.wineType}`));
+    
     if (stateWines && Array.isArray(stateWines) && stateWines.length > 0) {
+      console.log('ResultsPage - Setting wines to:', stateWines.length, 'wines');
       setWines(stateWines);
       
       // Store wines in our cache for easy access from detail pages
@@ -129,6 +133,9 @@ const ResultsPage: React.FC = () => {
 
   // Filter and sort wines
   const filteredAndSortedWines = useMemo(() => {
+    console.log('ResultsPage - Computing filtered wines from', wines.length, 'wines');
+    console.log('ResultsPage - Current wines:', wines.map(w => `${w.name} (${w.wineType}) - $${w.price}`));
+    
     let result = [...wines];
 
     // Apply search filter
@@ -164,6 +171,9 @@ const ResultsPage: React.FC = () => {
           return 0;
       }
     });
+
+    console.log('ResultsPage - After filtering/sorting:', result.length, 'wines');
+    console.log('ResultsPage - Filtered wines:', result.map(w => `${w.name} (${w.wineType}) - $${w.price}`));
 
     return result;
   }, [wines, searchQuery, filterType, sortBy]);
