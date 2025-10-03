@@ -36,7 +36,7 @@ const ScanPage = () => {
         break;
       case 'casual':
       default:
-        setPriceRange({ min: 20, max: 100 }); // Moderate range
+        setPriceRange({ min: 40, max: 100 }); // Moderate range
         break;
     }
   };
