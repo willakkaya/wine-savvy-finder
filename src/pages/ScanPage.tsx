@@ -29,14 +29,14 @@ const ScanPage = () => {
     // Set appropriate budget based on scenario
     switch (scenario) {
       case 'impress':
-        setPriceRange({ min: 0, max: 500 }); // Luxury range
+        setPriceRange({ min: 50, max: 500 }); // Luxury range
         break;
       case 'savings':
         setPriceRange({ min: 0, max: 50 }); // Budget friendly
         break;
       case 'casual':
       default:
-        setPriceRange({ min: 0, max: 100 }); // Moderate range
+        setPriceRange({ min: 20, max: 100 }); // Moderate range
         break;
     }
   };
