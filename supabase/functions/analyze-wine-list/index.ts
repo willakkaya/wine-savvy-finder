@@ -10,7 +10,8 @@ interface WineData {
   name: string;
   winery?: string;
   year?: number;
-  price: number;
+  priceGlass?: number;
+  priceBottle?: number;
   type?: string;
   region?: string;
 }
@@ -53,12 +54,15 @@ serve(async (req) => {
 - name (required): Full wine name
 - winery (if visible): Producer/winery name
 - year (if visible): Vintage year as a number
-- price (required): Price in dollars (extract just the number)
+- priceGlass (if available): By-the-glass price in dollars (just the number)
+- priceBottle (if available): By-the-bottle price in dollars (just the number)
 - type (if you can determine): red, white, sparkling, rose, or dessert
 - region (if visible): Wine region/appellation
 
+IMPORTANT: Many wine lists show both by-the-glass (BTG) and by-the-bottle (BTB) prices. Look carefully for both and include whichever you find. At least one price must be present.
+
 Return ONLY a valid JSON array with no additional text or markdown. Example format:
-[{"name":"Château Margaux","winery":"Château Margaux","year":2018,"price":450,"type":"red","region":"Margaux"},{"name":"Dom Pérignon","year":2012,"price":180,"type":"sparkling","region":"Champagne"}]
+[{"name":"Château Margaux","winery":"Château Margaux","year":2018,"priceBottle":450,"type":"red","region":"Margaux"},{"name":"Dom Pérignon","year":2012,"priceGlass":22,"priceBottle":180,"type":"sparkling","region":"Champagne"}]
 
 If you cannot see any wines clearly, return an empty array: []`
               },
@@ -188,8 +192,10 @@ If you cannot see any wines clearly, return an empty array: []`
           }
         }
         
-        // Use extracted price only if detected (don't make up prices)
-        const restaurantPrice = wine.price;
+        // Use bottle price for value calculations (more relevant for comparison)
+        const restaurantPrice = wine.priceBottle || wine.priceGlass || null;
+        const priceGlass = wine.priceGlass || null;
+        const priceBottle = wine.priceBottle || null;
         
         // Calculate market price from Vivino or estimate
         let marketPrice = null;
@@ -233,6 +239,8 @@ If you cannot see any wines clearly, return an empty array: []`
           region: wine.region || vivinoData?.region?.name || 'Unknown',
           country: vivinoData?.region?.country?.name || 'Unknown',
           price: restaurantPrice,
+          priceGlass,
+          priceBottle,
           marketPrice,
           rating,
           valueScore: calculateValueScore(restaurantPrice, marketPrice, rating),

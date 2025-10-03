@@ -19,6 +19,8 @@ export interface WineInfo {
   region: string;
   country: string;
   price: number;
+  priceGlass?: number;
+  priceBottle?: number;
   marketPrice: number;
   rating: number;
   valueScore: number;
@@ -136,17 +138,49 @@ const WineCard: React.FC<WineCardProps> = ({ wine, rank, className, style }) => 
           
           {/* Price Information (conditional on settings) */}
           {(!settings.discreetMode && settings.showPrices && hasPriceData) && (
-            <div className="grid grid-cols-2 gap-1 md:gap-2 text-xs md:text-sm">
-              <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
-                <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
-                <span className="font-medium">${wine.price}</span>
-                <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">menu</span>
-              </div>
-              <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
-                <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
-                <span className="font-medium">${wine.marketPrice}</span>
-                <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">retail</span>
-              </div>
+            <div className="space-y-1">
+              {/* Show both glass and bottle prices if available */}
+              {wine.priceGlass && wine.priceBottle && (
+                <div className="grid grid-cols-2 gap-1 md:gap-2 text-xs md:text-sm">
+                  <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
+                    <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
+                    <span className="font-medium">${wine.priceGlass}</span>
+                    <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">glass</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
+                    <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
+                    <span className="font-medium">${wine.priceBottle}</span>
+                    <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">bottle</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Show only glass price if that's all we have */}
+              {wine.priceGlass && !wine.priceBottle && (
+                <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
+                  <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
+                  <span className="font-medium">${wine.priceGlass}</span>
+                  <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">glass</span>
+                </div>
+              )}
+              
+              {/* Show only bottle price if that's all we have (or fallback to wine.price) */}
+              {!wine.priceGlass && (wine.priceBottle || wine.price) && (
+                <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
+                  <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
+                  <span className="font-medium">${wine.priceBottle || wine.price}</span>
+                  <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">bottle</span>
+                </div>
+              )}
+              
+              {/* Market price comparison */}
+              {wine.marketPrice && (
+                <div className="flex items-center gap-1 bg-secondary/50 p-1.5 md:p-2 rounded-md dark:bg-secondary">
+                  <DollarSign size={isMobile ? 12 : 14} className="text-wine" />
+                  <span className="font-medium">${wine.marketPrice}</span>
+                  <span className="text-[10px] md:text-xs text-muted-foreground ml-0.5 md:ml-1">retail</span>
+                </div>
+              )}
             </div>
           )}
           
