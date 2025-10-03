@@ -16,6 +16,52 @@ interface WineData {
   region?: string;
 }
 
+// Helper function to infer wine type from name if not provided
+function inferWineType(wineName: string, region?: string): 'red' | 'white' | 'sparkling' | 'rose' | 'dessert' {
+  const name = wineName.toLowerCase();
+  const reg = region?.toLowerCase() || '';
+  
+  // Check for sparkling indicators
+  if (name.includes('champagne') || name.includes('prosecco') || name.includes('cava') || 
+      name.includes('sparkling') || reg.includes('champagne') || name.includes('dom perignon') ||
+      name.includes('veuve clicquot') || name.includes('moët')) {
+    return 'sparkling';
+  }
+  
+  // Check for rosé indicators
+  if (name.includes('rosé') || name.includes('rose') || name.includes('pink') ||
+      reg.includes('provence') || name.includes('whispering angel')) {
+    return 'rose';
+  }
+  
+  // Check for dessert wine indicators
+  if (name.includes('sauternes') || name.includes('port') || name.includes('ice wine') ||
+      name.includes('dessert') || name.includes('sweet') || reg.includes('sauternes') ||
+      name.includes('yquem') || name.includes('tokaji')) {
+    return 'dessert';
+  }
+  
+  // Check for white wine indicators
+  if (name.includes('chardonnay') || name.includes('sauvignon blanc') || name.includes('pinot grigio') ||
+      name.includes('pinot gris') || name.includes('riesling') || name.includes('albariño') ||
+      name.includes('viognier') || name.includes('white') || name.includes('blanc') ||
+      reg.includes('chablis') || reg.includes('sancerre')) {
+    return 'white';
+  }
+  
+  // Check for red wine indicators
+  if (name.includes('cabernet') || name.includes('merlot') || name.includes('pinot noir') ||
+      name.includes('syrah') || name.includes('shiraz') || name.includes('malbec') ||
+      name.includes('zinfandel') || name.includes('red') || name.includes('bordeaux') ||
+      name.includes('burgundy') || name.includes('barolo') || name.includes('chianti') ||
+      name.includes('rioja') || reg.includes('bordeaux') || reg.includes('napa')) {
+    return 'red';
+  }
+  
+  // Default to red if no clear indicators
+  return 'red';
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -51,15 +97,23 @@ serve(async (req) => {
               {
                 type: 'text',
                 text: `Analyze this wine list image and extract ALL wines you can find. For each wine, provide:
-- name (required): Full wine name
+- name (required): Full wine name including grape variety if visible
 - winery (if visible): Producer/winery name
 - year (if visible): Vintage year as a number
 - priceGlass (if available): By-the-glass price in dollars (just the number)
 - priceBottle (if available): By-the-bottle price in dollars (just the number)
-- type (if you can determine): red, white, sparkling, rose, or dessert
+- type (VERY IMPORTANT): Must be one of: red, white, sparkling, rose, or dessert
+  * Look at the wine name, grape variety, and region to determine the type
+  * Cabernet, Merlot, Pinot Noir, Syrah = red
+  * Chardonnay, Sauvignon Blanc, Pinot Grigio, Riesling = white
+  * Champagne, Prosecco, Cava = sparkling
+  * Rosé, Provence wines = rose
+  * Sauternes, Port, Ice Wine = dessert
 - region (if visible): Wine region/appellation
 
 IMPORTANT: Many wine lists show both by-the-glass (BTG) and by-the-bottle (BTB) prices. Look carefully for both and include whichever you find. At least one price must be present.
+
+CRITICAL: ALWAYS include the "type" field based on the wine name or grape variety. This is essential for filtering.
 
 Return ONLY a valid JSON array with no additional text or markdown. Example format:
 [{"name":"Château Margaux","winery":"Château Margaux","year":2018,"priceBottle":450,"type":"red","region":"Margaux"},{"name":"Dom Pérignon","year":2012,"priceGlass":22,"priceBottle":180,"type":"sparkling","region":"Champagne"}]
@@ -195,6 +249,13 @@ If you cannot see any wines clearly, return an empty array: []`
           return Math.round(score);
         };
         
+        // Determine wine type using AI response or inference
+        const detectedType = wine.type?.toLowerCase();
+        const validTypes = ['red', 'white', 'sparkling', 'rose', 'dessert'];
+        const wineType = (detectedType && validTypes.includes(detectedType))
+          ? detectedType as 'red' | 'white' | 'sparkling' | 'rose' | 'dessert'
+          : inferWineType(wine.name, wine.region);
+        
         return {
           id: `scanned-${Date.now()}-${index}`,
           name: wine.name,
@@ -208,7 +269,7 @@ If you cannot see any wines clearly, return an empty array: []`
           marketPrice,
           rating,
           valueScore: calculateValueScore(restaurantPrice, marketPrice, rating),
-          wineType: wine.type || 'red',
+          wineType,
           imageUrl: imageUrl || undefined,
         };
       })

@@ -17,6 +17,23 @@ import ResultsStats from '@/components/results/ResultsStats';
 import { SommelierRecommendations } from '@/components/results/SommelierRecommendations';
 
 const ResultsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const scenario = location.state?.scenario || 'casual';
+  
+  // Set default sort based on scenario
+  const getDefaultSort = (scenario: string) => {
+    switch (scenario) {
+      case 'impress':
+        return 'rating'; // Show highest-rated wines first
+      case 'savings':
+        return 'savings'; // Show biggest savings first
+      case 'casual':
+      default:
+        return 'value'; // Show best value wines first
+    }
+  };
+  
   const [wines, setWines] = useState<WineInfo[]>([]);
   const [expandedWine, setExpandedWine] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,13 +42,9 @@ const ResultsPage: React.FC = () => {
   const [offlineTimestamp, setOfflineTimestamp] = useState<number | null>(null);
   
   // Filter and sort states
-  const [sortBy, setSortBy] = useState<string>('value');
+  const [sortBy, setSortBy] = useState<string>(getDefaultSort(scenario));
   const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
-  const navigate = useNavigate();
-  const location = useLocation();
-  const scenario = location.state?.scenario || 'casual';
   
   // Check network status
   useEffect(() => {
@@ -159,7 +172,7 @@ const ResultsPage: React.FC = () => {
   const handleResetFilters = () => {
     setSearchQuery('');
     setFilterType('all');
-    setSortBy('value');
+    setSortBy(getDefaultSort(scenario)); // Reset to scenario-based default
   };
   
   // Toggle notes expansion
