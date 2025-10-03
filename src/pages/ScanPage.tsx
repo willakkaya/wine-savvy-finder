@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import ScanTips from '@/components/scan/ScanTips';
 import ScanContainer from '@/components/scan/ScanContainer';
-import ScanStatusSection from '@/components/scan/ScanStatusSection';
+import ScanProgress from '@/components/scan/ScanProgress';
+import ScanActions from '@/components/scan/ScanActions';
+import NetworkErrorAlert from '@/components/scan/NetworkErrorAlert';
+import OfflineOptionsAlert from '@/components/scan/OfflineOptionsAlert';
 import { WinePreferences, WineType } from '@/components/scan/WinePreferences';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { useScanProcess } from '@/hooks/useScanProcess';
@@ -50,32 +53,42 @@ const ScanPage = () => {
   
   return (
     <PageContainer title="Scan Wine List" className="relative">
-      <div className="flex flex-col items-center max-w-md mx-auto pb-6">
-        <h1 className="text-2xl md:text-3xl font-serif mb-4 text-center">Scan Wine List</h1>
-        <p className="text-muted-foreground text-center mb-6">
-          Point your camera at a wine list to analyze prices and find the best values using AI.
-        </p>
+      <div className="flex flex-col items-center max-w-md mx-auto pb-6 space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl md:text-3xl font-serif">Scan Wine List</h1>
+          <p className="text-muted-foreground text-sm">
+            Point your camera at a wine list to analyze prices and find the best values using AI.
+          </p>
+        </div>
         
-        {/* Wine Preferences - Only show when not processing */}
-        {!isProcessing && scanStage === 'idle' && (
+        {/* Wine Preferences - Always show before and during scan */}
+        {scanStage !== 'complete' && (
           <WinePreferences
             selectedType={winePreference}
             onSelectType={setWinePreference}
           />
         )}
         
-        <ScanStatusSection
-          networkError={networkError}
-          offlineAvailable={offlineAvailable}
-          showOfflineOptions={showOfflineOptions}
-          scanStage={scanStage}
-          scanMessage={scanMessage}
-          isProcessing={isProcessing}
-          onViewOfflineResults={handleViewOfflineResults}
-          onRetry={handleRetry}
-          onViewResults={handleViewResults}
-        />
+        {/* Network/Offline Alerts */}
+        {networkError && (
+          <NetworkErrorAlert offlineAvailable={offlineAvailable} />
+        )}
         
+        {showOfflineOptions && (
+          <OfflineOptionsAlert onViewOfflineResults={handleViewOfflineResults} />
+        )}
+        
+        {/* Scan Progress - Only show when processing */}
+        {isProcessing && (
+          <div className="w-full">
+            <ScanProgress 
+              stage={scanStage} 
+              message={scanMessage} 
+            />
+          </div>
+        )}
+        
+        {/* Main Scan Container */}
         <ScanContainer
           scanStage={scanStage}
           isProcessing={isProcessing}
@@ -90,7 +103,21 @@ const ScanPage = () => {
           onViewResults={handleViewResults}
         />
         
-        {!isProcessing && (
+        {/* Action Buttons - Only show when needed */}
+        {(scanStage === 'complete' || (scanStage === 'error' && !isProcessing)) && (
+          <ScanActions 
+            scanStage={scanStage}
+            isProcessing={isProcessing}
+            networkError={networkError}
+            offlineAvailable={offlineAvailable}
+            onRetry={handleRetry}
+            onViewResults={handleViewResults}
+            onViewOfflineResults={handleViewOfflineResults}
+          />
+        )}
+        
+        {/* Tips - Only show when idle */}
+        {!isProcessing && scanStage === 'idle' && (
           <ScanTips />
         )}
       </div>

@@ -21,39 +21,41 @@ const wineTypes: { type: WineType; label: string; icon: any; gradient: string }[
 
 export const WinePreferences = ({ selectedType, onSelectType }: WinePreferencesProps) => {
   return (
-    <Card className="mb-6 border-wine/20">
+    <Card className="border-wine/20 bg-gradient-to-br from-wine/5 to-transparent">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-serif flex items-center gap-2">
-          <Wine size={20} className="text-wine" />
-          Wine Preferences
-        </CardTitle>
-        <CardDescription className="text-xs">
-          Filter results to show only your preferred wine types
-        </CardDescription>
+        <div className="flex items-center gap-2">
+          <Wine size={18} className="text-wine" />
+          <div>
+            <CardTitle className="text-base font-serif">What would you like to drink?</CardTitle>
+            <CardDescription className="text-xs">
+              Filter to show only your preferred wines
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-          {wineTypes.map(({ type, label, icon: Icon, gradient }) => (
+        <div className="grid grid-cols-3 gap-2">
+          {wineTypes.map(({ type, label, icon: IconComponent, gradient }) => (
             <Button
               key={type}
               variant={selectedType === type ? 'default' : 'outline'}
               size="sm"
               onClick={() => onSelectType(type)}
-              className={`flex flex-col items-center gap-1 h-auto py-2 px-2 ${
+              className={`flex flex-col items-center gap-1.5 h-auto py-3 transition-all ${
                 selectedType === type 
-                  ? 'bg-wine hover:bg-wine-dark text-white' 
-                  : 'hover:bg-gradient-to-b ' + gradient
+                  ? 'bg-wine hover:bg-wine-dark text-white shadow-md' 
+                  : 'hover:bg-gradient-to-b hover:scale-105 ' + gradient
               }`}
             >
-              <Icon size={16} />
+              <IconComponent size={18} />
               <span className="text-xs font-medium">{label}</span>
             </Button>
           ))}
         </div>
         {selectedType !== 'all' && (
-          <div className="mt-3 flex items-center justify-center">
+          <div className="mt-3 text-center">
             <Badge variant="secondary" className="text-xs">
-              Filtering: {wineTypes.find(w => w.type === selectedType)?.label} wines only
+              Showing only {wineTypes.find(w => w.type === selectedType)?.label} wines
             </Badge>
           </div>
         )}
