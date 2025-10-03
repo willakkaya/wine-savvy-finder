@@ -86,16 +86,19 @@ const ScanPage = () => {
     });
     
     console.log('After price filter:', filteredWines.length);
-    console.log('Final wines:', filteredWines.map(w => `${w.name}: $${w.price}`));
+    console.log('Final wines being sent to results:', filteredWines.map(w => `${w.name}: $${w.price}`));
     
     if (filteredWines.length === 0) {
-      toast.info('No wines match your filters', {
-        description: 'Try adjusting your preferences or showing all wines'
+      toast.error('No wines match your filters', {
+        description: `No wines found in $${priceRange.min}-$${priceRange.max} range for ${winePreference === 'all' ? 'any type' : winePreference + ' wines'}`
       });
-      navigate('/results', { state: { wines: foundWines, scenario: scenarioPreference, priceRange } });
-    } else {
-      navigate('/results', { state: { wines: filteredWines, scenario: scenarioPreference, priceRange } });
+      // Don't navigate - let user adjust filters
+      return;
     }
+    
+    // Navigate with ONLY the filtered wines
+    console.log('Navigating to results with', filteredWines.length, 'wines');
+    navigate('/results', { state: { wines: filteredWines, scenario: scenarioPreference, priceRange } });
   };
   
   return (
