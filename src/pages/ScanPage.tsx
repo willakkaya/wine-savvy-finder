@@ -10,6 +10,7 @@ import NetworkErrorAlert from '@/components/scan/NetworkErrorAlert';
 import OfflineOptionsAlert from '@/components/scan/OfflineOptionsAlert';
 import { WinePreferences, WineType } from '@/components/scan/WinePreferences';
 import { ScenarioPreferences, ScenarioType } from '@/components/scan/ScenarioPreferences';
+import { PriceRangeSelector, PriceRange } from '@/components/scan/PriceRangeSelector';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { useScanProcess } from '@/hooks/useScanProcess';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ const ScanPage = () => {
   const navigate = useNavigate();
   const [winePreference, setWinePreference] = useState<WineType>('all');
   const [scenarioPreference, setScenarioPreference] = useState<ScenarioType>('casual');
+  const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 100 });
   
   const {
     scanStage,
@@ -38,18 +40,23 @@ const ScanPage = () => {
   };
   
   const handleViewResults = () => {
-    // Filter wines based on preference before passing to results
-    const filteredWines = winePreference === 'all' 
+    // Filter wines based on preference and price range
+    let filteredWines = winePreference === 'all' 
       ? foundWines 
       : foundWines.filter(wine => wine.wineType === winePreference);
     
-    if (filteredWines.length === 0 && winePreference !== 'all') {
-      toast.info(`No ${winePreference} wines found`, {
-        description: 'Showing all wines instead'
+    // Filter by price range
+    filteredWines = filteredWines.filter(wine => 
+      wine.price >= priceRange.min && wine.price <= priceRange.max
+    );
+    
+    if (filteredWines.length === 0) {
+      toast.info('No wines match your filters', {
+        description: 'Try adjusting your preferences or showing all wines'
       });
-      navigate('/results', { state: { wines: foundWines, scenario: scenarioPreference } });
+      navigate('/results', { state: { wines: foundWines, scenario: scenarioPreference, priceRange } });
     } else {
-      navigate('/results', { state: { wines: filteredWines, scenario: scenarioPreference } });
+      navigate('/results', { state: { wines: filteredWines, scenario: scenarioPreference, priceRange } });
     }
   };
   
@@ -73,6 +80,10 @@ const ScanPage = () => {
             <WinePreferences
               selectedType={winePreference}
               onSelectType={setWinePreference}
+            />
+            <PriceRangeSelector
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
             />
           </div>
         )}
