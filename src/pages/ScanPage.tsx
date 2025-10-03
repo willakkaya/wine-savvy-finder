@@ -22,6 +22,25 @@ const ScanPage = () => {
   const [scenarioPreference, setScenarioPreference] = useState<ScenarioType>('casual');
   const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 100 });
   
+  // Automatically adjust price range when scenario changes
+  const handleScenarioChange = (scenario: ScenarioType) => {
+    setScenarioPreference(scenario);
+    
+    // Set appropriate budget based on scenario
+    switch (scenario) {
+      case 'impress':
+        setPriceRange({ min: 0, max: 500 }); // Luxury range
+        break;
+      case 'savings':
+        setPriceRange({ min: 0, max: 50 }); // Budget friendly
+        break;
+      case 'casual':
+      default:
+        setPriceRange({ min: 0, max: 100 }); // Moderate range
+        break;
+    }
+  };
+  
   const {
     scanStage,
     scanMessage,
@@ -87,7 +106,7 @@ const ScanPage = () => {
           <div className="w-full space-y-4">
             <ScenarioPreferences
               selectedScenario={scenarioPreference}
-              onSelectScenario={setScenarioPreference}
+              onSelectScenario={handleScenarioChange}
             />
             <WinePreferences
               selectedType={winePreference}
