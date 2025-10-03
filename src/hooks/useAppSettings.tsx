@@ -19,7 +19,7 @@ const defaultSettings: AppSettings = {
   showRatings: true,
   showPrices: true,
   showSavings: true,
-  demoMode: true, // Enable demo mode by default
+  demoMode: false, // Disable demo mode - use real AI scanning
 };
 
 const AppSettingsContext = createContext<AppSettingsContextType | undefined>(undefined);
@@ -36,9 +36,8 @@ export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         return {
           ...defaultSettings,
           ...parsedSettings,
-          // Always enable demo mode if the app is run in a demo context or iframe
-          // Fix the operator precedence with parentheses
-          demoMode: (parsedSettings.demoMode ?? true) || window.location.href.includes('demo') || window !== window.parent
+          // Use real scanning by default unless explicitly in demo mode
+          demoMode: parsedSettings.demoMode ?? false
         };
       } catch (e) {
         console.error('Error parsing saved settings:', e);

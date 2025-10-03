@@ -33,12 +33,6 @@ const ScanPage = () => {
   const handleViewResults = () => {
     sessionStorage.setItem('scanResults', JSON.stringify(foundWines));
     navigate('/results');
-    
-    if (settings.demoMode) {
-      toast.info('Demo Mode: Navigating to results', {
-        description: 'In a real app, these would be actual wines from the scanned list'
-      });
-    }
   };
   
   return (
@@ -46,9 +40,7 @@ const ScanPage = () => {
       <div className="flex flex-col items-center max-w-md mx-auto pb-6">
         <h1 className="text-2xl md:text-3xl font-serif mb-4 text-center">Scan Wine List</h1>
         <p className="text-muted-foreground text-center mb-6">
-          {settings.demoMode ? 
-            "DEMO MODE: This will simulate scanning a wine list" : 
-            "Point your camera at a wine list to analyze prices and find the best values."}
+          Point your camera at a wine list to analyze prices and find the best values using AI.
         </p>
         
         <ScanStatusSection 

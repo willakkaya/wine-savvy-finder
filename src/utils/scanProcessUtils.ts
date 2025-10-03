@@ -1,7 +1,7 @@
 
 import { toast } from 'sonner';
 import { WineInfo } from '@/components/wine/WineCard';
-import { processWineListImage } from '@/utils/ocrUtils';
+import { supabase } from '@/integrations/supabase/client';
 import { handleNetworkError, handleTimeoutError, handleScanError } from '@/utils/scanErrorUtils';
 import { ScanStage } from '@/types/scanTypes';
 
@@ -60,15 +60,38 @@ const setupAnalyzingTransition = (callbacks: ScanCallbacks): (() => void) => {
 };
 
 /**
- * Processes the wine image with timeout handling
+ * Processes the wine image with timeout handling using AI
  */
 const processImageWithTimeout = async (imageData: string): Promise<WineInfo[]> => {
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_DURATION);
   });
   
+  const scanPromise = async (): Promise<WineInfo[]> => {
+    const { data, error } = await supabase.functions.invoke('analyze-wine-list', {
+      body: { image: imageData }
+    });
+    
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(error.message || 'Failed to analyze wine list');
+    }
+    
+    if (data?.error) {
+      throw new Error(data.error);
+    }
+    
+    const wines: WineInfo[] = data?.wines || [];
+    
+    if (wines.length === 0) {
+      throw new Error('No wines found on the list. Try taking a clearer photo.');
+    }
+    
+    return wines;
+  };
+  
   return Promise.race([
-    processWineListImage(imageData),
+    scanPromise(),
     timeoutPromise
   ]);
 };

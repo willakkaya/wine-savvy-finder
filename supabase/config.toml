@@ -1,1 +1,4 @@
 project_id = "ywkbyplnompcbxoxbfsm"
+
+[functions.analyze-wine-list]
+verify_jwt = false
