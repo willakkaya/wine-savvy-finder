@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { ScanStage } from '@/types/scanTypes';
 import { handleScanError } from '@/utils/scanErrorUtils';
 import { WineInfo } from '@/components/wine/WineCard';
+import { demoWines } from '@/data/demoWines';
 
 /**
  * Simulates a wine scan process for demo mode
@@ -25,13 +26,11 @@ export const simulateWineScan = async (
     setScanStage('analyzing');
     setScanMessage('Analyzing wines and matching with database...');
     
-    setTimeout(async () => {
+    setTimeout(() => {
       try {
-        const response = await fetch('/api/demo-wines');
-        const wines = await response.json();
-        
+        // Select random wines from demo data
         const randomCount = Math.floor(Math.random() * 4) + 6;
-        const shuffled = [...wines].sort(() => 0.5 - Math.random());
+        const shuffled = [...demoWines].sort(() => 0.5 - Math.random());
         const selectedWines = shuffled.slice(0, randomCount);
         
         setFoundWines(selectedWines);
