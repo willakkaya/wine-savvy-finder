@@ -125,28 +125,31 @@ Tone: ${context.tone}`
           },
           {
             role: 'user',
-            content: `The guest is dining out and wants to ${context.focus}.
+            content: `I'm reviewing this wine list for a guest seeking ${context.focus}.
 
-EVALUATION FRAMEWORK:
+PROFESSIONAL ANALYSIS CRITERIA:
 ${context.methodology}
 
-From the wine list below, recommend exactly 3 wines that best serve this goal.
+Please recommend exactly 3 wines from the list below that best align with this objective.
 
-STRUCTURE YOUR RECOMMENDATIONS AS A MASTER SOMMELIER WOULD:
+REQUIRED FORMAT - Structure each recommendation as follows:
 
-For each wine, provide:
-1. **Selection Rationale** (1 sentence): Why this wine specifically for this occasion
-2. **Professional Tasting Notes** (1-2 sentences): Key aromatic/flavor profiles, structure, finish
-3. **Pairing & Service** (1 sentence): Food pairing suggestions OR service notes
+**[Wine Name]** - [Producer, Year if notable]
+• *Why This Wine:* [One compelling sentence on selection rationale]
+• *Tasting Profile:* [Specific aromatics, palate structure, finish - use professional terminology]
+• *Recommendation:* [Food pairing OR service suggestion OR value insight]
 
-Use professional wine terminology naturally. Reference specific characteristics like vintage, terroir, or production methods when relevant.
+DELIVERY STANDARDS:
+- Lead with your top recommendation
+- Use precise tasting descriptors (e.g., "structured tannins," "mineral-driven acidity," "persistent finish")
+- Reference terroir, vintage, or producer reputation when relevant
+- Keep each wine to 3 concise bullet points
+- Maintain a ${context.tone} tone throughout
 
-Keep each wine recommendation to 3-4 sentences maximum. Be ${context.tone}.
-
-WINE LIST:
+WINE LIST FOR ANALYSIS:
 ${wineList}
 
-Format your response with clear wine names as headers, then your recommendation beneath each.`
+Begin with a brief introduction (1 sentence), then present your three recommendations.`
           }
         ],
         max_tokens: 1200,
