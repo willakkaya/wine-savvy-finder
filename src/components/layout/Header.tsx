@@ -1,14 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wine, Menu, X, Heart, Settings, HelpCircle, BookOpen } from 'lucide-react';
+import { Wine, Menu, X, Heart, Settings, HelpCircle, BookOpen, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { user, signOut } = useAuth();
   
   // Close menu when route changes
   useEffect(() => {
@@ -128,6 +130,32 @@ const Header: React.FC = () => {
             </nav>
           </div>
           
+          {/* Desktop auth buttons */}
+          <div className="hidden sm:flex items-center space-x-2">
+            {user ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={signOut}
+                className="text-wine-dark hover:text-wine"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/auth">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-wine-dark hover:text-wine"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
+          </div>
+          
           {/* Mobile menu button */}
           <div className="flex items-center sm:hidden">
             <Button
@@ -219,6 +247,29 @@ const Header: React.FC = () => {
               <HelpCircle className="mr-2 h-4 w-4" />
               FAQ
             </Link>
+            
+            {/* Mobile auth button */}
+            {user ? (
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  signOut();
+                }}
+                className="flex items-center w-full px-4 py-3 rounded-md text-base font-medium touch-manipulation text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </button>
+            ) : (
+              <Link
+                to="/auth"
+                className="flex items-center px-4 py-3 rounded-md text-base font-medium touch-manipulation text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -10,6 +10,7 @@ import { Toaster } from '@/components/ui/sonner';
 // App providers
 import { AppSettingsProvider } from '@/hooks/useAppSettings';
 import { UserPreferencesProvider } from '@/hooks/useUserPreferences';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 // Import main layouts and components
 import MobileNavBar from '@/components/layout/MobileNavBar';
@@ -37,6 +38,7 @@ const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
+const AuthPage = lazy(() => import('@/pages/AuthPage'));
 
 function App() {
   // Initialize app
@@ -50,27 +52,30 @@ function App() {
       <AppSettingsProvider>
         <UserPreferencesProvider>
           <Router>
-            <div className="app-container">
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/scan" element={<ScanPage />} />
-                  <Route path="/results" element={<ResultsPage />} />
-                  <Route path="/favorites" element={<FavoritesPage />} />
-                  <Route path="/wine/:id" element={<WineDetailsPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/learn" element={<LearnPage />} />
-                  <Route path="/faq" element={<FAQPage />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/terms" element={<TermsOfService />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-              <MobileNavBar />
-              <Toaster />
-              <AppUpdate />
-            </div>
+            <AuthProvider>
+              <div className="app-container">
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/scan" element={<ScanPage />} />
+                    <Route path="/results" element={<ResultsPage />} />
+                    <Route path="/favorites" element={<FavoritesPage />} />
+                    <Route path="/wine/:id" element={<WineDetailsPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/learn" element={<LearnPage />} />
+                    <Route path="/faq" element={<FAQPage />} />
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/terms" element={<TermsOfService />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+                <MobileNavBar />
+                <Toaster />
+                <AppUpdate />
+              </div>
+            </AuthProvider>
           </Router>
         </UserPreferencesProvider>
       </AppSettingsProvider>
