@@ -14,16 +14,464 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      corporate_accounts: {
+        Row: {
+          admin_id: string | null
+          company_name: string
+          created_at: string | null
+          id: string
+          industry: string | null
+          is_active: boolean | null
+          monthly_budget: number | null
+          monthly_fee: number | null
+          per_meal_budget: number | null
+          subscription_tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_id?: string | null
+          company_name: string
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          monthly_budget?: number | null
+          monthly_fee?: number | null
+          per_meal_budget?: number | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_id?: string | null
+          company_name?: string
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          monthly_budget?: number | null
+          monthly_fee?: number | null
+          per_meal_budget?: number | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_accounts_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corporate_team_members: {
+        Row: {
+          added_at: string | null
+          corporate_account_id: string | null
+          id: string
+          is_active: boolean | null
+          per_meal_budget: number | null
+          user_id: string | null
+        }
+        Insert: {
+          added_at?: string | null
+          corporate_account_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          per_meal_budget?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          added_at?: string | null
+          corporate_account_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          per_meal_budget?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_team_members_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corporate_team_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pre_order_wines: {
+        Row: {
+          id: string
+          notes: string | null
+          pre_order_id: string | null
+          price_per_bottle: number
+          quantity: number
+          wine_id: string | null
+        }
+        Insert: {
+          id?: string
+          notes?: string | null
+          pre_order_id?: string | null
+          price_per_bottle: number
+          quantity?: number
+          wine_id?: string | null
+        }
+        Update: {
+          id?: string
+          notes?: string | null
+          pre_order_id?: string | null
+          price_per_bottle?: number
+          quantity?: number
+          wine_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_order_wines_pre_order_id_fkey"
+            columns: ["pre_order_id"]
+            isOneToOne: false
+            referencedRelation: "pre_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_order_wines_wine_id_fkey"
+            columns: ["wine_id"]
+            isOneToOne: false
+            referencedRelation: "wine_database"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pre_orders: {
+        Row: {
+          corporate_account_id: string | null
+          created_at: string | null
+          dinner_date: string
+          id: string
+          num_guests: number
+          ordered_by: string | null
+          restaurant_id: string | null
+          special_requests: string | null
+          status: string | null
+          total_budget: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          corporate_account_id?: string | null
+          created_at?: string | null
+          dinner_date: string
+          id?: string
+          num_guests: number
+          ordered_by?: string | null
+          restaurant_id?: string | null
+          special_requests?: string | null
+          status?: string | null
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          corporate_account_id?: string | null
+          created_at?: string | null
+          dinner_date?: string
+          id?: string
+          num_guests?: number
+          ordered_by?: string | null
+          restaurant_id?: string | null
+          special_requests?: string | null
+          status?: string | null
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_orders_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_orders_ordered_by_fkey"
+            columns: ["ordered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_orders_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      restaurant_wines: {
+        Row: {
+          by_glass_price: number | null
+          current_price: number
+          date_added: string | null
+          date_updated: string | null
+          id: string
+          is_available: boolean | null
+          notes: string | null
+          restaurant_id: string | null
+          section: string | null
+          wine_id: string | null
+        }
+        Insert: {
+          by_glass_price?: number | null
+          current_price: number
+          date_added?: string | null
+          date_updated?: string | null
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          restaurant_id?: string | null
+          section?: string | null
+          wine_id?: string | null
+        }
+        Update: {
+          by_glass_price?: number | null
+          current_price?: number
+          date_added?: string | null
+          date_updated?: string | null
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          restaurant_id?: string | null
+          section?: string | null
+          wine_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_wines_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_wines_wine_id_fkey"
+            columns: ["wine_id"]
+            isOneToOne: false
+            referencedRelation: "wine_database"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurants: {
+        Row: {
+          address: string
+          city: string
+          created_at: string | null
+          cuisine_type: string | null
+          id: string
+          is_active: boolean | null
+          is_partner: boolean | null
+          monthly_fee: number | null
+          name: string
+          neighborhood: string | null
+          owner_id: string | null
+          phone: string | null
+          price_range: number | null
+          subscription_tier: string | null
+          updated_at: string | null
+          website: string | null
+          zip_code: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string | null
+          cuisine_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_partner?: boolean | null
+          monthly_fee?: number | null
+          name: string
+          neighborhood?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          price_range?: number | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+          website?: string | null
+          zip_code: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string | null
+          cuisine_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_partner?: boolean | null
+          monthly_fee?: number | null
+          name?: string
+          neighborhood?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          price_range?: number | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+          website?: string | null
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurants_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wine_database: {
+        Row: {
+          alcohol_content: number | null
+          bottle_size: string | null
+          country: string | null
+          created_at: string | null
+          critic_score: number | null
+          description: string | null
+          grape_varieties: string[] | null
+          id: string
+          image_url: string | null
+          market_price_estimate: number | null
+          name: string
+          region: string | null
+          updated_at: string | null
+          vintage: number | null
+          vivino_id: string | null
+          wine_searcher_id: string | null
+          wine_type: string | null
+          winery: string
+        }
+        Insert: {
+          alcohol_content?: number | null
+          bottle_size?: string | null
+          country?: string | null
+          created_at?: string | null
+          critic_score?: number | null
+          description?: string | null
+          grape_varieties?: string[] | null
+          id?: string
+          image_url?: string | null
+          market_price_estimate?: number | null
+          name: string
+          region?: string | null
+          updated_at?: string | null
+          vintage?: number | null
+          vivino_id?: string | null
+          wine_searcher_id?: string | null
+          wine_type?: string | null
+          winery: string
+        }
+        Update: {
+          alcohol_content?: number | null
+          bottle_size?: string | null
+          country?: string | null
+          created_at?: string | null
+          critic_score?: number | null
+          description?: string | null
+          grape_varieties?: string[] | null
+          id?: string
+          image_url?: string | null
+          market_price_estimate?: number | null
+          name?: string
+          region?: string | null
+          updated_at?: string | null
+          vintage?: number | null
+          vivino_id?: string | null
+          wine_searcher_id?: string | null
+          wine_type?: string | null
+          winery?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "consumer"
+        | "corporate_admin"
+        | "restaurant_partner"
+        | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +598,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "consumer",
+        "corporate_admin",
+        "restaurant_partner",
+        "super_admin",
+      ],
+    },
   },
 } as const
