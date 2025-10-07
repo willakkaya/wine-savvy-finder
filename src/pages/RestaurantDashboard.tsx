@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Wine, DollarSign, Package } from 'lucide-react';
 import RestaurantManager from '@/components/restaurant/RestaurantManager';
+import WineListManager from '@/components/restaurant/WineListManager';
 
 const RestaurantDashboard = () => {
   const { user, hasRole, loading } = useAuth();
@@ -144,25 +145,15 @@ const RestaurantDashboard = () => {
           </TabsContent>
 
           <TabsContent value="wines" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Wine List Management</CardTitle>
-                    <CardDescription>Manage your restaurant's wine offerings</CardDescription>
-                  </div>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Wine
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Wine list management coming soon. You'll be able to add, edit, and manage your wine inventory.
-                </p>
-              </CardContent>
-            </Card>
+            {restaurant ? (
+              <WineListManager restaurantId={restaurant.id} />
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground">Loading restaurant data...</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
