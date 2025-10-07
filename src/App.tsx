@@ -39,6 +39,7 @@ const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 const AuthPage = lazy(() => import('@/pages/AuthPage'));
+const WineDatabasePage = lazy(() => import('@/pages/WineDatabasePage'));
 const RestaurantDashboard = lazy(() => import('@/pages/RestaurantDashboard'));
 const CorporateDashboard = lazy(() => import('@/pages/CorporateDashboard'));
 
@@ -66,6 +67,7 @@ function App() {
           <Route path="/wine/:id" element={<WineDetailsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/learn" element={<LearnPage />} />
+          <Route path="/wine-database" element={<WineDatabasePage />} />
           <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
           <Route path="/corporate-dashboard" element={<CorporateDashboard />} />
                     <Route path="/faq" element={<FAQPage />} />

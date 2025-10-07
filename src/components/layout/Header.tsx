@@ -118,6 +118,16 @@ const Header: React.FC = () => {
                 Learn
               </Link>
               <Link
+                to="/wine-database"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive('/wine-database') 
+                    ? 'text-wine bg-wine/5' 
+                    : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
+                }`}
+              >
+                Database
+              </Link>
+              <Link
                 to="/settings"
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/settings') 
