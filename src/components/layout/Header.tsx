@@ -10,7 +10,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { user, signOut } = useAuth();
+  const { user, signOut, hasRole } = useAuth();
   
   // Close menu when route changes
   useEffect(() => {
@@ -133,15 +133,31 @@ const Header: React.FC = () => {
           {/* Desktop auth buttons */}
           <div className="hidden sm:flex items-center space-x-2">
             {user ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={signOut}
-                className="text-wine-dark hover:text-wine"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
+              <>
+                {hasRole('restaurant_partner') && (
+                  <Link to="/restaurant-dashboard">
+                    <Button variant="ghost" size="sm" className="text-wine-dark hover:text-wine">
+                      Restaurant
+                    </Button>
+                  </Link>
+                )}
+                {hasRole('corporate_admin') && (
+                  <Link to="/corporate-dashboard">
+                    <Button variant="ghost" size="sm" className="text-wine-dark hover:text-wine">
+                      Corporate
+                    </Button>
+                  </Link>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={signOut}
+                  className="text-wine-dark hover:text-wine"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
             ) : (
               <Link to="/auth">
                 <Button

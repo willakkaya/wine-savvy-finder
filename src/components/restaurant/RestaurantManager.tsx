@@ -10,7 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Plus, MapPin, Phone, Globe } from 'lucide-react';
 
-const RestaurantManager: React.FC = () => {
+interface RestaurantManagerProps {
+  restaurant?: any;
+  onUpdate?: () => void;
+}
+
+const RestaurantManager: React.FC<RestaurantManagerProps> = ({ restaurant: propRestaurant, onUpdate }) => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
