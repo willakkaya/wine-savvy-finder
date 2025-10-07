@@ -55,15 +55,10 @@ export const useScanProcess = (demoMode: boolean) => {
     };
   }, [handleOnline, handleOffline]);
   
-  // Demo mode auto-simulation
+  // Demo mode auto-simulation (disabled - using real AI)
   useEffect(() => {
-    if (!demoMode || scanStage !== 'idle') return;
-    
-    const timer = setTimeout(() => {
-      simulateWineScan(callbacks);
-    }, 2000);
-    
-    return () => clearTimeout(timer);
+    // Demo mode removed - using real AI scanning
+    return;
   }, [scanStage, demoMode]);
   
   // Reset scan state

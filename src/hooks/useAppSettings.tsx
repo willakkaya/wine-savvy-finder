@@ -19,7 +19,7 @@ const defaultSettings: AppSettings = {
   showRatings: true,
   showPrices: true,
   showSavings: true,
-  demoMode: false, // Disable demo mode - use real AI scanning
+  demoMode: false, // Real AI scanning enabled by default
 };
 
 const AppSettingsContext = createContext<AppSettingsContextType | undefined>(undefined);
