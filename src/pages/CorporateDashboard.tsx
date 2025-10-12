@@ -8,6 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Users, DollarSign, Wine, Calendar } from 'lucide-react';
+import { RestaurantBrowser } from '@/components/corporate/RestaurantBrowser';
+import { PreOrderForm } from '@/components/corporate/PreOrderForm';
+import { PreOrderManager } from '@/components/corporate/PreOrderManager';
 
 const CorporateDashboard = () => {
   const { user, hasRole, loading } = useAuth();
@@ -16,6 +19,8 @@ const CorporateDashboard = () => {
   const [teamMemberCount, setTeamMemberCount] = useState(0);
   const [monthlySpend, setMonthlySpend] = useState(0);
   const [activeOrders, setActiveOrders] = useState(0);
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
+  const [selectedRestaurantName, setSelectedRestaurantName] = useState<string>('');
 
   useEffect(() => {
     if (!loading && !hasRole('corporate_admin')) {
@@ -93,10 +98,12 @@ const CorporateDashboard = () => {
               <p className="text-muted-foreground mt-1">{corporateAccount.company_name}</p>
             )}
           </div>
-          <Button onClick={() => navigate('/scan')}>
-            <Wine className="h-4 w-4 mr-2" />
-            Pre-Order Wines
-          </Button>
+          {!selectedRestaurantId && (
+            <Button onClick={() => navigate('/scan')}>
+              <Wine className="h-4 w-4 mr-2" />
+              Scan Wine List
+            </Button>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -203,17 +210,44 @@ const CorporateDashboard = () => {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pre-Orders</CardTitle>
-                <CardDescription>View and manage wine pre-orders for corporate events</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Order history coming soon. You'll be able to track all wine pre-orders and their status.
-                </p>
-              </CardContent>
-            </Card>
+            {selectedRestaurantId ? (
+              <PreOrderForm
+                restaurantId={selectedRestaurantId}
+                restaurantName={selectedRestaurantName}
+                onBack={() => {
+                  setSelectedRestaurantId(null);
+                  setSelectedRestaurantName('');
+                  fetchCorporateData();
+                }}
+              />
+            ) : (
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Create New Pre-Order</CardTitle>
+                    <CardDescription>Select a partner restaurant to begin</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <RestaurantBrowser
+                      onSelectRestaurant={(id, name) => {
+                        setSelectedRestaurantId(id);
+                        setSelectedRestaurantName(name);
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Order History</CardTitle>
+                    <CardDescription>View your past and pending wine pre-orders</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <PreOrderManager />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
