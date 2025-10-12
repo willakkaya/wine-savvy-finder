@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Plus, Wine, DollarSign, Package } from 'lucide-react';
 import RestaurantManager from '@/components/restaurant/RestaurantManager';
 import WineListManager from '@/components/restaurant/WineListManager';
+import { PreOrderList } from '@/components/restaurant/PreOrderList';
 
 const RestaurantDashboard = () => {
   const { user, hasRole, loading } = useAuth();
@@ -157,17 +158,15 @@ const RestaurantDashboard = () => {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pre-Orders</CardTitle>
-                <CardDescription>Manage corporate pre-orders for wine selections</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Pre-order management coming soon. You'll be able to review and confirm wine selections for corporate events.
-                </p>
-              </CardContent>
-            </Card>
+            {restaurant ? (
+              <PreOrderList restaurantId={restaurant.id} />
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground">Loading restaurant data...</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
