@@ -11,6 +11,7 @@ import { Users, DollarSign, Wine, Calendar } from 'lucide-react';
 import { RestaurantBrowser } from '@/components/corporate/RestaurantBrowser';
 import { PreOrderForm } from '@/components/corporate/PreOrderForm';
 import { PreOrderManager } from '@/components/corporate/PreOrderManager';
+import { TeamMemberManager } from '@/components/corporate/TeamMemberManager';
 
 const CorporateDashboard = () => {
   const { user, hasRole, loading } = useAuth();
@@ -196,17 +197,9 @@ const CorporateDashboard = () => {
           </TabsContent>
 
           <TabsContent value="team" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Management</CardTitle>
-                <CardDescription>Manage your corporate team members</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Team management coming soon. You'll be able to add, remove, and manage team member access.
-                </p>
-              </CardContent>
-            </Card>
+            {corporateAccount && (
+              <TeamMemberManager corporateAccountId={corporateAccount.id} />
+            )}
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
