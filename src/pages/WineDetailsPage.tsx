@@ -1,9 +1,11 @@
 
-import React from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Share2, ExternalLink, Star, DollarSign, Award } from 'lucide-react';
+import { ArrowLeft, Share2, Star, DollarSign, Award, Wine, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,11 +13,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { WineInfo } from '@/components/wine/WineCard';
 import { getWineDetails } from '@/utils/wineUtils';
+import { getFoodPairings } from '@/utils/foodPairingUtils';
+import FavoritesButton from '@/components/wine/FavoritesButton';
+import WineNotes from '@/components/wine/WineNotes';
+import { useAnalytics, EventType } from '@/hooks/use-analytics';
 
 const WineDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logEvent } = useAnalytics();
 
   const { data: wine, isLoading, error } = useQuery({
     queryKey: ['wine', id],
@@ -23,14 +30,24 @@ const WineDetailsPage = () => {
     enabled: !!id,
   });
 
+  // Track wine view
+  useEffect(() => {
+    if (wine) {
+      logEvent(EventType.VIEW_WINE_DETAILS, {
+        wine_id: wine.id,
+        wine_name: wine.name,
+        winery: wine.winery,
+        value_score: wine.valueScore,
+      });
+    }
+  }, [wine, logEvent]);
+
   const handleShare = async () => {
     if (!wine) return;
     
-    // Create share text
-    const shareText = `Check out this wine I found with Wine Whisperer! ${wine.name} (${wine.year}) - Value Score: ${wine.valueScore}/100`;
+    const shareText = `Check out this wine I found! ${wine.name} (${wine.year}) from ${wine.winery} - Value Score: ${wine.valueScore}/100`;
     const shareUrl = window.location.href;
     
-    // Check if Web Share API is available
     if (navigator.share) {
       try {
         await navigator.share({
@@ -38,23 +55,30 @@ const WineDetailsPage = () => {
           text: shareText,
           url: shareUrl,
         });
+        logEvent(EventType.SHARE_WINE, {
+          wine_id: wine.id,
+          wine_name: wine.name,
+        });
         toast({
           title: "Shared!",
           description: "Successfully shared this wine",
         });
       } catch (error) {
         console.error('Error sharing:', error);
-        // Fallback to clipboard if sharing failed
         copyToClipboard(shareText + ' ' + shareUrl);
       }
     } else {
-      // Fallback for browsers that don't support sharing
       copyToClipboard(shareText + ' ' + shareUrl);
     }
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
+      logEvent(EventType.SHARE_WINE, {
+        wine_id: wine?.id,
+        wine_name: wine?.name,
+        method: 'clipboard',
+      });
       toast({
         title: "Copied to clipboard!",
         description: "Now you can paste it anywhere to share",
@@ -68,6 +92,10 @@ const WineDetailsPage = () => {
       });
     });
   };
+
+  const foodPairings = wine?.wineType ? getFoodPairings(wine.wineType) : [];
+  const savingsAmount = wine ? Math.max(0, (wine.marketPrice || 0) - (wine.price || 0)) : 0;
+  const savingsPercentage = wine && wine.marketPrice ? Math.round((savingsAmount / wine.marketPrice) * 100) : 0;
 
   if (isLoading) {
     return (
@@ -146,21 +174,22 @@ const WineDetailsPage = () => {
               variant="ghost" 
               size="sm" 
               onClick={() => navigate(-1)}
-              className="text-wine hover:text-wine-dark"
             >
               <ArrowLeft size={16} className="mr-2" />
-              Back to results
+              Back
             </Button>
             
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleShare}
-              className="text-wine border-wine hover:bg-wine/10"
-            >
-              <Share2 size={16} className="mr-2" />
-              Share
-            </Button>
+            <div className="flex gap-2">
+              <FavoritesButton wine={wine} />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleShare}
+              >
+                <Share2 size={16} className="mr-2" />
+                Share
+              </Button>
+            </div>
           </div>
           
           <div className="flex flex-col md:flex-row gap-8">
@@ -180,48 +209,115 @@ const WineDetailsPage = () => {
               </div>
             </div>
             
-            <div className="w-full md:w-2/3">
-              <h1 className="text-3xl font-serif text-wine-dark mb-2">{wine.name}</h1>
-              <p className="text-lg text-muted-foreground mb-1">{wine.winery}, {wine.year}</p>
-              <p className="text-muted-foreground mb-6">{wine.region}, {wine.country}</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-card rounded-lg p-4 border shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Value Score</span>
-                    <Award size={18} className="text-wine" />
-                  </div>
-                  <p className="text-2xl font-serif text-wine-dark">{wine.valueScore}<span className="text-sm text-muted-foreground">/100</span></p>
+            <div className="w-full md:w-2/3 space-y-6">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-serif text-foreground mb-2">{wine.name}</h1>
+                <p className="text-lg text-muted-foreground mb-1">{wine.winery}</p>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin size={16} />
+                  <span>{wine.region}, {wine.country}</span>
                 </div>
                 
-                <div className="bg-card rounded-lg p-4 border shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Restaurant Price</span>
-                    <DollarSign size={18} className="text-wine" />
+                {wine.wineType && (
+                  <div className="flex gap-2 mt-3">
+                    <Badge variant="secondary" className="text-sm">
+                      <Wine size={14} className="mr-1" />
+                      {wine.wineType}
+                    </Badge>
+                    {wine.year && <Badge variant="outline">{wine.year}</Badge>}
                   </div>
-                  <p className="text-2xl font-serif text-wine-dark">${wine.price}</p>
-                </div>
-                
-                <div className="bg-card rounded-lg p-4 border shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Market Price</span>
-                    <DollarSign size={18} className="text-wine" />
-                  </div>
-                  <p className="text-2xl font-serif text-wine-dark">${wine.marketPrice}</p>
-                </div>
+                )}
               </div>
               
-              <div className="bg-card rounded-lg p-6 border shadow-sm mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Star className="text-amber-500" size={20} />
-                  <span className="text-lg font-serif">Critic's Rating: {wine.rating}/100</span>
-                </div>
-                <p className="text-muted-foreground">
-                  This wine offers excellent value, priced ${wine.marketPrice - wine.price} below the average market price. 
-                  With a critic score of {wine.rating}/100, it represents a {wine.valueScore > 80 ? "exceptional" : 
-                  wine.valueScore > 60 ? "very good" : "good"} value on this wine list.
-                </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Value Score</CardTitle>
+                      <Award size={18} className="text-primary" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-serif text-foreground">
+                      {wine.valueScore}
+                      <span className="text-sm text-muted-foreground ml-1">/100</span>
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Restaurant Price</CardTitle>
+                      <DollarSign size={18} className="text-primary" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-serif text-foreground">${wine.price}</p>
+                    {savingsAmount > 0 && (
+                      <p className="text-xs text-green-600 mt-1">
+                        Save ${savingsAmount} ({savingsPercentage}%)
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Critic Rating</CardTitle>
+                      <Star size={18} className="text-amber-500" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-serif text-foreground">
+                      {wine.rating}
+                      <span className="text-sm text-muted-foreground ml-1">/100</span>
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
+              
+              {foodPairings.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Food Pairings</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {foodPairings.map((pairing, index) => (
+                        <Badge key={index} variant="outline" className="text-sm">
+                          {pairing.food}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <WineNotes wine={wine} />
+              
+              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-lg">Value Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {savingsAmount > 0 ? (
+                      <>
+                        This wine offers excellent value, priced <strong>${savingsAmount}</strong> ({savingsPercentage}%) below the average market price of ${wine.marketPrice}. 
+                      </>
+                    ) : (
+                      <>This wine is priced at market value. </>
+                    )}
+                    With a critic score of <strong>{wine.rating}/100</strong>, it represents a{' '}
+                    <strong>
+                      {wine.valueScore >= 80 ? 'exceptional' : 
+                       wine.valueScore >= 60 ? 'very good' : 'good'}
+                    </strong> value choice on this wine list.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
