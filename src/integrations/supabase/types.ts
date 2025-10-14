@@ -361,6 +361,57 @@ export type Database = {
           },
         ]
       }
+      scan_history: {
+        Row: {
+          created_at: string
+          highest_rated_wine_id: string | null
+          id: string
+          image_data: string | null
+          scan_date: string
+          scenario: string | null
+          top_value_wine_id: string | null
+          user_id: string | null
+          wines_found: number
+        }
+        Insert: {
+          created_at?: string
+          highest_rated_wine_id?: string | null
+          id?: string
+          image_data?: string | null
+          scan_date?: string
+          scenario?: string | null
+          top_value_wine_id?: string | null
+          user_id?: string | null
+          wines_found?: number
+        }
+        Update: {
+          created_at?: string
+          highest_rated_wine_id?: string | null
+          id?: string
+          image_data?: string | null
+          scan_date?: string
+          scenario?: string | null
+          top_value_wine_id?: string | null
+          user_id?: string | null
+          wines_found?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scan_history_highest_rated_wine_id_fkey"
+            columns: ["highest_rated_wine_id"]
+            isOneToOne: false
+            referencedRelation: "wine_database"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scan_history_top_value_wine_id_fkey"
+            columns: ["top_value_wine_id"]
+            isOneToOne: false
+            referencedRelation: "wine_database"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null

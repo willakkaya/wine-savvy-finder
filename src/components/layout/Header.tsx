@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Wine, Menu, X, Heart, Settings, HelpCircle, BookOpen, LogOut, LogIn } from 'lucide-react';
+import { Wine, Menu, X, Heart, Settings, HelpCircle, BookOpen, LogOut, LogIn, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -144,6 +144,12 @@ const Header: React.FC = () => {
           <div className="hidden sm:flex items-center space-x-2">
             {user ? (
               <>
+                <Link to="/profile">
+                  <Button variant="ghost" size="sm" className="text-wine-dark hover:text-wine">
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                </Link>
                 {hasRole('restaurant_partner') && (
                   <Link to="/restaurant-dashboard">
                     <Button variant="ghost" size="sm" className="text-wine-dark hover:text-wine">
@@ -276,16 +282,30 @@ const Header: React.FC = () => {
             
             {/* Mobile auth button */}
             {user ? (
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  signOut();
-                }}
-                className="flex items-center w-full px-4 py-3 rounded-md text-base font-medium touch-manipulation text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </button>
+              <>
+                <Link
+                  to="/profile"
+                  className={`flex items-center px-4 py-3 rounded-md text-base font-medium touch-manipulation ${
+                    isActive('/profile') 
+                      ? 'text-wine bg-wine/5' 
+                      : 'text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  My Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    signOut();
+                  }}
+                  className="flex items-center w-full px-4 py-3 rounded-md text-base font-medium touch-manipulation text-wine-dark hover:bg-wine/5 hover:text-wine transition-colors"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </button>
+              </>
             ) : (
               <Link
                 to="/auth"

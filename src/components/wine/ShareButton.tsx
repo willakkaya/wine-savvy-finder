@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { WineInfo } from './WineCard';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface ShareButtonProps {
   wine: WineInfo;
@@ -13,6 +14,7 @@ interface ShareButtonProps {
 
 const ShareButton: React.FC<ShareButtonProps> = ({ wine, className }) => {
   const isMobile = useIsMobile();
+  const { logEvent, EventType } = useAnalytics();
   
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering parent card click
@@ -25,6 +27,9 @@ const ShareButton: React.FC<ShareButtonProps> = ({ wine, className }) => {
         title: 'Wine Value Find',
         text: shareText,
         url: window.location.origin
+      })
+      .then(() => {
+        logEvent(EventType.SHARE_WINE, { wine_id: wine.id, wine_name: wine.name });
       })
       .catch(error => {
         console.error('Error sharing:', error);

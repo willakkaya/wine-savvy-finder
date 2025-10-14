@@ -14,10 +14,13 @@ import { PriceRangeSelector, PriceRange } from '@/components/scan/PriceRangeSele
 import { useAppSettings } from '@/hooks/useAppSettings';
 import { useScanProcess } from '@/hooks/useScanProcess';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { saveScanHistory } from '@/utils/scanHistoryUtils';
 
 const ScanPage = () => {
   const { settings } = useAppSettings();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [winePreference, setWinePreference] = useState<WineType>('all');
   const [scenarioPreference, setScenarioPreference] = useState<ScenarioType>('casual');
   const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 100 });
@@ -58,7 +61,7 @@ const ScanPage = () => {
     navigate('/results');
   };
   
-  const handleViewResults = () => {
+  const handleViewResults = async () => {
     console.log('=== FILTERING DEBUG ===');
     console.log('Scenario:', scenarioPreference);
     console.log('Price Range:', priceRange);
@@ -94,6 +97,17 @@ const ScanPage = () => {
       });
       // Don't navigate - let user adjust filters
       return;
+    }
+    
+    // Save scan history if user is logged in
+    if (user && filteredWines.length > 0) {
+      await saveScanHistory({
+        userId: user.id,
+        winesFound: filteredWines.length,
+        topValueWine: filteredWines[0],
+        highestRatedWine: filteredWines[1],
+        scenario: scenarioPreference,
+      });
     }
     
     // Navigate with ONLY the filtered wines

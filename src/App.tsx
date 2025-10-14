@@ -42,6 +42,7 @@ const AuthPage = lazy(() => import('@/pages/AuthPage'));
 const WineDatabasePage = lazy(() => import('@/pages/WineDatabasePage'));
 const RestaurantDashboard = lazy(() => import('@/pages/RestaurantDashboard'));
 const CorporateDashboard = lazy(() => import('@/pages/CorporateDashboard'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 
 function App() {
   // Initialize app
@@ -70,6 +71,7 @@ function App() {
           <Route path="/wine-database" element={<WineDatabasePage />} />
           <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
           <Route path="/corporate-dashboard" element={<CorporateDashboard />} />
+          <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/faq" element={<FAQPage />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/terms" element={<TermsOfService />} />

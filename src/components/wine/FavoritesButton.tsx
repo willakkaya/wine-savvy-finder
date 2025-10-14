@@ -7,6 +7,7 @@ import { WineInfo } from './WineCard';
 import { toggleFavorite, isFavorite } from '@/utils/favoritesUtils';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface FavoritesButtonProps {
   wine: WineInfo;
@@ -17,6 +18,7 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) =>
   const [isFavorited, setIsFavorited] = useState(isFavorite(wine.id));
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { logEvent, EventType } = useAnalytics();
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent click from bubbling to parent elements
@@ -24,6 +26,12 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) =>
     
     const newState = toggleFavorite(wine);
     setIsFavorited(newState);
+    
+    // Track analytics
+    logEvent(
+      newState ? EventType.WINE_FAVORITE : EventType.WINE_UNFAVORITE,
+      { wine_id: wine.id, wine_name: wine.name }
+    );
     
     // Show toast
     toast({

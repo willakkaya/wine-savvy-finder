@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { useAnalytics } from '@/hooks/use-analytics';
 import { 
   Form,
   FormControl,
@@ -56,6 +57,7 @@ const formSchema = z.object({
 
 const PreferencesForm: React.FC = () => {
   const { preferences, updatePreferences, setHasSetPreferences } = useUserPreferences();
+  const { logEvent, EventType } = useAnalytics();
   
   // Initialize form with current preferences
   const form = useForm<z.infer<typeof formSchema>>({
@@ -94,6 +96,12 @@ const PreferencesForm: React.FC = () => {
     // Update preferences
     updatePreferences(newPreferences);
     setHasSetPreferences(true);
+    
+    // Track analytics
+    logEvent(EventType.PREFERENCES_UPDATE, { 
+      varietals: values.favoriteVarietals.length,
+      regions: values.preferredRegions.length 
+    });
     
     // Show success message
     toast.success('Wine preferences saved!');
