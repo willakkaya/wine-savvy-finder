@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,32 +14,55 @@ interface FavoritesButtonProps {
 }
 
 const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) => {
-  const [isFavorited, setIsFavorited] = useState(isFavorite(wine.id));
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { logEvent, EventType } = useAnalytics();
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent click from bubbling to parent elements
-    e.preventDefault(); // Prevent default behavior for links
-    
-    const newState = toggleFavorite(wine);
-    setIsFavorited(newState);
-    
-    // Track analytics
-    logEvent(
-      newState ? EventType.WINE_FAVORITE : EventType.WINE_UNFAVORITE,
-      { wine_id: wine.id, wine_name: wine.name }
-    );
-    
-    // Show toast
-    toast({
-      title: newState ? "Added to favorites" : "Removed from favorites",
-      description: newState 
-        ? `${wine.name} has been added to your favorites` 
-        : `${wine.name} has been removed from your favorites`,
-      duration: 3000,
-    });
+  useEffect(() => {
+    const checkFavorite = async () => {
+      const favorited = await isFavorite(wine.id);
+      setIsFavorited(favorited);
+    };
+    checkFavorite();
+  }, [wine.id]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const newState = await toggleFavorite(wine);
+      setIsFavorited(newState);
+      
+      // Track analytics
+      logEvent(
+        newState ? EventType.WINE_FAVORITE : EventType.WINE_UNFAVORITE,
+        { wine_id: wine.id, wine_name: wine.name }
+      );
+      
+      // Show toast
+      toast({
+        title: newState ? "Added to favorites" : "Removed from favorites",
+        description: newState 
+          ? `${wine.name} has been added to your favorites` 
+          : `${wine.name} has been removed from your favorites`,
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Please sign in to save favorites.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,6 +76,7 @@ const FavoritesButton: React.FC<FavoritesButtonProps> = ({ wine, className }) =>
         className
       )}
       onClick={handleToggleFavorite}
+      disabled={loading}
       aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
     >
       <Heart 

@@ -106,6 +106,30 @@ export type Database = {
           },
         ]
       }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          wine_data: Json
+          wine_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+          wine_data: Json
+          wine_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          wine_data?: Json
+          wine_id?: string
+        }
+        Relationships: []
+      }
       pre_order_wines: {
         Row: {
           id: string
