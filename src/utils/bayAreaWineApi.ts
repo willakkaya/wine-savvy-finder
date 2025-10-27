@@ -15,15 +15,15 @@ export const searchBayAreaWines = async (query?: string): Promise<WineInfo[]> =>
       id: deal.wine.id,
       name: deal.wine.name,
       winery: deal.wine.winery,
-      year: deal.wine.vintage,
-      region: deal.wine.region,
-      country: deal.wine.country,
+      year: deal.wine.vintage || 2020,
+      region: deal.wine.region || 'Unknown',
+      country: deal.wine.country || 'Unknown',
       price: deal.current_price,
       marketPrice: deal.market_price_estimate,
       rating: deal.wine.critic_score || 90,
       valueScore: deal.savings_percentage,
-      imageUrl: deal.wine.image_url,
-      wineType: deal.wine.wine_type
+      imageUrl: deal.wine.image_url || '',
+      wineType: (deal.wine.wine_type as 'red' | 'white' | 'sparkling' | 'rose' | 'dessert') || 'red'
     }));
   }
   
@@ -35,17 +35,17 @@ export const searchBayAreaWines = async (query?: string): Promise<WineInfo[]> =>
         id: `${result.wine.id}-${restaurant.restaurant.id}`,
         name: result.wine.name,
         winery: result.wine.winery,
-        year: result.wine.vintage,
-        region: result.wine.region,
-        country: result.wine.country,
+        year: result.wine.vintage || 2020,
+        region: result.wine.region || 'Unknown',
+        country: result.wine.country || 'Unknown',
         price: restaurant.price,
         marketPrice: result.wine.market_price_estimate || restaurant.price * 1.3,
         rating: result.wine.critic_score || 90,
         valueScore: result.wine.market_price_estimate ? 
           Math.round(((result.wine.market_price_estimate - restaurant.price) / result.wine.market_price_estimate) * 100) :
           75,
-        imageUrl: result.wine.image_url,
-        wineType: result.wine.wine_type,
+        imageUrl: result.wine.image_url || '',
+        wineType: (result.wine.wine_type as 'red' | 'white' | 'sparkling' | 'rose' | 'dessert') || 'red',
         restaurantName: restaurant.restaurant.name,
         restaurantAddress: `${restaurant.restaurant.address}, ${restaurant.restaurant.city}`
       }))

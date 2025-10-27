@@ -1,80 +1,197 @@
+import { supabase } from '@/integrations/supabase/client';
 
-import { Restaurant, RestaurantWine, WineDatabase, WinePriceHistory } from '@/types/restaurantTypes';
+export interface Restaurant {
+  id: string;
+  owner_id: string | null;
+  name: string;
+  address: string;
+  city: string;
+  neighborhood?: string;
+  zip_code: string;
+  phone?: string;
+  website?: string;
+  cuisine_type?: string;
+  price_range: number;
+  is_partner: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WineDatabase {
+  id: string;
+  name: string;
+  winery: string;
+  vintage: number | null;
+  region: string | null;
+  country: string | null;
+  wine_type: string | null;
+  grape_varieties?: string[];
+  alcohol_content?: number;
+  bottle_size?: string;
+  market_price_estimate?: number;
+  critic_score?: number;
+  description?: string;
+  image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RestaurantWine {
+  id: string;
+  restaurant_id: string;
+  wine_id: string;
+  current_price: number;
+  by_glass_price?: number;
+  is_available: boolean;
+  date_added: string;
+  date_updated: string;
+  section?: string;
+  notes?: string;
+}
 
 /**
- * Service for managing restaurant wine data and building the Bay Area wine database
+ * Service for managing restaurant wine data
  */
 export class RestaurantWineService {
-  private static baseUrl = '/api'; // Will be configured for your backend
-
   /**
-   * Add a new restaurant to the database
+   * Get all active partner restaurants
    */
-  static async addRestaurant(restaurant: Omit<Restaurant, 'id' | 'created_at' | 'updated_at'>): Promise<Restaurant> {
-    // This will be replaced with actual API call to your backend
-    console.log('Adding restaurant:', restaurant);
-    
-    const newRestaurant: Restaurant = {
-      ...restaurant,
-      id: `restaurant-${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    
-    // Store in localStorage for now (will be replaced with backend)
-    const restaurants = this.getStoredRestaurants();
-    restaurants.push(newRestaurant);
-    localStorage.setItem('bayarea_restaurants', JSON.stringify(restaurants));
-    
-    return newRestaurant;
+  static async getBayAreaRestaurants(): Promise<Restaurant[]> {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('is_partner', true)
+      .eq('is_active', true)
+      .order('name');
+
+    if (error) throw error;
+    return data || [];
   }
 
   /**
-   * Get all restaurants in the Bay Area
+   * Get restaurants owned by current user
    */
-  static async getBayAreaRestaurants(): Promise<Restaurant[]> {
-    // This will be replaced with actual API call
-    return this.getStoredRestaurants();
+  static async getMyRestaurants(): Promise<Restaurant[]> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('owner_id', user.id)
+      .order('name');
+
+    if (error) throw error;
+    return data || [];
   }
 
   /**
    * Add wine to a restaurant's list
    */
   static async addWineToRestaurant(
-    restaurantId: string, 
+    restaurantId: string,
     wine: Omit<WineDatabase, 'id' | 'created_at' | 'updated_at'>,
     price: number,
-    section?: string
+    byGlassPrice?: number,
+    section?: string,
+    notes?: string
   ): Promise<{ wine: WineDatabase; restaurantWine: RestaurantWine }> {
-    
-    // Create or find existing wine
+    // Find or create wine
     let wineRecord = await this.findOrCreateWine(wine);
-    
+
     // Create restaurant wine entry
-    const restaurantWine: RestaurantWine = {
-      id: `rest_wine-${Date.now()}`,
-      restaurant_id: restaurantId,
-      wine_id: wineRecord.id,
-      current_price: price,
-      is_available: true,
-      date_added: new Date().toISOString(),
-      date_updated: new Date().toISOString(),
-      section
-    };
+    const { data: restaurantWine, error } = await supabase
+      .from('restaurant_wines')
+      .insert({
+        restaurant_id: restaurantId,
+        wine_id: wineRecord.id,
+        current_price: price,
+        by_glass_price: byGlassPrice,
+        section,
+        notes,
+        is_available: true
+      })
+      .select()
+      .single();
 
-    // Store in localStorage for now
-    const restaurantWines = this.getStoredRestaurantWines();
-    restaurantWines.push(restaurantWine);
-    localStorage.setItem('restaurant_wines', JSON.stringify(restaurantWines));
-
-    // Record price history
-    await this.recordPriceHistory(restaurantId, wineRecord.id, price, 'manual');
+    if (error) throw error;
 
     return { wine: wineRecord, restaurantWine };
   }
 
   /**
-   * Find wines across all Bay Area restaurants
+   * Update wine availability
+   */
+  static async updateWineAvailability(
+    restaurantWineId: string,
+    isAvailable: boolean
+  ): Promise<void> {
+    const { error } = await supabase
+      .from('restaurant_wines')
+      .update({ is_available: isAvailable })
+      .eq('id', restaurantWineId);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Update wine price
+   */
+  static async updateWinePrice(
+    restaurantWineId: string,
+    newPrice: number,
+    byGlassPrice?: number
+  ): Promise<void> {
+    const { error } = await supabase
+      .from('restaurant_wines')
+      .update({
+        current_price: newPrice,
+        by_glass_price: byGlassPrice,
+        date_updated: new Date().toISOString()
+      })
+      .eq('id', restaurantWineId);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Get wines for a specific restaurant
+   */
+  static async getRestaurantWines(restaurantId: string): Promise<Array<{
+    restaurantWine: RestaurantWine;
+    wine: WineDatabase;
+  }>> {
+    const { data, error } = await supabase
+      .from('restaurant_wines')
+      .select(`
+        *,
+        wine:wine_database(*)
+      `)
+      .eq('restaurant_id', restaurantId)
+      .order('date_added', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((item: any) => ({
+      restaurantWine: {
+        id: item.id,
+        restaurant_id: item.restaurant_id,
+        wine_id: item.wine_id,
+        current_price: item.current_price,
+        by_glass_price: item.by_glass_price,
+        is_available: item.is_available,
+        date_added: item.date_added,
+        date_updated: item.date_updated,
+        section: item.section,
+        notes: item.notes
+      },
+      wine: item.wine
+    }));
+  }
+
+  /**
+   * Search wines across all restaurants
    */
   static async searchWinesAcrossRestaurants(query: string): Promise<Array<{
     wine: WineDatabase;
@@ -84,43 +201,47 @@ export class RestaurantWineService {
       section?: string;
     }>;
   }>> {
-    const wines = this.getStoredWines();
-    const restaurants = this.getStoredRestaurants();
-    const restaurantWines = this.getStoredRestaurantWines();
+    const searchTerm = `%${query}%`;
 
-    const searchTerm = query.toLowerCase();
-    const matchingWines = wines.filter(wine => 
-      wine.name.toLowerCase().includes(searchTerm) ||
-      wine.winery.toLowerCase().includes(searchTerm) ||
-      wine.region.toLowerCase().includes(searchTerm)
-    );
+    const { data: wines, error: wineError } = await supabase
+      .from('wine_database')
+      .select('*')
+      .or(`name.ilike.${searchTerm},winery.ilike.${searchTerm},region.ilike.${searchTerm}`);
 
-    return matchingWines.map(wine => {
-      const wineRestaurants = restaurantWines
-        .filter(rw => rw.wine_id === wine.id && rw.is_available)
-        .map(rw => {
-          const restaurant = restaurants.find(r => r.id === rw.restaurant_id);
-          return restaurant ? {
-            restaurant,
+    if (wineError) throw wineError;
+
+    const results = await Promise.all(
+      (wines || []).map(async (wine) => {
+        const { data: restaurantWines } = await supabase
+          .from('restaurant_wines')
+          .select(`
+            *,
+            restaurant:restaurants(*)
+          `)
+          .eq('wine_id', wine.id)
+          .eq('is_available', true);
+
+        const restaurants = (restaurantWines || [])
+          .filter((rw: any) => rw.restaurant)
+          .map((rw: any) => ({
+            restaurant: rw.restaurant,
             price: rw.current_price,
             section: rw.section
-          } : null;
-        })
-        .filter(Boolean) as Array<{
-          restaurant: Restaurant;
-          price: number;
-          section?: string;
-        }>;
+          }))
+          .sort((a, b) => a.price - b.price);
 
-      return {
-        wine,
-        restaurants: wineRestaurants.sort((a, b) => a.price - b.price) // Sort by price
-      };
-    });
+        return {
+          wine,
+          restaurants
+        };
+      })
+    );
+
+    return results.filter(r => r.restaurants.length > 0);
   }
 
   /**
-   * Get best wine deals in the Bay Area
+   * Get best wine deals
    */
   static async getBestDeals(limit: number = 20): Promise<Array<{
     wine: WineDatabase;
@@ -129,113 +250,66 @@ export class RestaurantWineService {
     market_price_estimate?: number;
     savings_percentage?: number;
   }>> {
-    const wines = this.getStoredWines();
-    const restaurants = this.getStoredRestaurants();
-    const restaurantWines = this.getStoredRestaurantWines().filter(rw => rw.is_available);
+    const { data: restaurantWines, error } = await supabase
+      .from('restaurant_wines')
+      .select(`
+        *,
+        wine:wine_database(*),
+        restaurant:restaurants(*)
+      `)
+      .eq('is_available', true)
+      .not('wine.market_price_estimate', 'is', null);
 
-    const deals = restaurantWines
-      .map(rw => {
-        const wine = wines.find(w => w.id === rw.wine_id);
-        const restaurant = restaurants.find(r => r.id === rw.restaurant_id);
-        
+    if (error) throw error;
+
+    const deals = (restaurantWines || [])
+      .map((item: any) => {
+        const wine = item.wine;
+        const restaurant = item.restaurant;
+
         if (!wine || !restaurant || !wine.market_price_estimate) return null;
 
-        const savings_percentage = ((wine.market_price_estimate - rw.current_price) / wine.market_price_estimate) * 100;
-        
+        const savings_percentage = ((wine.market_price_estimate - item.current_price) / wine.market_price_estimate) * 100;
+
         return {
           wine,
           restaurant,
-          current_price: rw.current_price,
+          current_price: item.current_price,
           market_price_estimate: wine.market_price_estimate,
           savings_percentage
         };
       })
-      .filter(Boolean)
-      .filter(deal => deal!.savings_percentage! > 10) // Only deals with 10%+ savings
-      .sort((a, b) => b!.savings_percentage! - a!.savings_percentage!)
-      .slice(0, limit) as Array<{
-        wine: WineDatabase;
-        restaurant: Restaurant;
-        current_price: number;
-        market_price_estimate: number;
-        savings_percentage: number;
-      }>;
+      .filter((deal): deal is NonNullable<typeof deal> => deal !== null && deal.savings_percentage > 10)
+      .sort((a, b) => b.savings_percentage - a.savings_percentage)
+      .slice(0, limit);
 
     return deals;
-  }
-
-  /**
-   * Record price history for analytics
-   */
-  private static async recordPriceHistory(
-    restaurantId: string, 
-    wineId: string, 
-    price: number, 
-    source: 'manual' | 'scanned' | 'updated'
-  ): Promise<void> {
-    const priceHistory: WinePriceHistory = {
-      id: `price_history-${Date.now()}`,
-      restaurant_id: restaurantId,
-      wine_id: wineId,
-      price,
-      date_recorded: new Date().toISOString(),
-      source
-    };
-
-    const history = this.getStoredPriceHistory();
-    history.push(priceHistory);
-    localStorage.setItem('wine_price_history', JSON.stringify(history));
   }
 
   /**
    * Find existing wine or create new one
    */
   private static async findOrCreateWine(wineData: Omit<WineDatabase, 'id' | 'created_at' | 'updated_at'>): Promise<WineDatabase> {
-    const wines = this.getStoredWines();
-    
-    // Try to find existing wine by name, winery, and vintage
-    const existingWine = wines.find(w => 
-      w.name.toLowerCase() === wineData.name.toLowerCase() &&
-      w.winery.toLowerCase() === wineData.winery.toLowerCase() &&
-      w.vintage === wineData.vintage
-    );
+    // Try to find existing wine
+    const { data: existingWines } = await supabase
+      .from('wine_database')
+      .select('*')
+      .ilike('name', wineData.name)
+      .ilike('winery', wineData.winery)
+      .eq('vintage', wineData.vintage);
 
-    if (existingWine) {
-      return existingWine;
+    if (existingWines && existingWines.length > 0) {
+      return existingWines[0];
     }
 
     // Create new wine
-    const newWine: WineDatabase = {
-      ...wineData,
-      id: `wine-${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    const { data: newWine, error } = await supabase
+      .from('wine_database')
+      .insert(wineData)
+      .select()
+      .single();
 
-    wines.push(newWine);
-    localStorage.setItem('bayarea_wines', JSON.stringify(wines));
-
+    if (error) throw error;
     return newWine;
-  }
-
-  // Helper methods for localStorage (will be replaced with actual database calls)
-  private static getStoredRestaurants(): Restaurant[] {
-    const stored = localStorage.getItem('bayarea_restaurants');
-    return stored ? JSON.parse(stored) : [];
-  }
-
-  private static getStoredWines(): WineDatabase[] {
-    const stored = localStorage.getItem('bayarea_wines');
-    return stored ? JSON.parse(stored) : [];
-  }
-
-  private static getStoredRestaurantWines(): RestaurantWine[] {
-    const stored = localStorage.getItem('restaurant_wines');
-    return stored ? JSON.parse(stored) : [];
-  }
-
-  private static getStoredPriceHistory(): WinePriceHistory[] {
-    const stored = localStorage.getItem('wine_price_history');
-    return stored ? JSON.parse(stored) : [];
   }
 }
